@@ -29,3 +29,10 @@ referenced by the copy and shot list, so nothing else needs to change.
 Documentary editorial photography — warm natural light, shallow depth of field,
 authentic unposed expressions, business casual, premium modern venue. No
 stock-photo posing, no cold blue "tech" grading, no fake smiles at camera.
+
+## Forms app
+
+`forms/` contains the interactive **Register Class** and **Subject Class**
+weekly attendance & observation forms, with submission output as PDF and
+high-resolution PNG generated from the same form data. See
+[`forms/README.md`](forms/README.md) for how to run it and the QA process.

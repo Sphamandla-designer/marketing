@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en-ZA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Register Class Weekly Attendance &amp; Observation – Fisantekraal High School</title>
+<link rel="icon" href="./assets/crest.svg" type="image/svg+xml">
+<link rel="stylesheet" href="./css/forms.css">
+</head>
+<body>
+<header class="site-header">
+  <a href="./index.html">Fisantekraal High School · Forms</a>
+  <nav aria-label="Forms">
+    <a href="./register-class.html" aria-current="page">Register Class</a>
+    <a href="./subject-class.html" >Subject Class</a>
+  </nav>
+</header>
+<main>
+  <p class="page-intro">Complete the weekly register class attendance and observation form (SA-01). Your progress is saved automatically on this device. When you are done, choose <b>Submit / Generate Form</b> to produce the official PDF and image.</p>
+  <div id="form-root" class="sheet" aria-label="Register Class Weekly Attendance &amp; Observation form"></div>
+  <div class="submit-bar">
+    <span class="hint">All fields marked in the error list must be completed before the form can be generated.</span>
+    <button type="button" id="btn-clear" class="btn btn-ghost">Clear form</button>
+    <button type="button" id="btn-submit" class="btn btn-primary">Submit / Generate Form</button>
+  </div>
+  <section id="result" class="result" aria-live="polite" hidden></section>
+</main>
+<div id="status" class="status-pill" aria-live="polite"></div>
+<div id="busy" class="busy" hidden role="status"><div class="busy-card"><div class="spinner" aria-hidden="true"></div><div class="busy-text">Generating your form…</div></div></div>
+<script src="./vendor/jspdf.umd.min.js"></script>
+<script type="module">
+  import { initFormPage } from './js/app.js';
+  initFormPage('register');
+</script>
+</body>
+</html>
