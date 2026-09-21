@@ -20,7 +20,7 @@ const ONLY = process.argv[2];
 const scenarios = [
   {
     name: 'register-standard', page: 'register-class.html',
-    meta: { registerClass: '9A', educator: 'Ms N. Dlamini', classListDate: '14 / 04 / 2026' },
+    meta: { registerClass: '9A', educator: 'Ms N. Dlamini', date: '04 / 05 / 2026' },
     periods: { mon: 'P1', tue: 'P1', wed: 'P1', thu: 'P1', fri: 'P1' },
     attendance: { 0: { mon: { a: '14' }, wed: { l: '7' } }, 1: { mon: { a: '22' }, thu: { a: '22' } }, 2: { tue: { l: '3' } }, 3: { fri: { a: '31' } }, 4: { wed: { a: '9' }, thu: { a: '9' }, fri: { a: '9' } } },
     observations: { 0: { mon: { learner: '14', code: 'C' }, wed: { learner: '5', code: 'P' } }, 1: { tue: { learner: '22', code: 'N' } }, 2: { fri: { learner: '8', code: 'E' } } },
@@ -29,7 +29,7 @@ const scenarios = [
   },
   {
     name: 'subject-standard', page: 'subject-class.html',
-    meta: { subject: 'Mathematics', subjectClass: '9A G1', educator: 'Mr T. Jacobs', classListDate: '14 / 04 / 2026' },
+    meta: { subject: 'Mathematics', subjectClass: '9A G1', educator: 'Mr T. Jacobs', date: '04 / 05 / 2026' },
     periods: { mon: 'P1', wed: 'P4', fri: 'P6' },
     attendance: { 0: { mon: { a: '14' } }, 1: { mon: { l: '2' }, wed: { l: '2' } }, 2: { fri: { a: '27' } } },
     observations: { 0: { mon: { learner: '14', code: 'C' }, wed: { learner: '11', code: 'E' } }, 1: { fri: { learner: '3', code: 'P' } }, 2: { wed: { learner: '27', code: 'N' } } },
@@ -39,7 +39,7 @@ const scenarios = [
   },
   {
     name: 'register-full', page: 'register-class.html',
-    meta: { registerClass: '10B', educator: 'Mrs S. van der Merwe', classListDate: '14 / 04 / 2026' },
+    meta: { registerClass: '10B', educator: 'Mrs S. van der Merwe', date: '23 / 11 / 2026' },
     periods: { mon: 'P1', tue: 'P1', wed: 'P1', thu: 'P1', fri: 'P1' },
     // every slot filled: the grid is fixed, so this is the worst case it must hold
     attendance: Object.fromEntries(Array.from({ length: 8 }, (_, i) => [i, { mon: { a: String(i + 1) }, fri: { l: String((i * 3) % 40 + 1) } }])),
@@ -49,7 +49,7 @@ const scenarios = [
   },
   {
     name: 'subject-full', page: 'subject-class.html',
-    meta: { subject: 'Physical Sciences', subjectClass: '11C G2', educator: 'Dr L. Mokoena', classListDate: '14 / 04 / 2026' },
+    meta: { subject: 'Physical Sciences', subjectClass: '11C G2', educator: 'Dr L. Mokoena', date: '12 / 10 / 2026' },
     periods: { tue: 'P3', thu: 'P5-6' },
     attendance: Object.fromEntries(Array.from({ length: 6 }, (_, i) => [i, { tue: { a: String(i + 1) } }])),
     observations: Object.fromEntries(Array.from({ length: 6 }, (_, i) => [i, { thu: { learner: String(i + 1), code: 'PECN'[i % 4] } }])),

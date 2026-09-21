@@ -65,7 +65,7 @@ for scen in sorted(os.listdir(OUT)):
         'Observation Code List',                        # printed inside section B
         'SIGN-OFF', 'Term:', 'Week:', 'Week starts:', 'Week ends:',
         'Educator signature',
-        'Position numbers as per class list dated',     # class list reference
+        'Date:',                                        # header date field
         f'Page {len(doc)} of {len(doc)}',
     ]
     # both forms are designed to be a single page

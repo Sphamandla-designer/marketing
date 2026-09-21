@@ -7,14 +7,17 @@ Weekly Attendance & Observation) forms, with submission output as a professional
 form data.
 
 The layout follows the **First Home Finance application form** held at the
-repository root; the colour is the school's own, taken from the crest. Brand
-red `#B5121B` (the shield) carries every rule, heading and header bar, with
-`#8F0F19` (the ribbon) for depth and `#8C5F62` — that red desaturated the way
-the reference derives its instruction band from its header bar — for the
-instruction bands. Label cells are pale grey, values sit in their own rounded
-white boxes, and nothing has a square corner. The barcode modules are the
-single deliberate exception, since rounding them would stop them scanning, and
-`npm run blanks` asserts that nothing else is square.
+repository root. The forms are printed and filed in black and white, so both
+the screen form and the generated document are drawn in **greyscale**: `#141414`
+carries every rule, heading and header bar, `#6B6B6B` the instruction bands and
+`#E8E8E8` the label cells. The crest is converted to greyscale at raster time
+(Rec. 709 luma) rather than left as the one colour element on the page. Screen
+focus, error and success states stay coloured — they never reach the print.
+
+Values sit in their own rounded white boxes and nothing has a square corner.
+The barcode modules are the single deliberate exception, since rounding them
+would stop them scanning, and `npm run blanks` asserts that nothing else is
+square.
 
 ```
 Completed form  →  Form data model  →  layout engine (A4, mm)  →  PDF (jsPDF, vector, embedded Roboto)
@@ -22,7 +25,7 @@ Completed form  →  Form data model  →  layout engine (A4, mm)  →  PDF (jsP
 ```
 
 Term, week and the week's start and end dates are captured in the sign-off,
-not the header; the header carries the class, educator and class-list date.
+not the header; the header carries the class, the educator and a date.
 The period each day's register was taken in is recorded in a Period row above
 the attendance grid.
 
@@ -156,9 +159,11 @@ square corner outside the barcode.
 
 ## Notes on the design
 
-* Structure follows the **First Home Finance application form**; the colours
-  are the school's own, from `assets/crest.svg`. Replace that file with the
-  official artwork if available (any SVG at 1:1 aspect works).
+* Structure follows the **First Home Finance application form**, drawn in
+  greyscale for black-and-white printing. `assets/crest.svg` still holds the
+  crest in its own colours; it is desaturated on the way into the document, so
+  replacing that file with the official artwork needs no other change (any SVG
+  at 1:1 aspect works).
 * The masthead prints the form's own title and the term it covers in place of
   the school motto and tagline. That term line is fixed text, so a new blank
   is generated each term.

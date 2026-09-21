@@ -17,25 +17,25 @@ import { formatDisplayDate } from './model.js';
 
 export const PAGE = { w: 210, h: 297, ml: 10, mr: 10, mt: 7, mb: 8, footerH: 8 };
 export const COLORS = {
-  // Structure follows the First Home Finance application form; the hue is the
-  // school's own, taken from the crest: #B5121B is the shield, #8F0F19 the
-  // ribbon. `band` is that red desaturated and lightened the same way the
-  // reference derives its instruction band from its header bar.
-  brand: '#B5121B',
-  brandDeep: '#8F0F19',
-  band: '#8C5F62',
-  bandLight: '#A08B8C',
-  pale: '#EBECEE',
-  paleAlt: '#F5F6F7',
-  border: '#B5121B',
-  hair: '#D3CACB',
+  // The forms are printed and filed in black and white, so the document is
+  // drawn in greyscale rather than in the school red: colour on a mono printer
+  // only turns into an unpredictable grey. Structure still follows the First
+  // Home Finance reference — one dark tone for every rule, heading and header
+  // bar, a mid grey for instruction bands, pale grey for label cells.
+  brand: '#141414',
+  brandDeep: '#000000',
+  band: '#6B6B6B',
+  bandLight: '#9A9A9A',
+  pale: '#E8E8E8',
+  paleAlt: '#F4F4F4',
+  border: '#141414',
+  hair: '#C4C4C4',
   text: '#1B1B1B',
-  muted: '#5C6166',
-  placeholder: '#B0A4A5',
+  muted: '#5E5E5E',
+  placeholder: '#A3A3A3',
   white: '#FFFFFF',
   boxFill: '#FFFFFF',
-  boxBorder: '#B5121B',
-  crestRed: '#B5121B',
+  boxBorder: '#141414',
 };
 
 /**

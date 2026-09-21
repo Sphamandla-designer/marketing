@@ -44,8 +44,8 @@ export const ATP_STATUS = [
 ];
 
 /** Meta (header) fields shared by both forms. */
-const META_CLASS_LIST = {
-  key: 'classListDate', label: 'Position numbers as per class list dated:', kind: 'text',
+const META_DATE = {
+  key: 'date', label: 'Date:', kind: 'text',
   required: false, maxLength: 20, placeholder: 'DD / MM / YYYY', span: 4,
 };
 
@@ -93,7 +93,7 @@ export const FORMS = {
           { key: 'registerClass', label: 'Register Class:', kind: 'text', required: true, maxLength: 20, span: 2, placeholder: 'e.g. 9A' },
           { key: 'educator', label: 'Educator:', kind: 'text', required: true, maxLength: 60, span: 3, placeholder: 'Educator full name' },
         ],
-        [{ ...META_CLASS_LIST }],
+        [{ ...META_DATE }],
       ],
     },
     attendance: {
@@ -149,7 +149,7 @@ export const FORMS = {
           { key: 'subjectClass', label: 'Subject Class:', kind: 'text', required: true, maxLength: 20, span: 2, placeholder: 'e.g. 9A G1' },
           { key: 'educator', label: 'Educator:', kind: 'text', required: true, maxLength: 60, span: 3, placeholder: 'Educator full name' },
         ],
-        [{ ...META_CLASS_LIST }],
+        [{ ...META_DATE }],
       ],
     },
     attendance: {
