@@ -46,7 +46,11 @@ export const ATP_STATUS = [
 /** Meta (header) fields shared by both forms. */
 const META_DATE = {
   key: 'date', label: 'Date:', kind: 'text',
-  required: false, maxLength: 20, placeholder: 'DD / MM / YYYY', span: 4,
+  required: false, maxLength: 20, placeholder: 'DD / MM / YYYY', span: 2,
+};
+const META_EDUCATOR = {
+  key: 'educator', label: 'Educator:', kind: 'text',
+  required: true, maxLength: 60, placeholder: 'Educator full name', span: 4,
 };
 
 /**
@@ -90,10 +94,10 @@ export const FORMS = {
     meta: {
       rows: [
         [
-          { key: 'registerClass', label: 'Register Class:', kind: 'text', required: true, maxLength: 20, span: 2, placeholder: 'e.g. 9A' },
-          { key: 'educator', label: 'Educator:', kind: 'text', required: true, maxLength: 60, span: 3, placeholder: 'Educator full name' },
+          { key: 'registerClass', label: 'Register Class:', kind: 'text', required: true, maxLength: 20, span: 3, placeholder: 'e.g. 9A' },
+          { ...META_DATE },
         ],
-        [{ ...META_DATE }],
+        [{ ...META_EDUCATOR }],
       ],
     },
     attendance: {
@@ -145,11 +149,11 @@ export const FORMS = {
         // Day / Period(s) used to live here; the per-day Period row above the
         // attendance grid records it more precisely, so it is not repeated.
         [
-          { key: 'subject', label: 'Subject:', kind: 'text', required: true, maxLength: 40, span: 2, placeholder: 'e.g. Mathematics' },
-          { key: 'subjectClass', label: 'Subject Class:', kind: 'text', required: true, maxLength: 20, span: 2, placeholder: 'e.g. 9A G1' },
-          { key: 'educator', label: 'Educator:', kind: 'text', required: true, maxLength: 60, span: 3, placeholder: 'Educator full name' },
+          { key: 'subject', label: 'Subject:', kind: 'text', required: true, maxLength: 40, span: 3, placeholder: 'e.g. Mathematics' },
+          { key: 'subjectClass', label: 'Subject Class:', kind: 'text', required: true, maxLength: 20, span: 3, placeholder: 'e.g. 9A G1' },
+          { ...META_DATE },
         ],
-        [{ ...META_DATE }],
+        [{ ...META_EDUCATOR }],
       ],
     },
     attendance: {
