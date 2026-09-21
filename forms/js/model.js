@@ -2,7 +2,7 @@
  * Form data model: creation, validation and identifiers.
  * Used by the interactive form and by the document renderer alike.
  */
-import { DAYS, OBSERVATION_CODES, ATP_STATUS, getForm } from './schema.js';
+import { DAYS, OBSERVATION_CODES, ATP_STATUS, PERIOD_SLOTS, getForm } from './schema.js';
 
 export function emptyAttendanceRow() {
   const row = {};
@@ -29,8 +29,8 @@ export function createEmptyData(type) {
     attendance: Array.from({ length: slots }, emptyAttendanceRow),
     observations: Array.from({ length: form.observations.defaultRows }, emptyObservationRow),
     comments: '',
-    periods: Object.fromEntries(DAYS.map((d) => [d.key, ''])),
-    signOff: { term: '', week: '', startDate: '', endDate: '', signature: null },
+    periods: Object.fromEntries(DAYS.map((d) => [d.key, Array.from({ length: PERIOD_SLOTS }, () => '')])),
+    signOff: { term: '', startDate: '', endDate: '', signature: null },
   };
   if (form.atp) data.atp = { code: '', status: '' };
   return data;
@@ -120,8 +120,10 @@ export function validate(data) {
   if (!sign.signature) push('signOff.signature', 'Educator signature is required.');
 
   for (const d of DAYS) {
-    const v = String(data.periods?.[d.key] || '').trim();
-    if (v.length > 6) push(`periods.${d.key}`, `${d.label} period is too long.`);
+    for (let i = 0; i < PERIOD_SLOTS; i++) {
+      const v = String(data.periods?.[d.key]?.[i] || '').trim();
+      if (v.length > 6) push(`periods.${d.key}.${i}`, `${d.label} period ${i + 1} is too long.`);
+    }
   }
 
   return errors;
@@ -143,10 +145,13 @@ export function normalise(data) {
   for (const row of out.observations) for (const d of DAYS) { row[d.key].learner = row[d.key].learner.trim(); row[d.key].code = row[d.key].code.trim().toUpperCase(); }
   if (out.atp) out.atp.code = String(out.atp.code || '').trim();
   out.comments = String(out.comments || '').replace(/\r\n?/g, '\n').trim();
-  if (!out.signOff) out.signOff = { term: '', week: '', startDate: '', endDate: '', signature: null };
-  for (const k of ['term', 'week', 'startDate', 'endDate']) out.signOff[k] = String(out.signOff[k] || '').trim();
-  if (!out.periods) out.periods = Object.fromEntries(DAYS.map((d) => [d.key, '']));
-  for (const d of DAYS) out.periods[d.key] = String(out.periods[d.key] || '').trim().toUpperCase();
+  if (!out.signOff) out.signOff = { term: '', startDate: '', endDate: '', signature: null };
+  for (const k of ['term', 'startDate', 'endDate']) out.signOff[k] = String(out.signOff[k] || '').trim();
+  if (!out.periods) out.periods = {};
+  for (const d of DAYS) {
+    const cur = Array.isArray(out.periods[d.key]) ? out.periods[d.key] : [];
+    out.periods[d.key] = Array.from({ length: PERIOD_SLOTS }, (_, i) => String(cur[i] || '').trim().toUpperCase());
+  }
   return out;
 }
 
@@ -157,7 +162,7 @@ export function isRowEmpty(row) {
 
 /**
  * Human-readable identifier used in file names, e.g. "9A-T3-W5".
- * Built from the class in the header plus the term and week from the
+ * Built from the class and week in the header plus the term from the
  * sign-off; falls back to the document number if any part is missing.
  */
 export function buildIdentifier(data, docNumber) {
@@ -166,7 +171,7 @@ export function buildIdentifier(data, docNumber) {
   const parts = [
     ...form.identifierKeys.map((k) => String(data.meta[k] || '').trim()),
     sign.term ? `T${sign.term}` : '',
-    sign.week ? `W${sign.week}` : '',
+    data.meta.week ? `W${String(data.meta.week).trim()}` : '',
   ];
   if (parts.some((p) => !p)) return docNumber;
   const id = parts.join('-').toUpperCase().replace(/[^A-Z0-9-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');

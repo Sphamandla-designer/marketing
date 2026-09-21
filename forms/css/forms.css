@@ -254,3 +254,5 @@ main { max-width: 1040px; margin: 0 auto; padding: 16px; }
 /* the crest is the one coloured asset left, so it is shown in greyscale to
    match the document, which is drawn for a black-and-white printer */
 .crest { filter: grayscale(1); }
+.period-slots { display: flex; gap: 4px; justify-content: center; padding: 0 4px; }
+.period-slots .period-input { width: 100%; max-width: none; min-width: 0; }

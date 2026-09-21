@@ -3,7 +3,7 @@
  * shared data model. Provides character boxes, table grids, signature pad,
  * keyboard navigation and inline validation display.
  */
-import { SCHOOL, DAYS, OBSERVATION_CODES, CODE_LIST, ATP_STATUS, getForm } from './schema.js';
+import { SCHOOL, DAYS, OBSERVATION_CODES, CODE_LIST, ATP_STATUS, PERIOD_SLOTS, getForm } from './schema.js';
 
 // ------------------------------------------------------------ helpers
 function el(tag, attrs = {}, children = []) {
@@ -221,10 +221,13 @@ export function renderForm(root, data, { onChange } = {}) {
     // period row: which period each day's register was taken in
     att.periodRow ? el('tr', { class: 'period-row' }, [
       el('th', { class: 'col-no period-label', text: att.periodRow.label }),
-      ...DAYS.map((d) => el('th', { colspan: 2 }, textInput(`periods.${d.key}`, {
-        maxLength: 6, upper: true, class: 'period-input',
-        ariaLabel: `${d.label} period`, placeholder: 'P1',
-      }))),
+      ...DAYS.map((d) => el('th', { colspan: 2 },
+        el('div', { class: 'period-slots' }, Array.from({ length: att.periodRow.slots || PERIOD_SLOTS }, (_, k) =>
+          textInput(`periods.${d.key}.${k}`, {
+            maxLength: 6, upper: true, class: 'period-input',
+            ariaLabel: `${d.label} period ${k + 1}`, placeholder: `P${k + 1}`,
+          })))),
+      ),
     ]) : null,
     el('tr', {}, [el('th', { rowspan: 2, class: 'col-no', text: '#' }), ...DAYS.map((d) => el('th', { colspan: 2, text: d.label }))]),
     el('tr', {}, DAYS.flatMap((d) => [el('th', { class: 'sub', text: 'A', 'aria-label': `${d.label} absent` }), el('th', { class: 'sub', text: 'L', 'aria-label': `${d.label} late` })])),

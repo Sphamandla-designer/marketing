@@ -20,42 +20,42 @@ const ONLY = process.argv[2];
 const scenarios = [
   {
     name: 'register-standard', page: 'register-class.html',
-    meta: { registerClass: '9A', educator: 'Ms N. Dlamini', date: '04 / 05 / 2026' },
-    periods: { mon: 'P1', tue: 'P1', wed: 'P1', thu: 'P1', fri: 'P1' },
+    meta: { registerClass: '9A', week: '5', educator: 'Ms N. Dlamini', date: '04 / 05 / 2026' },
+    periods: { mon: ['P1', 'P2'], tue: ['P1', 'P2'], wed: ['P1', 'P2'], thu: ['P1', 'P2'], fri: ['P1', 'P2'] },
     attendance: { 0: { mon: { a: '14' }, wed: { l: '7' } }, 1: { mon: { a: '22' }, thu: { a: '22' } }, 2: { tue: { l: '3' } }, 3: { fri: { a: '31' } }, 4: { wed: { a: '9' }, thu: { a: '9' }, fri: { a: '9' } } },
     observations: { 0: { mon: { learner: '14', code: 'C' }, wed: { learner: '5', code: 'P' } }, 1: { tue: { learner: '22', code: 'N' } }, 2: { fri: { learner: '8', code: 'E' } } },
     comments: 'Learner 9 absent three days; parents contacted Thursday.',
-    signOff: { term: '2', week: '5', startDate: { dd: '04', mm: '05', yyyy: '2026' }, endDate: { dd: '08', mm: '05', yyyy: '2026' } },
+    signOff: { term: '2', startDate: { dd: '04', mm: '05', yyyy: '2026' }, endDate: { dd: '08', mm: '05', yyyy: '2026' } },
   },
   {
     name: 'subject-standard', page: 'subject-class.html',
-    meta: { subject: 'Mathematics', subjectClass: '9A G1', educator: 'Mr T. Jacobs', date: '04 / 05 / 2026' },
-    periods: { mon: 'P1', wed: 'P4', fri: 'P6' },
+    meta: { subject: 'Mathematics', subjectClass: '9A G1', week: '5', educator: 'Mr T. Jacobs', date: '04 / 05 / 2026' },
+    periods: { mon: ['P1', 'P2'], wed: ['P4', ''], fri: ['P6', ''] },
     attendance: { 0: { mon: { a: '14' } }, 1: { mon: { l: '2' }, wed: { l: '2' } }, 2: { fri: { a: '27' } } },
     observations: { 0: { mon: { learner: '14', code: 'C' }, wed: { learner: '11', code: 'E' } }, 1: { fri: { learner: '3', code: 'P' } }, 2: { wed: { learner: '27', code: 'N' } } },
     atp: { code: 'MATH-9-T2-W5', status: 'not_completed' },
     comments: 'Deviation: Unit 5.3 not completed due to Wednesday assembly.',
-    signOff: { term: '2', week: '5', startDate: { dd: '04', mm: '05', yyyy: '2026' }, endDate: { dd: '08', mm: '05', yyyy: '2026' } },
+    signOff: { term: '2', startDate: { dd: '04', mm: '05', yyyy: '2026' }, endDate: { dd: '08', mm: '05', yyyy: '2026' } },
   },
   {
     name: 'register-full', page: 'register-class.html',
-    meta: { registerClass: '10B', educator: 'Mrs S. van der Merwe', date: '23 / 11 / 2026' },
-    periods: { mon: 'P1', tue: 'P1', wed: 'P1', thu: 'P1', fri: 'P1' },
+    meta: { registerClass: '10B', week: '10', educator: 'Mrs S. van der Merwe', date: '23 / 11 / 2026' },
+    periods: { mon: ['P1', 'P2'], tue: ['P1', 'P2'], wed: ['P1', 'P2'], thu: ['P1', 'P2'], fri: ['P1', 'P2'] },
     // every slot filled: the grid is fixed, so this is the worst case it must hold
     attendance: Object.fromEntries(Array.from({ length: 8 }, (_, i) => [i, { mon: { a: String(i + 1) }, fri: { l: String((i * 3) % 40 + 1) } }])),
     observations: Object.fromEntries(Array.from({ length: 8 }, (_, i) => [i, { tue: { learner: String(i + 1), code: 'PECN'[i % 4] } }])),
     comments: 'A deliberately long comment used to check that the write-in box holds its designed size and does not push the sign-off onto a second page even when the text overflows the visible lines.',
-    signOff: { term: '4', week: '10', startDate: { dd: '23', mm: '11', yyyy: '2026' }, endDate: { dd: '27', mm: '11', yyyy: '2026' } },
+    signOff: { term: '4', startDate: { dd: '23', mm: '11', yyyy: '2026' }, endDate: { dd: '27', mm: '11', yyyy: '2026' } },
   },
   {
     name: 'subject-full', page: 'subject-class.html',
-    meta: { subject: 'Physical Sciences', subjectClass: '11C G2', educator: 'Dr L. Mokoena', date: '12 / 10 / 2026' },
-    periods: { tue: 'P3', thu: 'P5-6' },
+    meta: { subject: 'Physical Sciences', subjectClass: '11C G2', week: '2', educator: 'Dr L. Mokoena', date: '12 / 10 / 2026' },
+    periods: { tue: ['P3', ''], thu: ['P5', 'P6'] },
     attendance: Object.fromEntries(Array.from({ length: 6 }, (_, i) => [i, { tue: { a: String(i + 1) } }])),
     observations: Object.fromEntries(Array.from({ length: 6 }, (_, i) => [i, { thu: { learner: String(i + 1), code: 'PECN'[i % 4] } }])),
     atp: { code: 'PHSC-11-T4-W2', status: 'completed' },
     comments: 'Practical investigation on Newton’s second law completed; learners requiring consolidation are listed in the observations above.',
-    signOff: { term: '4', week: '2', startDate: { dd: '12', mm: '10', yyyy: '2026' }, endDate: { dd: '16', mm: '10', yyyy: '2026' } },
+    signOff: { term: '4', startDate: { dd: '12', mm: '10', yyyy: '2026' }, endDate: { dd: '16', mm: '10', yyyy: '2026' } },
   },
 ];
 
@@ -71,7 +71,7 @@ async function fill(page, sc) {
     if (await group.count()) await typeChars(page, `.char-group[data-path="meta.${k}"]`, v);
     else await page.locator(`input[data-path="meta.${k}"]`).fill(v);
   }
-  for (const [d, v] of Object.entries(sc.periods || {})) await page.locator(`input[data-path="periods.${d}"]`).fill(v);
+  for (const [d, slots] of Object.entries(sc.periods || {})) for (const [k, v] of slots.entries()) if (v) await page.locator(`input[data-path="periods.${d}.${k}"]`).fill(v);
   for (const [row, days] of Object.entries(sc.attendance || {})) for (const [d, cells] of Object.entries(days)) for (const [k, v] of Object.entries(cells)) await page.locator(`input[data-path="attendance.${row}.${d}.${k}"]`).fill(v);
   for (const [row, days] of Object.entries(sc.observations || {})) for (const [d, cells] of Object.entries(days)) for (const [k, v] of Object.entries(cells)) await page.locator(`input[data-path="observations.${row}.${d}.${k}"]`).fill(v);
   if (sc.atp) {
@@ -82,7 +82,6 @@ async function fill(page, sc) {
 
   // term and week, then the two dates
   await typeChars(page, '.char-group[data-path="signOff.term"]', sc.signOff.term);
-  await typeChars(page, '.char-group[data-path="signOff.week"]', sc.signOff.week);
   for (const key of ['startDate', 'endDate']) {
     const parts = sc.signOff[key];
     for (const part of ['dd', 'mm', 'yyyy']) {

@@ -11,7 +11,7 @@
  *   { t:'text',  s, x, y, size, style, color }      // y = baseline, x = left edge
  *   { t:'image', src, x,y,w,h }
  */
-import { SCHOOL, DAYS, OBSERVATION_CODES, CODE_LIST, ATP_STATUS, getForm } from './schema.js';
+import { SCHOOL, DAYS, OBSERVATION_CODES, CODE_LIST, ATP_STATUS, PERIOD_SLOTS, getForm } from './schema.js';
 import { encodeCode128B } from './barcode.js';
 import { formatDisplayDate } from './model.js';
 
@@ -54,15 +54,15 @@ const CELL_INSET = 0.55;
  * Heights inside the sign-off card. The HOD column carries an extra name row,
  * so it is the taller of the two and sets the card height.
  */
-const SIGN_FIELD_ROW_H = 7.4;  // term / week / start / end band
-const SIGN_PAD_H = 11;         // signature pad
-const SIGN_PAD_LABEL_H = 3.6;  // caption under the pad
+const SIGN_FIELD_ROW_H = 6.8;  // term / start / end band
+const SIGN_PAD_H = 8.5;        // signature pad
+const SIGN_PAD_LABEL_H = 3.2;  // caption under the pad
 /** Gap left below a closed card before the next one. */
-const CARD_GAP = 2.0;
+const CARD_GAP = 1.6;
 /** Height of a card's header bar. */
 const CARD_HEADER_H = 6.8;
 /** Height of a table data row. */
-const ROW_H = 5.0;
+const ROW_H = 4.8;
 /** Height of the per-day period row above the day header. */
 const PERIOD_ROW_H = 5.0;
 /** Height consumed by the page-2+ header: crest row, identity strip and gap. */
@@ -196,11 +196,13 @@ class Builder {
     let str = shown;
     while (str.length > 1 && this.measure(str, size, o.style || 'normal') > maxW) str = str.slice(0, -1);
     if (str !== shown) str = str.slice(0, -1) + '…';
-    this.text(str, x + 2.2, centreBaseline(y, h, size), {
+    const opts = {
       size,
       style: value ? (o.style || 'normal') : 'italic',
       color: value ? COLORS.text : COLORS.placeholder,
-    });
+    };
+    if (o.align === 'center') this.text(str, x + w / 2, centreBaseline(y, h, size), { ...opts, align: 'center' });
+    else this.text(str, x + 2.2, centreBaseline(y, h, size), opts);
   }
 
   // ---------- pages ----------
@@ -382,7 +384,7 @@ class Builder {
    */
   metaTable() {
     const rows = this.form.meta.rows;
-    const rowH = 6.9;
+    const rowH = 6.6;
     this.ensure(rowH * rows.length + CARD_PAD * 2 + 4);
     this.beginCard();
     this.y += CARD_PAD;
@@ -525,12 +527,17 @@ class Builder {
     const x0 = this.x0 + CARD_PAD;
     const y = this.y + BAND_GAP;
     const h = PERIOD_ROW_H;
+    const slots = cfg.slots || PERIOD_SLOTS;
     this.rect(x0, y, noW, h, { fill: COLORS.pale, r: RADIUS.box });
     this.text(cfg.label, x0 + noW / 2, centreBaseline(y, h, 6.4), { size: 6.4, style: 'bold', align: 'center', color: COLORS.brand });
     DAYS.forEach((d, i) => {
       const x = x0 + noW + i * dayW;
-      const bw = Math.min(dayW - 3, 18);
-      this.roundedField(x + (dayW - bw) / 2, y + 0.3, bw, h - 0.6, this.data.periods?.[d.key] || '', { size: 8.2, style: 'bold', align: 'center' });
+      // one box per period slot, sharing the day's column
+      const gap = 1.2;
+      const bw = (dayW - 3 - gap * (slots - 1)) / slots;
+      for (let k = 0; k < slots; k++) {
+        this.roundedField(x + 1.5 + k * (bw + gap), y + 0.3, bw, h - 0.6, this.data.periods?.[d.key]?.[k] || '', { size: 7.6, style: 'bold', align: 'center' });
+      }
     });
     this.y = y + h;
   }
@@ -703,7 +710,7 @@ class Builder {
     }
 
     const padY = rowY + SIGN_FIELD_ROW_H + 1.8;
-    const padW = Math.min(cw - 6, 96);
+    const padW = Math.min(cw - 6, 62);
     this.rect(x0 + 3, padY, padW, SIGN_PAD_H, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.35, r: RADIUS.sig });
     const sig = sign.signature;
     if (sig && sig.dataUrl) {
@@ -741,9 +748,9 @@ class Builder {
   atpSection() {
     const sec = this.form.atp;
     const atp = this.data.atp || { code: '', status: '' };
-    const size = 8.6, lh = 5.2;
+    const size = 8.6, lh = 4.9;
     const lines = this.wrap(this.data.comments, this.cw - CARD_PAD * 2 - 6, size);
-    const rowH = 8.8, labH = 5.6;
+    const rowH = 8.2, labH = 5.2;
     this.ensure(CARD_PAD + CARD_HEADER_H + BAND_GAP + rowH + BAND_GAP + labH + lh * this.form.comments.minLines + 2 + CARD_PAD + CARD_GAP);
     this.beginCard();
     this.cardHeader(sec.letter, sec.title, '');

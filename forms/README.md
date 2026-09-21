@@ -24,10 +24,10 @@ Completed form  →  Form data model  →  layout engine (A4, mm)  →  PDF (jsP
                                                               →  PNG (canvas, 2480 × 3508 px, 300 DPI)
 ```
 
-Term, week and the week's start and end dates are captured in the sign-off,
-not the header; the header carries the class, the educator and a date.
-The period each day's register was taken in is recorded in a Period row above
-the attendance grid.
+The header carries the class, the week, the educator and a date. The sign-off
+carries the term, the dates the week runs between and the educator's
+signature. Two period slots per day are recorded in the Period row above the
+attendance grid.
 
 ## Run it
 
@@ -62,15 +62,15 @@ The slot count is fixed: the form is one page, so there is no continuation
 section and no add-row control. A class with more entries than slots uses a
 second copy of the form.
 
-Above the day header sits a **Period** row — one box per day for the period
-that day's register was taken in.
+Above the day header sits a **Period** row — two boxes per day, for the
+periods that day's register was taken in (`PERIOD_SLOTS` in `schema.js`).
 
 Each page carries its own barcode and printed page code (`SA01-P1`, `SA02-P1`),
 so a page separated from its set is identifiable.
 
-Sign-off records the **term**, the **week**, the dates that week **starts** and
-**ends**, and the educator's **signature**. Validation requires all five, and
-rejects an end date that falls before its start date.
+Sign-off records the **term**, the dates that week **starts** and **ends**, and
+the educator's **signature**; the **week** itself is in the header. Validation
+requires all of them, and rejects an end date that falls before its start date.
 
 ## Blank forms
 

@@ -30,8 +30,7 @@ def expected_values(data):
     if data.get('atp'):
         vals.append(data['atp']['code'])
     sign = data.get('signOff') or {}
-    for k in ('term', 'week'):
-        if sign.get(k): vals.append(sign[k])
+    if sign.get('term'): vals.append(sign['term'])
     if data.get('comments'):
         vals += [w for w in re.findall(r"[A-Za-z0-9']+", data['comments']) if len(w) > 3][:80]
     return vals

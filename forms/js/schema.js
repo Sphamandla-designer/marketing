@@ -21,6 +21,9 @@ export const DAYS = [
   { key: 'fri', label: 'Friday', short: 'Fri' },
 ];
 
+/** Period slots recorded per day in the attendance grid's Period row. */
+export const PERIOD_SLOTS = 2;
+
 export const OBSERVATION_CODES = [
   { code: 'P', label: 'Positive attitude' },
   { code: 'E', label: 'Exceptional effort' },
@@ -46,7 +49,12 @@ export const ATP_STATUS = [
 /** Meta (header) fields shared by both forms. */
 const META_DATE = {
   key: 'date', label: 'Date:', kind: 'text',
-  required: false, maxLength: 20, placeholder: 'DD / MM / YYYY', span: 2,
+  required: false, maxLength: 20, placeholder: 'DD / MM / YYYY', span: 3,
+};
+const META_WEEK = {
+  key: 'week', label: 'Week:', kind: 'chars', length: 2, charset: 'digit',
+  required: true, span: 2, alignRight: true,
+  validate: (v) => (/^\d{1,2}$/.test(v) && +v >= 1 && +v <= 10) ? null : 'Week must be between 1 and 10.',
 };
 const META_EDUCATOR = {
   key: 'educator', label: 'Educator:', kind: 'text',
@@ -70,7 +78,6 @@ const SIGN_OFF = (declaration) => ({
   educatorLabel: 'Educator',
   fields: [
     { key: 'term', label: 'Term:', length: 1, validate: (v) => (/^[1-4]$/.test(v) ? null : 'Term must be 1, 2, 3 or 4.') },
-    { key: 'week', label: 'Week:', length: 2, alignRight: true, validate: (v) => (/^\d{1,2}$/.test(v) && +v >= 1 && +v <= 10 ? null : 'Week must be between 1 and 10.') },
   ],
   dates: [
     { key: 'startDate', label: 'Week starts:' },
@@ -95,6 +102,7 @@ export const FORMS = {
       rows: [
         [
           { key: 'registerClass', label: 'Register Class:', kind: 'text', required: true, maxLength: 20, span: 3, placeholder: 'e.g. 9A' },
+          { ...META_WEEK },
           { ...META_DATE },
         ],
         [{ ...META_EDUCATOR }],
@@ -109,7 +117,7 @@ export const FORMS = {
       defaultRows: 8,
       maxRows: 8,
       /** Per-day period row printed above the A / L header. */
-      periodRow: { label: 'Period' },
+      periodRow: { label: 'Period', slots: 2 },
     },
     observations: {
       letter: 'B',
@@ -126,7 +134,7 @@ export const FORMS = {
       title: 'ADDITIONAL COMMENTS',
       subtitle: '(Optional)',
       required: false,
-      minLines: 2,
+      minLines: 3,
       maxLength: 600,
       style: 'box',
     },
@@ -151,6 +159,7 @@ export const FORMS = {
         [
           { key: 'subject', label: 'Subject:', kind: 'text', required: true, maxLength: 40, span: 3, placeholder: 'e.g. Mathematics' },
           { key: 'subjectClass', label: 'Subject Class:', kind: 'text', required: true, maxLength: 20, span: 3, placeholder: 'e.g. 9A G1' },
+          { ...META_WEEK },
           { ...META_DATE },
         ],
         [{ ...META_EDUCATOR }],
@@ -163,7 +172,7 @@ export const FORMS = {
       notes: ATTENDANCE_NOTES,
       defaultRows: 6,
       maxRows: 6,
-      periodRow: { label: 'Period' },
+      periodRow: { label: 'Period', slots: 2 },
     },
     observations: {
       letter: 'B',
@@ -187,7 +196,7 @@ export const FORMS = {
       key: 'comments',
       title: null, // rendered inside section C
       required: false,
-      minLines: 2,
+      minLines: 4,
       maxLength: 600,
       style: 'lines',
     },
