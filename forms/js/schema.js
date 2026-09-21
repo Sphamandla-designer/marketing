@@ -30,8 +30,13 @@ export const OBSERVATION_CODES = [
 
 /** The attendance grid is a slot model: rows are entry slots, not learners. */
 const ATTENDANCE_NOTES = [
-  'Write the learner’s position number in the A (absent) or L (late) column for that day. Leave unused slots blank.',
+  'Write the learner’s position number in the A (absent) or L (late) column. Leave unused slots blank.',
 ];
+const OBSERVATION_NOTES = [
+  'Use the learner’s position number and one observation code per day. Leave blank if there is nothing to record.',
+];
+/** Printed under the masthead in place of the motto and tagline. */
+const HEADER_PERIOD = '2026 · Term 2';
 
 export const ATP_STATUS = [
   { value: 'completed', label: 'Completed' },
@@ -39,24 +44,35 @@ export const ATP_STATUS = [
 ];
 
 /** Meta (header) fields shared by both forms. */
-const META_YEAR = {
-  key: 'academicYear', label: 'Academic Year:', kind: 'chars', length: 4,
-  charset: 'digit', required: true, placeholder: 'YYYY',
-  validate: (v) => (/^\d{4}$/.test(v) && +v >= 2000 && +v <= 2099) ? null : 'Academic year must be a four-digit year (e.g. 2026).',
-};
-const META_TERM = {
-  key: 'term', label: 'Term:', kind: 'chars', length: 1, charset: 'digit', required: true,
-  validate: (v) => (/^[1-4]$/.test(v)) ? null : 'Term must be 1, 2, 3 or 4.',
-};
-/** Guards against position numbers shifting when learners join or leave mid-term. */
 const META_CLASS_LIST = {
   key: 'classListDate', label: 'Position numbers as per class list dated:', kind: 'text',
   required: false, maxLength: 20, placeholder: 'DD / MM / YYYY', span: 4,
 };
-const META_WEEK = {
-  key: 'week', label: 'Week (1–10):', kind: 'chars', length: 2, charset: 'digit', required: true,
-  validate: (v) => (/^\d{1,2}$/.test(v) && +v >= 1 && +v <= 10) ? null : 'Week must be between 1 and 10.',
-};
+
+/**
+ * Both forms carry the same observation codes, so the list is defined once and
+ * printed inside Section B on each.
+ */
+export const CODE_LIST = { title: 'Observation Code List', subtitle: '(the same on both forms — one character per entry)' };
+
+/**
+ * The sign-off block: term, week, the week's start and end dates, and the
+ * educator's signature.
+ */
+const SIGN_OFF = (declaration) => ({
+  letter: null,
+  title: 'SIGN-OFF',
+  declaration,
+  educatorLabel: 'Educator',
+  fields: [
+    { key: 'term', label: 'Term:', length: 1, validate: (v) => (/^[1-4]$/.test(v) ? null : 'Term must be 1, 2, 3 or 4.') },
+    { key: 'week', label: 'Week:', length: 2, alignRight: true, validate: (v) => (/^\d{1,2}$/.test(v) && +v >= 1 && +v <= 10 ? null : 'Week must be between 1 and 10.') },
+  ],
+  dates: [
+    { key: 'startDate', label: 'Week starts:' },
+    { key: 'endDate', label: 'Week ends:' },
+  ],
+});
 
 export const FORMS = {
   register: {
@@ -67,18 +83,15 @@ export const FORMS = {
     shortTitle: 'Register Class',
     fileStem: 'Register-Class',
     codeBoxLines: ['REGISTER CLASS WEEKLY', 'ATTENDANCE & OBSERVATION'],
-    /** Which meta fields make up the file identifier. */
-    identifierKeys: ['registerClass', 'academicYear', 'term', 'week'],
+    headerTitle: 'REGISTER CLASS ATTENDANCE',
+    headerPeriod: HEADER_PERIOD,
+    /** Term and week now live in the sign-off, so the identifier reads from there. */
+    identifierKeys: ['registerClass'],
     meta: {
       rows: [
         [
-          { ...META_YEAR, span: 2 },
-          { ...META_TERM, span: 1 },
-          { ...META_WEEK, span: 1 },
-        ],
-        [
           { key: 'registerClass', label: 'Register Class:', kind: 'text', required: true, maxLength: 20, span: 2, placeholder: 'e.g. 9A' },
-          { key: 'educator', label: 'Educator:', kind: 'text', required: true, maxLength: 60, span: 2, placeholder: 'Educator full name' },
+          { key: 'educator', label: 'Educator:', kind: 'text', required: true, maxLength: 60, span: 3, placeholder: 'Educator full name' },
         ],
         [{ ...META_CLASS_LIST }],
       ],
@@ -88,48 +101,32 @@ export const FORMS = {
       title: 'ATTENDANCE',
       subtitle: '(Record absences and late arrivals only)',
       notes: ATTENDANCE_NOTES,
-      /** Slots printed in Section A on page 1. */
-      defaultRows: 10,
-      /** Slots printed in the Section A2 continuation grid on page 2. */
-      overflowRows: 12,
-      maxRows: 60,
-      continueNote: 'More entries? Continue on page 2, Section A2.',
-      overflow: {
-        letter: 'A2',
-        title: 'ATTENDANCE (CONTINUED)',
-        subtitle: '(Continued from Section A on page 1)',
-      },
+      /** Entry slots printed in Section A. The form is one page: it does not overflow. */
+      defaultRows: 8,
+      maxRows: 8,
+      /** Per-day period row printed above the A / L header. */
+      periodRow: { label: 'Period' },
     },
     observations: {
       letter: 'B',
       title: 'NOTABLE LEARNER OBSERVATIONS',
       subtitle: '(Positive or concerning behaviour / performance)',
-      notes: [
-        'Use the learner’s position number from the class list (learner names are on a separate reference list).',
-        'Record one observation code (one character) for each day. If no observation, leave the cell blank.',
-      ],
+      notes: OBSERVATION_NOTES,
       /** 'split' = separate Learner No. and Code sub-columns per day. */
       mode: 'split',
-      defaultRows: 10,
-      maxRows: 60,
+      defaultRows: 8,
+      maxRows: 8,
     },
-    codeList: { title: 'Observation Code List', subtitle: '(use one character per entry)', style: 'pipes' },
     comments: {
       key: 'comments',
       title: 'ADDITIONAL COMMENTS',
       subtitle: '(Optional)',
       required: false,
-      minLines: 4,
-      maxLength: 2000,
+      minLines: 2,
+      maxLength: 600,
       style: 'box',
     },
-    signOff: {
-      letter: null,
-      title: 'SIGN-OFF',
-      declaration: 'I confirm that the attendance and observations recorded on this form are accurate for the week indicated.',
-      educatorLabel: 'Educator',
-      hodLabel: 'HOD / Deputy',
-    },
+    signOff: SIGN_OFF('I confirm that the attendance and observations recorded on this form are accurate for the week indicated.'),
   },
 
   subject: {
@@ -140,21 +137,17 @@ export const FORMS = {
     shortTitle: 'Subject Class',
     fileStem: 'Subject-Class',
     codeBoxLines: ['SUBJECT WEEKLY', 'ATTENDANCE & OBSERVATION'],
-    identifierKeys: ['subjectClass', 'academicYear', 'term', 'week'],
+    headerTitle: 'SUBJECT CLASS ATTENDANCE',
+    headerPeriod: HEADER_PERIOD,
+    identifierKeys: ['subjectClass'],
     meta: {
       rows: [
-        [
-          { ...META_YEAR, span: 2 },
-          { ...META_TERM, span: 1 },
-          { ...META_WEEK, span: 1 },
-        ],
+        // Day / Period(s) used to live here; the per-day Period row above the
+        // attendance grid records it more precisely, so it is not repeated.
         [
           { key: 'subject', label: 'Subject:', kind: 'text', required: true, maxLength: 40, span: 2, placeholder: 'e.g. Mathematics' },
-          { key: 'subjectClass', label: 'Subject Class (e.g. 9A G1):', kind: 'text', required: true, maxLength: 20, span: 2, placeholder: 'e.g. 9A G1' },
-        ],
-        [
-          { key: 'educator', label: 'Educator:', kind: 'text', required: true, maxLength: 60, span: 2, placeholder: 'Educator full name' },
-          { key: 'dayPeriods', label: 'Day / Period(s):', kind: 'text', required: true, maxLength: 40, span: 2, placeholder: 'e.g. Mon P1–2, Wed P4' },
+          { key: 'subjectClass', label: 'Subject Class:', kind: 'text', required: true, maxLength: 20, span: 2, placeholder: 'e.g. 9A G1' },
+          { key: 'educator', label: 'Educator:', kind: 'text', required: true, maxLength: 60, span: 3, placeholder: 'Educator full name' },
         ],
         [{ ...META_CLASS_LIST }],
       ],
@@ -165,29 +158,19 @@ export const FORMS = {
       subtitle: '(Record absences and late arrivals only)',
       notes: ATTENDANCE_NOTES,
       defaultRows: 6,
-      overflowRows: 8,
-      maxRows: 60,
-      continueNote: 'More entries? Continue on page 2, Section A2.',
-      overflow: {
-        letter: 'A2',
-        title: 'ATTENDANCE (CONTINUED)',
-        subtitle: '(Continued from Section A on page 1)',
-      },
+      maxRows: 6,
+      periodRow: { label: 'Period' },
     },
     observations: {
       letter: 'B',
       title: 'NOTABLE LEARNER OBSERVATIONS',
       subtitle: '(Use one code per day where applicable)',
-      notes: [
-        'Use the learner’s position number from the class list (learner names are on a separate reference list).',
-        'Record one observation code (one character) for each day. If no observation, leave the cell blank.',
-      ],
+      notes: OBSERVATION_NOTES,
       /** 'split' = separate Learner No. and Code sub-columns per day. */
       mode: 'split',
       defaultRows: 6,
-      maxRows: 60,
+      maxRows: 6,
     },
-    codeList: { title: 'Observation Code List', subtitle: '(use one character per entry)', style: 'equals' },
     atp: {
       letter: 'C',
       title: 'ATP REFERENCE AND COMPLETION',
@@ -200,17 +183,11 @@ export const FORMS = {
       key: 'comments',
       title: null, // rendered inside section C
       required: false,
-      minLines: 5,
-      maxLength: 2000,
+      minLines: 2,
+      maxLength: 600,
       style: 'lines',
     },
-    signOff: {
-      letter: 'D',
-      title: 'SIGN-OFF',
-      declaration: 'I confirm that the attendance, observations and ATP information recorded on this form are accurate for the week indicated.',
-      educatorLabel: 'Educator',
-      hodLabel: 'HOD / Subject Head',
-    },
+    signOff: { ...SIGN_OFF('I confirm that the attendance, observations and ATP information recorded on this form are accurate for the week indicated.'), letter: 'D' },
   },
 };
 

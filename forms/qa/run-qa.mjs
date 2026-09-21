@@ -20,39 +20,42 @@ const ONLY = process.argv[2];
 const scenarios = [
   {
     name: 'register-standard', page: 'register-class.html',
-    meta: { academicYear: '2026', term: '3', week: '5', registerClass: '9A', educator: 'Ms N. Dlamini' },
+    meta: { registerClass: '9A', educator: 'Ms N. Dlamini', classListDate: '14 / 04 / 2026' },
+    periods: { mon: 'P1', tue: 'P1', wed: 'P1', thu: 'P1', fri: 'P1' },
     attendance: { 0: { mon: { a: '14' }, wed: { l: '7' } }, 1: { mon: { a: '22' }, thu: { a: '22' } }, 2: { tue: { l: '3' } }, 3: { fri: { a: '31' } }, 4: { wed: { a: '9' }, thu: { a: '9' }, fri: { a: '9' } } },
     observations: { 0: { mon: { learner: '14', code: 'C' }, wed: { learner: '5', code: 'P' } }, 1: { tue: { learner: '22', code: 'N' } }, 2: { fri: { learner: '8', code: 'E' } } },
-    comments: 'Learner 9 was absent for three consecutive days; parents contacted on Thursday. Learner 8 delivered an exceptional oral presentation on Friday.',
-    date: { dd: '19', mm: '09', yyyy: '2026' },
+    comments: 'Learner 9 absent three days; parents contacted Thursday.',
+    signOff: { term: '2', week: '5', startDate: { dd: '04', mm: '05', yyyy: '2026' }, endDate: { dd: '08', mm: '05', yyyy: '2026' } },
   },
   {
     name: 'subject-standard', page: 'subject-class.html',
-    meta: { academicYear: '2026', term: '3', week: '5', subject: 'Mathematics', subjectClass: '9A G1', educator: 'Mr T. Jacobs', dayPeriods: 'Mon P1–2, Wed P4, Fri P6' },
+    meta: { subject: 'Mathematics', subjectClass: '9A G1', educator: 'Mr T. Jacobs', classListDate: '14 / 04 / 2026' },
+    periods: { mon: 'P1', wed: 'P4', fri: 'P6' },
     attendance: { 0: { mon: { a: '14' } }, 1: { mon: { l: '2' }, wed: { l: '2' } }, 2: { fri: { a: '27' } } },
     observations: { 0: { mon: { learner: '14', code: 'C' }, wed: { learner: '11', code: 'E' } }, 1: { fri: { learner: '3', code: 'P' } }, 2: { wed: { learner: '27', code: 'N' } } },
-    atp: { code: 'MATH-9-T3-W5', status: 'not_completed' },
-    comments: 'Deviation: Unit 5.3 (linear equations) not completed due to Wednesday assembly. Focus for next week: complete 5.3 and begin 5.4 with remedial support for learners 14 and 27.',
-    date: { dd: '19', mm: '09', yyyy: '2026' },
+    atp: { code: 'MATH-9-T2-W5', status: 'not_completed' },
+    comments: 'Deviation: Unit 5.3 not completed due to Wednesday assembly.',
+    signOff: { term: '2', week: '5', startDate: { dd: '04', mm: '05', yyyy: '2026' }, endDate: { dd: '08', mm: '05', yyyy: '2026' } },
   },
   {
-    name: 'register-long', page: 'register-class.html',
-    meta: { academicYear: '2026', term: '3', week: '10', registerClass: '10B', educator: 'Mrs S. van der Merwe' },
-    extraAttendanceRows: 22, extraObservationRows: 12,
-    attendance: Object.fromEntries(Array.from({ length: 32 }, (_, i) => [i, { mon: { a: String(i + 1) }, fri: { l: String((i * 3) % 40 + 1) } }])),
-    observations: Object.fromEntries(Array.from({ length: 22 }, (_, i) => [i, { tue: { learner: String(i + 1), code: 'PECN'[i % 4] } }])),
-    comments: Array.from({ length: 9 }, (_, i) => `Comment paragraph ${i + 1}: this is a deliberately long set of educator comments used to verify that the additional comments box flows correctly across page boundaries without clipping, overflow or orphaned lines.`).join('\n'),
-    date: { dd: '25', mm: '09', yyyy: '2026' },
+    name: 'register-full', page: 'register-class.html',
+    meta: { registerClass: '10B', educator: 'Mrs S. van der Merwe', classListDate: '14 / 04 / 2026' },
+    periods: { mon: 'P1', tue: 'P1', wed: 'P1', thu: 'P1', fri: 'P1' },
+    // every slot filled: the grid is fixed, so this is the worst case it must hold
+    attendance: Object.fromEntries(Array.from({ length: 8 }, (_, i) => [i, { mon: { a: String(i + 1) }, fri: { l: String((i * 3) % 40 + 1) } }])),
+    observations: Object.fromEntries(Array.from({ length: 8 }, (_, i) => [i, { tue: { learner: String(i + 1), code: 'PECN'[i % 4] } }])),
+    comments: 'A deliberately long comment used to check that the write-in box holds its designed size and does not push the sign-off onto a second page even when the text overflows the visible lines.',
+    signOff: { term: '4', week: '10', startDate: { dd: '23', mm: '11', yyyy: '2026' }, endDate: { dd: '27', mm: '11', yyyy: '2026' } },
   },
   {
-    name: 'subject-long', page: 'subject-class.html',
-    meta: { academicYear: '2026', term: '4', week: '2', subject: 'Physical Sciences', subjectClass: '11C G2', educator: 'Dr L. Mokoena', dayPeriods: 'Tue P3, Thu P5–6' },
-    extraAttendanceRows: 18, extraObservationRows: 14,
-    attendance: Object.fromEntries(Array.from({ length: 24 }, (_, i) => [i, { tue: { a: String(i + 1) } }])),
-    observations: Object.fromEntries(Array.from({ length: 20 }, (_, i) => [i, { thu: { learner: String(i + 1), code: 'PECN'[i % 4] } }])),
+    name: 'subject-full', page: 'subject-class.html',
+    meta: { subject: 'Physical Sciences', subjectClass: '11C G2', educator: 'Dr L. Mokoena', classListDate: '14 / 04 / 2026' },
+    periods: { tue: 'P3', thu: 'P5-6' },
+    attendance: Object.fromEntries(Array.from({ length: 6 }, (_, i) => [i, { tue: { a: String(i + 1) } }])),
+    observations: Object.fromEntries(Array.from({ length: 6 }, (_, i) => [i, { thu: { learner: String(i + 1), code: 'PECN'[i % 4] } }])),
     atp: { code: 'PHSC-11-T4-W2', status: 'completed' },
-    comments: Array.from({ length: 10 }, (_, i) => `Note ${i + 1}: practical investigation on Newton's second law completed; learners requiring consolidation are listed in observations. The next cycle begins with momentum and impulse.`).join(' '),
-    date: { dd: '16', mm: '10', yyyy: '2026' },
+    comments: 'Practical investigation on Newton’s second law completed; learners requiring consolidation are listed in the observations above.',
+    signOff: { term: '4', week: '2', startDate: { dd: '12', mm: '10', yyyy: '2026' }, endDate: { dd: '16', mm: '10', yyyy: '2026' } },
   },
 ];
 
@@ -68,8 +71,7 @@ async function fill(page, sc) {
     if (await group.count()) await typeChars(page, `.char-group[data-path="meta.${k}"]`, v);
     else await page.locator(`input[data-path="meta.${k}"]`).fill(v);
   }
-  for (let i = 0; i < (sc.extraAttendanceRows || 0); i++) await page.locator('.attendance-overflow').locator('..').locator('..').locator('.row-controls button', { hasText: 'Add row' }).click();
-  for (let i = 0; i < (sc.extraObservationRows || 0); i++) await page.locator('.obs-table').locator('..').locator('..').locator('.row-controls button', { hasText: 'Add row' }).click();
+  for (const [d, v] of Object.entries(sc.periods || {})) await page.locator(`input[data-path="periods.${d}"]`).fill(v);
   for (const [row, days] of Object.entries(sc.attendance || {})) for (const [d, cells] of Object.entries(days)) for (const [k, v] of Object.entries(cells)) await page.locator(`input[data-path="attendance.${row}.${d}.${k}"]`).fill(v);
   for (const [row, days] of Object.entries(sc.observations || {})) for (const [d, cells] of Object.entries(days)) for (const [k, v] of Object.entries(cells)) await page.locator(`input[data-path="observations.${row}.${d}.${k}"]`).fill(v);
   if (sc.atp) {
@@ -77,9 +79,19 @@ async function fill(page, sc) {
     await page.locator(`label[for="atp-status-${sc.atp.status}"]`).click();
   }
   if (sc.comments) await page.locator('textarea[data-path="comments"]').fill(sc.comments);
-  // signature: draw a looping stroke on the educator pad (the HOD counter-signs
-  // after printing, so that pad is deliberately left empty here)
-  const pad = page.locator('[data-path="signOff.signature"] canvas.sig-pad');
+
+  // term and week, then the two dates
+  await typeChars(page, '.char-group[data-path="signOff.term"]', sc.signOff.term);
+  await typeChars(page, '.char-group[data-path="signOff.week"]', sc.signOff.week);
+  for (const key of ['startDate', 'endDate']) {
+    const parts = sc.signOff[key];
+    for (const part of ['dd', 'mm', 'yyyy']) {
+      await typeChars(page, `[data-path="signOff.${key}"] .date-part[data-path="${part}"]`, parts[part]);
+    }
+  }
+
+  // signature: draw a looping stroke
+  const pad = page.locator('canvas.sig-pad');
   await pad.evaluate((el) => el.scrollIntoView({ block: 'center' }));
   const box = await pad.boundingBox();
   const pts = [];
@@ -87,9 +99,6 @@ async function fill(page, sc) {
   await page.mouse.move(pts[0][0], pts[0][1]); await page.mouse.down();
   for (const [x, y] of pts) await page.mouse.move(x, y, { steps: 2 });
   await page.mouse.up();
-  await typeChars(page, '.date-part[data-path="dd"]', sc.date.dd);
-  await typeChars(page, '.date-part[data-path="mm"]', sc.date.mm);
-  await typeChars(page, '.date-part[data-path="yyyy"]', sc.date.yyyy);
 }
 
 async function run() {
@@ -142,6 +151,8 @@ async function run() {
       for (const d of downloads) await d.saveAs(path.join(dir, d.suggestedFilename()));
       await page.screenshot({ path: path.join(dir, 'result-panel.png'), fullPage: true });
       if (downloads.length !== info.pageCount) { failures++; console.log(`  FAIL: expected ${info.pageCount} PNG downloads, got ${downloads.length}`); }
+      // both forms are designed to be a single page, however full the grid
+      if (info.pageCount !== 1) { failures++; console.log(`  FAIL: expected 1 page, got ${info.pageCount}`); }
       if (errors.length) { failures++; console.log('  FAIL: browser errors:', errors); }
       await ctx.close();
     }

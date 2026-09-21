@@ -21,6 +21,11 @@ Completed form  →  Form data model  →  layout engine (A4, mm)  →  PDF (jsP
                                                               →  PNG (canvas, 2480 × 3508 px, 300 DPI)
 ```
 
+Term, week and the week's start and end dates are captured in the sign-off,
+not the header; the header carries the class, educator and class-list date.
+The period each day's register was taken in is recorded in a Period row above
+the attendance grid.
+
 ## Run it
 
 ```bash
@@ -45,24 +50,24 @@ and the educator writes a learner's position number into the A (absent) or L
 (late) column for the relevant day. A row per learner cannot fit a 45-learner
 class on a page, so the form does not pretend to.
 
-| | Section A (page 1) | Section A2 (page 2) | Total slots per day |
-| --- | --- | --- | --- |
-| Register Class (SA-01) | 10 | 12 | 22 |
-| Subject Class (SA-02) | 6 | 8 | 14 |
+| | Entry slots per day |
+| --- | --- |
+| Register Class (SA-01) | 8 |
+| Subject Class (SA-02) | 6 |
 
-Section A2 is a real continuation grid on page 2, not a note pointing at the
-back of the page. It is laid out whole on one page; slots added beyond the
-designed size flow normally rather than stranding a part-empty page. More
-slots can be added from Section A2 on screen, up to `maxRows`.
+The slot count is fixed: the form is one page, so there is no continuation
+section and no add-row control. A class with more entries than slots uses a
+second copy of the form.
 
-Every page carries its own barcode and printed page code — `SA01-P1`,
-`SA01-P2`, `SA02-P1` … — so a page separated from its set is identifiable, and
-pages 2 onwards repeat a strip of Year, Term, Week and Class (plus Subject on
-the subject form).
+Above the day header sits a **Period** row — one box per day for the period
+that day's register was taken in.
 
-Sign-off has two columns. The educator signs on submission; the **HOD**
-column (name, signature, date) is optional in validation because it is
-normally counter-signed after the form is printed.
+Each page carries its own barcode and printed page code (`SA01-P1`, `SA02-P1`),
+so a page separated from its set is identifiable.
+
+Sign-off records the **term**, the **week**, the dates that week **starts** and
+**ends**, and the educator's **signature**. Validation requires all five, and
+rejects an end date that falls before its start date.
 
 ## Blank forms
 
@@ -71,11 +76,22 @@ and completion by hand (`Register-Class-BLANK.pdf`, `Subject-Class-BLANK.pdf`).
 It runs the same data model → layout → PDF/PNG pipeline as a submission, fed an
 empty data object, so a blank can never drift from the form people fill in.
 Validation is not involved: nothing is being submitted. On a blank the schema
-placeholders are printed as grey hints, the write-in boxes grow to fill the
-page, and the generation stamp is omitted.
+placeholders print as grey hints and the generation stamp is omitted.
 
 Run `npm run blanks` to regenerate them into `qa/output/blank/`; the committed
 copies are in `samples/`.
+
+## One page
+
+Both forms are designed to be a single A4 page, however full the grid. The
+attendance and observation grids are therefore a fixed set of entry slots —
+8 on the Register form, 6 on the Subject form — with no continuation section
+and no add-row controls, and the write-in boxes keep their designed size
+instead of growing. The submission stamp shares a baseline with the signature
+caption rather than taking a line of its own, so a completed form is exactly
+as tall as a blank. `npm run qa` and `npm run blanks` both fail if anything
+spills onto a second page.
+
 
 ## User flow
 
@@ -124,32 +140,29 @@ information and layout.
 ## QA
 
 ```bash
-npm run qa            # headless Chromium fills both forms (standard + long multi-page data), submits, downloads PDF + PNGs
-npm run qa:inspect    # renders PDF pages, checks every value is in the PDF, page counts, 300 DPI size, PDF↔PNG parity, clipping
+npm run qa            # headless Chromium fills both forms (typical and every-slot-full), submits, downloads PDF + PNG
+npm run qa:inspect    # renders PDF pages, checks every value is in the PDF, page count, 300 DPI size, PDF↔PNG parity, clipping
+npm run blanks        # generates the blanks and audits every corner
 ```
 
 Requires `pip install pymupdf pillow` for the inspection step. Outputs land
-in `qa/output/<scenario>/` (git-ignored). Sample outputs from the standard
-scenarios are committed in `samples/`.
+in `qa/output/` (git-ignored). Committed copies are in `samples/`.
 
-QA results for this build: all four scenarios pass (every submitted value
-present in the PDF text layer; PDF page count equals PNG count; PNGs are
-2480 × 3508 px; mean PDF-vs-PNG pixel difference ≤ 3/255; no ink at the
-page edges; no text blocks outside the page).
+QA results for this build: all four scenarios pass — every submitted value is
+present in the PDF text layer, every form is a single page, PNGs are
+2480 × 3508 px, mean PDF-vs-PNG pixel difference ≤ 2.1/255, no clipping. The
+blanks are one page each with 287/287 and 252/252 rectangles rounded and no
+square corner outside the barcode.
 
 ## Notes on the design
 
-* Layout, colours, section structure, tables and wording follow the
-  *Register Class – Final Form Design v1* and *Subject Class – Final Form
-  Design v3* references. The crest is a vector approximation of the school
-  crest (`assets/crest.svg`); replace the file with the official artwork if
-  available (any SVG at 1:1 aspect works).
-* Header fields use SARS-style character boxes (year, term, week, date) and
-  rounded field containers (class, subject, educator, ATP code).
-* An **Educator sign-off** section (declaration, signature, date) was added
-  to both forms so the generated document can be signed and dated.
-* Long forms (more than the default 10 / 6 rows, or long comments) split
-  across pages with a compact continuation header, repeated table headers
-  and `Page X of Y` footers. The standard Register/Subject forms produce two
-  pages: the attendance/observation sheet (page 1) and the comments/sign-off
-  (page 2).
+* Structure follows the **First Home Finance application form**; the colours
+  are the school's own, from `assets/crest.svg`. Replace that file with the
+  official artwork if available (any SVG at 1:1 aspect works).
+* The masthead prints the form's own title and the term it covers in place of
+  the school motto and tagline. That term line is fixed text, so a new blank
+  is generated each term.
+* Fields use SARS-style character boxes (term, week, dates) alongside rounded
+  field containers (class, subject, educator, ATP code).
+* The observation code list is identical on both forms and is printed inside
+  Section B, with the observations it explains.

@@ -29,7 +29,8 @@ export function createEmptyData(type) {
     attendance: Array.from({ length: slots }, emptyAttendanceRow),
     observations: Array.from({ length: form.observations.defaultRows }, emptyObservationRow),
     comments: '',
-    signOff: { signature: null, date: '', hod: { name: '', signature: null, date: '' } },
+    periods: Object.fromEntries(DAYS.map((d) => [d.key, ''])),
+    signOff: { term: '', week: '', startDate: '', endDate: '', signature: null },
   };
   if (form.atp) data.atp = { code: '', status: '' };
   return data;
@@ -98,17 +99,30 @@ export function validate(data) {
     if (c.length > form.comments.maxLength) push('comments', `Comments must be ${form.comments.maxLength} characters or fewer.`);
   }
 
-  const date = (data.signOff?.date || '').trim();
-  if (!date) push('signOff.date', 'Date is required.');
-  else if (!isValidIsoDate(date)) push('signOff.date', 'Enter a valid date (DD MM YYYY).');
-  if (!data.signOff?.signature) push('signOff.signature', 'Educator signature is required.');
+  const sign = data.signOff || {};
+  for (const f of form.signOff.fields) {
+    const v = String(sign[f.key] || '').trim();
+    if (!v) { push(`signOff.${f.key}`, `${f.label.replace(/:$/, '')} is required.`); continue; }
+    const msg = f.validate ? f.validate(v) : null;
+    if (msg) push(`signOff.${f.key}`, msg);
+  }
+  for (const d of form.signOff.dates) {
+    const v = String(sign[d.key] || '').trim();
+    if (!v) push(`signOff.${d.key}`, `${d.label.replace(/:$/, '')} is required.`);
+    else if (!isValidIsoDate(v)) push(`signOff.${d.key}`, `Enter a valid date for ${d.label.replace(/:$/, '').toLowerCase()} (DD MM YYYY).`);
+  }
+  // an end date before its start date means the week was entered the wrong way round
+  const startIso = String(sign.startDate || '').trim();
+  const endIso = String(sign.endDate || '').trim();
+  if (isValidIsoDate(startIso) && isValidIsoDate(endIso) && endIso < startIso) {
+    push('signOff.endDate', 'The week cannot end before it starts.');
+  }
+  if (!sign.signature) push('signOff.signature', 'Educator signature is required.');
 
-  // The HOD counter-signs after the form is printed, so none of it is required
-  // to submit — but anything captured on screen must still be well formed.
-  const hod = data.signOff?.hod || {};
-  const hodDate = (hod.date || '').trim();
-  if (hodDate && !isValidIsoDate(hodDate)) push('signOff.hod.date', 'Enter a valid HOD date (DD MM YYYY).');
-  if ((hod.name || '').length > 60) push('signOff.hod.name', 'HOD name is too long.');
+  for (const d of DAYS) {
+    const v = String(data.periods?.[d.key] || '').trim();
+    if (v.length > 6) push(`periods.${d.key}`, `${d.label} period is too long.`);
+  }
 
   return errors;
 }
@@ -129,9 +143,10 @@ export function normalise(data) {
   for (const row of out.observations) for (const d of DAYS) { row[d.key].learner = row[d.key].learner.trim(); row[d.key].code = row[d.key].code.trim().toUpperCase(); }
   if (out.atp) out.atp.code = String(out.atp.code || '').trim();
   out.comments = String(out.comments || '').replace(/\r\n?/g, '\n').trim();
-  if (!out.signOff) out.signOff = { signature: null, date: '' };
-  if (!out.signOff.hod) out.signOff.hod = { name: '', signature: null, date: '' };
-  out.signOff.hod.name = String(out.signOff.hod.name || '').trim();
+  if (!out.signOff) out.signOff = { term: '', week: '', startDate: '', endDate: '', signature: null };
+  for (const k of ['term', 'week', 'startDate', 'endDate']) out.signOff[k] = String(out.signOff[k] || '').trim();
+  if (!out.periods) out.periods = Object.fromEntries(DAYS.map((d) => [d.key, '']));
+  for (const d of DAYS) out.periods[d.key] = String(out.periods[d.key] || '').trim().toUpperCase();
   return out;
 }
 
@@ -141,18 +156,18 @@ export function isRowEmpty(row) {
 }
 
 /**
- * Human-readable identifier used in file names, e.g. "9A-2026-T3-W5".
- * Built from the meta fields listed in the schema; falls back to the
- * document number if any part is missing.
+ * Human-readable identifier used in file names, e.g. "9A-T3-W5".
+ * Built from the class in the header plus the term and week from the
+ * sign-off; falls back to the document number if any part is missing.
  */
 export function buildIdentifier(data, docNumber) {
   const form = getForm(data.formType);
-  const parts = form.identifierKeys.map((k) => {
-    let v = String(data.meta[k] || '').trim();
-    if (k === 'term') v = v ? `T${v}` : '';
-    if (k === 'week') v = v ? `W${v}` : '';
-    return v;
-  });
+  const sign = data.signOff || {};
+  const parts = [
+    ...form.identifierKeys.map((k) => String(data.meta[k] || '').trim()),
+    sign.term ? `T${sign.term}` : '',
+    sign.week ? `W${sign.week}` : '',
+  ];
   if (parts.some((p) => !p)) return docNumber;
   const id = parts.join('-').toUpperCase().replace(/[^A-Z0-9-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
   return id || docNumber;

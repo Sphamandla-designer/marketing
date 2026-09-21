@@ -29,6 +29,9 @@ def expected_values(data):
             if row[d]['code']: vals.append(row[d]['code'])
     if data.get('atp'):
         vals.append(data['atp']['code'])
+    sign = data.get('signOff') or {}
+    for k in ('term', 'week'):
+        if sign.get(k): vals.append(sign[k])
     if data.get('comments'):
         vals += [w for w in re.findall(r"[A-Za-z0-9']+", data['comments']) if len(w) > 3][:80]
     return vals
@@ -36,6 +39,8 @@ def expected_values(data):
 for scen in sorted(os.listdir(OUT)):
     d = os.path.join(OUT, scen)
     if not os.path.isdir(d): continue
+    # qa/output/blank holds generated blanks, not scenario runs — skip it here
+    if not os.path.exists(os.path.join(d, 'data.json')): continue
     info = json.load(open(os.path.join(d, 'data.json')))
     pdfs = glob.glob(os.path.join(d, '*.pdf'))
     pngs = sorted(p for p in glob.glob(os.path.join(d, '*.png')) if os.path.basename(p) not in ('interactive-form.png', 'result-panel.png'))
@@ -56,12 +61,17 @@ for scen in sorted(os.listdir(OUT)):
     must_have = [
         info['docNumber'], info['identifier'],
         'FISANTEKRAAL HIGH SCHOOL', 'FORM CODE', form_code,
-        'Educator', 'Signature', 'HOD',                 # both sign-off columns
+        'ATTENDANCE', 'Period',                         # section A and its period row
+        'Observation Code List',                        # printed inside section B
+        'SIGN-OFF', 'Term:', 'Week:', 'Week starts:', 'Week ends:',
+        'Educator signature',
         'Position numbers as per class list dated',     # class list reference
         f'Page {len(doc)} of {len(doc)}',
     ]
-    if len(doc) > 1:
-        must_have.append('ATTENDANCE (CONTINUED)')      # Section A2
+    # both forms are designed to be a single page
+    if len(doc) != 1:
+        failures += 1
+        print(f'  FAIL: expected 1 page, got {len(doc)}')
     for must in must_have:
         if must not in flat: failures += 1; print(f'  FAIL: "{must}" not found in PDF text')
     # every page carries its own barcode identifier, e.g. SA01-P1 … SA01-Pn

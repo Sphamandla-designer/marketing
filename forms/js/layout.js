@@ -11,7 +11,7 @@
  *   { t:'text',  s, x, y, size, style, color }      // y = baseline, x = left edge
  *   { t:'image', src, x,y,w,h }
  */
-import { SCHOOL, DAYS, OBSERVATION_CODES, ATP_STATUS, getForm } from './schema.js';
+import { SCHOOL, DAYS, OBSERVATION_CODES, CODE_LIST, ATP_STATUS, getForm } from './schema.js';
 import { encodeCode128B } from './barcode.js';
 import { formatDisplayDate } from './model.js';
 
@@ -54,14 +54,17 @@ const CELL_INSET = 0.55;
  * Heights inside the sign-off card. The HOD column carries an extra name row,
  * so it is the taller of the two and sets the card height.
  */
-const SIGN_CAPTION_H = 7;      // caption band + gap
-const SIGN_NAME_H = 7.6;       // name row + gap (HOD only)
-const SIGN_PAD_H = 14;         // signature pad
-const SIGN_PAD_LABEL_H = 4.4;  // "Signature" caption under the pad
-const SIGN_DATE_H = 5.2;       // date character boxes
-const SIGN_STAMP_H = 5.4;      // document/reference/generated line (submissions only)
+const SIGN_FIELD_ROW_H = 7.4;  // term / week / start / end band
+const SIGN_PAD_H = 11;         // signature pad
+const SIGN_PAD_LABEL_H = 3.6;  // caption under the pad
 /** Gap left below a closed card before the next one. */
-const CARD_GAP = 3.6;
+const CARD_GAP = 2.0;
+/** Height of a card's header bar. */
+const CARD_HEADER_H = 6.8;
+/** Height of a table data row. */
+const ROW_H = 5.0;
+/** Height of the per-day period row above the day header. */
+const PERIOD_ROW_H = 5.0;
 /** Height consumed by the page-2+ header: crest row, identity strip and gap. */
 const CONTINUATION_HEADER_H = 23;
 
@@ -247,7 +250,7 @@ class Builder {
   }
   /** Navy header bar inside the top of the open card. */
   cardHeader(letter, title, subtitle) {
-    const h = 7.4;
+    const h = CARD_HEADER_H;
     const x = this.x0 + CARD_PAD, w = this.cw - CARD_PAD * 2;
     this.y += CARD_PAD;
     this.rect(x, this.y, w, h, { fill: COLORS.brand, r: RADIUS.bar });
@@ -260,7 +263,7 @@ class Builder {
   }
   /** Slate instruction band with white text, as under SECTION A of the reference. */
   instructionBand(notes) {
-    const size = 8.2, lh = 3.9, pad = 1.5;
+    const size = 8, lh = 3.7, pad = 1.4;
     const x = this.x0 + CARD_PAD, w = this.cw - CARD_PAD * 2;
     const lines = notes.flatMap((n) => this.wrap(n, w - 5, size, 'italic'));
     const h = lines.length * lh + pad * 2;
@@ -272,27 +275,28 @@ class Builder {
 
   fullHeader() {
     const y = this.y;
-    if (this.crest) this.image(this.crest.dataUrl, this.x0, y, 23, 23);
+    if (this.crest) this.image(this.crest.dataUrl, this.x0, y, 21, 21);
     const panelW = 44, panelX = this.x0 + this.cw - panelW;
-    const cx = (this.x0 + 25 + panelX - 3) / 2;
-    this.text(SCHOOL.name, cx, y + 9, { size: 19, style: 'bold', color: COLORS.brand, align: 'center' });
-    this.spacedText(SCHOOL.motto, cx, y + 14.6, { size: 7.6, spacing: 1.1, align: 'center', color: COLORS.band });
-    this.text(SCHOOL.tagline, cx, y + 20.4, { size: 9.5, style: 'italic', align: 'center', color: COLORS.brand });
+    const cx = (this.x0 + 23 + panelX - 3) / 2;
+    this.text(SCHOOL.name, cx, y + 8, { size: 17, style: 'bold', color: COLORS.brand, align: 'center' });
+    this.spacedText(this.form.headerTitle, cx, y + 13.6, { size: 8.8, spacing: 0.9, style: 'bold', align: 'center', color: COLORS.band });
+    this.text(this.form.headerPeriod, cx, y + 18.6, { size: 8.6, style: 'italic', align: 'center', color: COLORS.brand });
     // form code panel: brand cap bar over a white body, both rounded
-    const capH = 4.6, panelH = 16.4;
+    const capH = 4.2, panelH = 15.6;
     this.rect(panelX, y, panelW, panelH, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.4, r: RADIUS.chip });
     this.rect(panelX + 0.8, y + 0.8, panelW - 1.6, capH, { fill: COLORS.brand, r: 0.8 });
     this.text('FORM CODE', panelX + panelW / 2, centreBaseline(y + 0.8, capH, 6.2), { size: 6.2, style: 'bold', align: 'center', color: COLORS.white });
-    this.text(this.form.formCode, panelX + panelW / 2, y + 11.2, { size: 12, style: 'bold', align: 'center', color: COLORS.brand });
-    this.text(this.form.codeBoxLines[0], panelX + panelW / 2, y + 13.7, { size: 4.9, style: 'bold', align: 'center', color: COLORS.band });
-    this.text(this.form.codeBoxLines[1], panelX + panelW / 2, y + 15.9, { size: 4.9, style: 'bold', align: 'center', color: COLORS.band });
-    // barcode sits in its own rounded white plate
-    const bcY = y + panelH + 1.4, bcH = 9.6;
+    this.text(this.form.formCode, panelX + panelW / 2, y + 10.2, { size: 11, style: 'bold', align: 'center', color: COLORS.brand });
+    this.text(this.form.codeBoxLines[0], panelX + panelW / 2, y + 12.3, { size: 4.6, style: 'bold', align: 'center', color: COLORS.band });
+    this.text(this.form.codeBoxLines[1], panelX + panelW / 2, y + 14.4, { size: 4.6, style: 'bold', align: 'center', color: COLORS.band });
+    // barcode sits in its own rounded white plate; the plate is tall enough
+    // that the code text clears the bars rather than printing over them
+    const bcY = y + panelH + 1.2, bcH = 8.8;
     this.rect(panelX, bcY, panelW, bcH, { fill: COLORS.white, stroke: COLORS.hair, lw: 0.3, r: RADIUS.box });
     const pageCode = this.pageCode();
-    this.barcode(panelX + 1.2, bcY + 1.1, panelW - 2.4, 5, pageCode);
-    this.text(pageCode, panelX + panelW / 2, bcY + bcH - 1.4, { size: 5.8, align: 'center', color: COLORS.band });
-    this.y = Math.max(y + 24.5, bcY + bcH) + 2.6;
+    this.barcode(panelX + 1.2, bcY + 1, panelW - 2.4, 4.4, pageCode);
+    this.text(pageCode, panelX + panelW / 2, bcY + bcH - 1.1, { size: 5.6, align: 'center', color: COLORS.band });
+    this.y = Math.max(y + 22.5, bcY + bcH) + 2.2;
   }
   /**
    * Page 2 onwards. Carries a barcode of its own and a strip of the identifying
@@ -378,7 +382,7 @@ class Builder {
    */
   metaTable() {
     const rows = this.form.meta.rows;
-    const rowH = 7.6;
+    const rowH = 6.9;
     this.ensure(rowH * rows.length + CARD_PAD * 2 + 4);
     this.beginCard();
     this.y += CARD_PAD;
@@ -389,9 +393,9 @@ class Builder {
       let x = x0;
       for (const f of row) {
         const w = (cw * f.span) / spanTotal;
-        const labelW = this.measure(f.label, 9, 'bold') + 5;
+        const labelW = this.measure(f.label, 8.6, 'bold') + 4.6;
         this.rect(x + 0.4, y + 0.4, labelW, rowH - 0.8, { fill: COLORS.pale, r: RADIUS.band });
-        this.text(f.label, x + 3, centreBaseline(y, rowH, 9), { size: 9, style: 'bold', color: COLORS.brand });
+        this.text(f.label, x + 3, centreBaseline(y, rowH, 9), { size: 8.6, style: 'bold', color: COLORS.brand });
         const value = String(this.data.meta[f.key] ?? '');
         if (f.kind === 'chars') {
           const chars = value.split('');
@@ -473,33 +477,29 @@ class Builder {
    * Slot model: a row is an entry slot, not a learner. Section A holds the
    * slots that fit on page 1; anything beyond continues in Section A2.
    */
-  attendanceGrid({ sec, rows, firstSlot, letter, title, subtitle, notes, footerText, keepTogether }) {
+  attendanceGrid({ sec, rows, firstSlot, letter, title, subtitle, notes, footerText }) {
     const cw = this.cw - CARD_PAD * 2;
     const noW = 9; const dayW = (cw - noW) / DAYS.length; const subW = dayW / 2;
     const cols = [{ w: noW }, ...DAYS.flatMap(() => [{ w: subW }, { w: subW }])];
     const headerRows = [
-      { h: 5.8, cells: [{ span: 1, text: '#', rowSpan: 3, tone: 'pale' }, ...DAYS.map((d) => ({ span: 2, text: d.label }))] },
-      { h: 4.8, cells: [{ span: 1, text: '', skip: true }, ...DAYS.flatMap(() => [{ span: 1, text: 'A', tone: 'pale' }, { span: 1, text: 'L', tone: 'pale' }])] },
-      { h: 4.4, cells: [{ span: 1, text: '', skip: true }, ...DAYS.flatMap(() => [{ span: 1, text: 'Learner No.', size: 6.2, tone: 'pale' }, { span: 1, text: 'Learner No.', size: 6.2, tone: 'pale' }])] },
+      { h: 5.0, cells: [{ span: 1, text: '#', rowSpan: 2, tone: 'pale' }, ...DAYS.map((d) => ({ span: 2, text: d.label }))] },
+      { h: 4.0, cells: [{ span: 1, text: '', skip: true }, ...DAYS.flatMap(() => [{ span: 1, text: 'A', tone: 'pale' }, { span: 1, text: 'L', tone: 'pale' }])] },
     ];
-    const rowH = 6.4;
-    const open = (continued) => {
+    const rowH = ROW_H;
+    const open = () => {
       this.beginCard();
-      this.cardHeader(letter, title, continued ? '(continued)' : subtitle);
-      if (!continued && notes) this.instructionBand(notes);
+      this.cardHeader(letter, title, subtitle);
+      if (notes) this.instructionBand(notes);
     };
     const headerH = headerRows.reduce((a, r) => a + r.h, 0);
-    const frame = CARD_PAD + 7.4 + (notes ? 10 : 0) + BAND_GAP + headerH;
-    const whole = frame + rowH * rows.length + CARD_PAD + CARD_GAP;
-    // A2 is "the continuation grid on page 2", so it should not split across
-    // pages. Only worth forcing when it could actually fit on a fresh page —
-    // an oversized grid would otherwise leave a page blank and still split.
-    const fitsAFreshPage = whole <= this.bottom - PAGE.mt - CONTINUATION_HEADER_H;
-    this.ensure(keepTogether && fitsAFreshPage ? whole : frame + rowH * 2);
-    open(false);
+    const periodH = sec.periodRow ? PERIOD_ROW_H + BAND_GAP : 0;
+    const frame = CARD_PAD + CARD_HEADER_H + (notes ? this.bandHeight(notes) : 0) + periodH + BAND_GAP + headerH;
+    // the form is a single page by design, so the whole grid is kept together
+    this.ensure(frame + rowH * rows.length + (footerText ? 6 : 0) + CARD_PAD + CARD_GAP);
+    open();
+    if (sec.periodRow) this.periodRow(sec.periodRow, noW, dayW);
     this.table({
       cols, headerRows, rows, rowH,
-      continuedBanner: () => open(true),
       footerRow: footerText ? { h: 6, text: footerText } : null,
       drawRow: (row, i, y, h) => {
         let x = this.x0 + CARD_PAD;
@@ -513,6 +513,28 @@ class Builder {
     this.endCard();
   }
 
+  /** Height an instruction band will take, so callers can reserve space for it. */
+  bandHeight(notes) {
+    const w = this.cw - CARD_PAD * 2 - 5;
+    const lines = notes.flatMap((n) => this.wrap(n, w, 8, 'italic'));
+    return BAND_GAP + lines.length * 3.7 + 2.8;
+  }
+
+  /** A row of per-day period boxes sitting above the day header. */
+  periodRow(cfg, noW, dayW) {
+    const x0 = this.x0 + CARD_PAD;
+    const y = this.y + BAND_GAP;
+    const h = PERIOD_ROW_H;
+    this.rect(x0, y, noW, h, { fill: COLORS.pale, r: RADIUS.box });
+    this.text(cfg.label, x0 + noW / 2, centreBaseline(y, h, 6.4), { size: 6.4, style: 'bold', align: 'center', color: COLORS.brand });
+    DAYS.forEach((d, i) => {
+      const x = x0 + noW + i * dayW;
+      const bw = Math.min(dayW - 3, 18);
+      this.roundedField(x + (dayW - bw) / 2, y + 0.3, bw, h - 0.6, this.data.periods?.[d.key] || '', { size: 8.2, style: 'bold', align: 'center' });
+    });
+    this.y = y + h;
+  }
+
   attendanceSection() {
     const sec = this.form.attendance;
     this.attendanceGrid({
@@ -523,27 +545,7 @@ class Builder {
       title: sec.title,
       subtitle: sec.subtitle,
       notes: sec.notes,
-      footerText: sec.continueNote,
-    });
-  }
-
-  /** Section A2: the continuation grid printed on page 2. */
-  attendanceOverflowSection() {
-    const sec = this.form.attendance;
-    const rows = this.data.attendance.slice(sec.defaultRows);
-    if (!rows.length) return;
-    this.attendanceGrid({
-      sec,
-      rows,
-      firstSlot: sec.defaultRows + 1,
-      letter: sec.overflow.letter,
-      title: sec.overflow.title,
-      subtitle: sec.overflow.subtitle,
-      notes: null,
       footerText: null,
-      // the designed grid stays whole on one page; slots added beyond it flow
-      // normally rather than stranding a part-empty page
-      keepTogether: rows.length <= sec.overflowRows,
     });
   }
 
@@ -551,24 +553,22 @@ class Builder {
     const sec = this.form.observations;
     const rows = this.data.observations;
     const cw = this.cw - CARD_PAD * 2;
-    const noW = 11; const dayW = (cw - noW) / DAYS.length;
-    const rowH = 6.4;
-    const open = (continued) => {
-      this.beginCard();
-      this.cardHeader(sec.letter, sec.title, continued ? '(continued)' : sec.subtitle);
-      if (!continued) this.instructionBand(sec.notes);
-    };
-    this.ensure(CARD_PAD + 7.4 + 12 + 11 + rowH * 2);
-    open(false);
-    // both forms use the split Learner No. / Code layout
+    const noW = 9; const dayW = (cw - noW) / DAYS.length;
+    const rowH = ROW_H;
+    const headerRows = [
+      { h: 5.0, cells: [{ span: 1, text: 'No.', rowSpan: 2, tone: 'pale' }, ...DAYS.map((d) => ({ span: 2, text: d.label }))] },
+      { h: 4.0, cells: [{ span: 1, text: '', skip: true }, ...DAYS.flatMap(() => [{ span: 1, text: 'Learner No.', size: 6.2, tone: 'pale' }, { span: 1, text: 'Code', size: 6.2, tone: 'pale' }])] },
+    ];
+    const headerH = headerRows.reduce((a, r) => a + r.h, 0);
+    const frame = CARD_PAD + CARD_HEADER_H + this.bandHeight(sec.notes) + BAND_GAP + headerH;
+    this.ensure(frame + rowH * rows.length + this.codeListHeight() + CARD_PAD + CARD_GAP);
+    this.beginCard();
+    this.cardHeader(sec.letter, sec.title, sec.subtitle);
+    this.instructionBand(sec.notes);
     const learnerW = dayW * 0.6, codeW = dayW * 0.4;
     const cols = [{ w: noW }, ...DAYS.flatMap(() => [{ w: learnerW }, { w: codeW }])];
-    const headerRows = [
-      { h: 6, cells: [{ span: 1, text: 'No.', rowSpan: 2, tone: 'pale' }, ...DAYS.map((d) => ({ span: 2, text: d.label }))] },
-      { h: 5, cells: [{ span: 1, text: '', skip: true }, ...DAYS.flatMap(() => [{ span: 1, text: 'Learner No.', size: 7, tone: 'pale' }, { span: 1, text: 'Code', size: 7, tone: 'pale' }])] },
-    ];
     this.table({
-      cols, headerRows, rows, rowH, continuedBanner: () => open(true),
+      cols, headerRows, rows, rowH,
       drawRow: (row, i, y, h) => {
         let x = this.x0 + CARD_PAD;
         this.rowNumber(x, y, noW, h, i + 1); x += noW;
@@ -578,32 +578,34 @@ class Builder {
         }
       },
     });
+    // the code list belongs with the observations it explains, so it sits
+    // inside this card rather than in one of its own
+    this.codeList();
     this.endCard();
   }
 
-  codeListBox() {
-    const cl = this.form.codeList;
-    const h1 = 6.4, h2 = 7.4;
-    this.ensure(CARD_PAD * 2 + h1 + h2 + 4);
-    this.beginCard();
-    this.y += CARD_PAD;
+  codeListHeight() { return BAND_GAP + 5.0 + 5.8; }
+
+  /** Observation codes, printed inside Section B. Identical on both forms. */
+  codeList() {
     const x0 = this.x0 + CARD_PAD, cw = this.cw - CARD_PAD * 2;
-    const y = this.y;
+    const y = this.y + BAND_GAP;
+    const h1 = 5.0, h2 = 5.8;
     this.rect(x0, y, cw, h1, { fill: COLORS.pale, r: RADIUS.band });
-    this.runs([{ s: cl.title, size: 9.5, style: 'bold', color: COLORS.brand }, { s: `  ${cl.subtitle}`, size: 8.2, style: 'italic', color: COLORS.band }], x0 + 3, centreBaseline(y, h1, 9.5));
-    const by = centreBaseline(y + h1, h2, 9.5);
-    const n = OBSERVATION_CODES.length;
-    const slot = (cw - 4) / n;
+    this.runs([
+      { s: CODE_LIST.title, size: 8.6, style: 'bold', color: COLORS.brand },
+      { s: `  ${CODE_LIST.subtitle}`, size: 7.4, style: 'italic', color: COLORS.band },
+    ], x0 + 3, centreBaseline(y, h1, 8.6));
+    const by = centreBaseline(y + h1, h2, 8.6);
+    const slot = (cw - 4) / OBSERVATION_CODES.length;
     OBSERVATION_CODES.forEach((c, i) => {
       const sx = x0 + 2 + i * slot;
-      // the code itself sits in a small rounded box, like the reference's tick boxes
-      const bw = 5.4, bh = 5.4, bY = y + h1 + (h2 - bh) / 2;
+      const bw = 4.8, bh = 4.8, bY = y + h1 + (h2 - bh) / 2;
       this.rect(sx, bY, bw, bh, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.3, r: RADIUS.box });
-      this.text(c.code, sx + bw / 2, centreBaseline(bY, bh, 9.5), { size: 9.5, style: 'bold', align: 'center', color: COLORS.brand });
-      this.text(c.label, sx + bw + 2.4, by, { size: 8.6 });
+      this.text(c.code, sx + bw / 2, centreBaseline(bY, bh, 8.6), { size: 8.6, style: 'bold', align: 'center', color: COLORS.brand });
+      this.text(c.label, sx + bw + 2.2, by, { size: 7.8 });
     });
     this.y = y + h1 + h2;
-    this.endCard();
   }
 
   /**
@@ -640,31 +642,18 @@ class Builder {
 
   commentsSection() {
     const c = this.form.comments;
-    const size = 9, lh = 5.6;
+    const size = 8.6, lh = 5.2;
     const lines = this.wrap(this.data.comments, this.cw - CARD_PAD * 2 - 6, size);
-    this.ensure(CARD_PAD + 7.4 + lh * 2 + 6);
+    this.ensure(CARD_PAD + CARD_HEADER_H + lh * 2 + 6);
     const open = (cont) => { this.beginCard(); this.cardHeader(null, c.title, cont ? '(continued)' : c.subtitle); };
     open(false);
-    this.flowLines(lines, { lh, minLines: this.writingLines(c.minLines, lh), size, ruled: this.blank, continuedBanner: () => open(true) });
+    this.flowLines(lines, { lh, minLines: c.minLines, size, ruled: this.blank, continuedBanner: () => open(true) });
     this.endCard();
   }
 
-  /**
-   * How many empty lines to leave in a write-in box. A submitted form keeps
-   * the schema minimum; a blank grows the box to fill the space left on the
-   * page once the sign-off card is accounted for, so there is room to write.
-   */
-  writingLines(min, lh) {
-    if (!this.blank) return min;
-    // space the box itself costs beyond its lines: leading gap, inner padding
-    // and the closing edge of the card it sits in
-    const boxOverhead = BAND_GAP + 2 + CARD_PAD + CARD_GAP;
-    const room = this.bottom - this.y - boxOverhead - this.signOffHeight() - 1;
-    return Math.max(min, Math.floor(room / lh));
-  }
   /** Total height the sign-off card occupies, including its frame and trailing gap. */
   signOffHeight() {
-    return CARD_PAD + 7.4 + BAND_GAP + this.signOffBodyHeight() + CARD_PAD + CARD_GAP;
+    return CARD_PAD + CARD_HEADER_H + BAND_GAP + this.signOffBodyHeight() + CARD_PAD + CARD_GAP;
   }
   /**
    * Body height, measured rather than guessed: the declaration is wrapped at
@@ -674,84 +663,14 @@ class Builder {
    */
   signOffBodyHeight() {
     const cw = this.cw - CARD_PAD * 2;
-    const declLines = this.wrap(this.form.signOff.declaration, cw - 6, 8.2, 'italic').length;
-    const tallestColumn = SIGN_CAPTION_H + SIGN_NAME_H + SIGN_PAD_H + SIGN_PAD_LABEL_H + SIGN_DATE_H;
-    // the stamp gets its own line below both columns rather than overprinting them
-    return 3.6 + declLines * 4 + 1.5 + tallestColumn + 2.5 + (this.blank ? 0 : SIGN_STAMP_H);
+    const declLines = this.wrap(this.form.signOff.declaration, cw - 6, 7.8, 'italic').length;
+    return 3.2 + declLines * 3.7 + 1.6 + SIGN_FIELD_ROW_H + 1.8 + SIGN_PAD_H + SIGN_PAD_LABEL_H;
   }
 
-  atpSection() {
-    const sec = this.form.atp;
-    const atp = this.data.atp || { code: '', status: '' };
-    const size = 9, lh = 6;
-    const lines = this.wrap(this.data.comments, this.cw - CARD_PAD * 2 - 6, size);
-    this.ensure(CARD_PAD + 7.4 + 11 + 7 + lh * 2 + 4);
-    const open = (cont) => { this.beginCard(); this.cardHeader(sec.letter, sec.title, cont ? '(continued)' : ''); };
-    open(false);
-    const x0 = this.x0 + CARD_PAD, cw = this.cw - CARD_PAD * 2;
-    const rowH = 10.6;
-    const y = this.y + BAND_GAP;
-    this.rect(x0, y, cw, rowH, { fill: COLORS.paleAlt, r: RADIUS.band });
-    const by = centreBaseline(y, rowH, 9);
-    let x = x0 + 3;
-    x += this.text(sec.codeLabel, x, by, { size: 9, style: 'bold', color: COLORS.brand }) + 3;
-    const fieldW = 52;
-    this.roundedField(x, y + 2.2, fieldW, rowH - 4.4, atp.code, { size: 9.5, style: 'bold' });
-    x += fieldW + 8;
-    for (const s of ATP_STATUS) {
-      const bs = 5.2; const cy = y + (rowH - bs) / 2;
-      this.rect(x, cy, bs, bs, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.3, r: RADIUS.box });
-      if (atp.status === s.value) {
-        this.line(x + 1.1, cy + 2.7, x + 2.2, cy + 4.1, COLORS.brand, 0.6);
-        this.line(x + 2.2, cy + 4.1, x + 4.3, cy + 1.2, COLORS.brand, 0.6);
-      }
-      x += bs + 2.2;
-      x += this.text(s.label, x, by, { size: 9 }) + 7;
-    }
-    this.y = y + rowH;
-    // comments label band
-    const labH = 6.6;
-    this.y += BAND_GAP;
-    this.rect(x0, this.y, cw, labH, { fill: COLORS.pale, r: RADIUS.band });
-    this.runs([{ s: sec.commentsLabel, size: 9, style: 'bold', color: COLORS.brand }, { s: ` ${sec.commentsHint}`, size: 8.2, style: 'italic', color: COLORS.band }], x0 + 3, centreBaseline(this.y, labH, 9));
-    this.y += labH;
-    this.flowLines(lines, { lh, minLines: this.writingLines(this.form.comments.minLines, lh), size, ruled: true, continuedBanner: () => open(true) });
-    this.endCard();
-  }
-
-  /** One signature block: caption, name line (HOD only), pad and date boxes. */
-  signBlock(x, w, { caption, nameLabel, name, signature, iso, top }) {
-    let y = top;
-    this.rect(x, y, w, 5.4, { fill: COLORS.pale, r: RADIUS.band });
-    this.text(caption, x + 2.6, centreBaseline(y, 5.4, 8.2), { size: 8.2, style: 'bold', color: COLORS.brand });
-    y += SIGN_CAPTION_H;
-    if (nameLabel) {
-      const lw = this.text(nameLabel, x + 1, y + 3.4, { size: 8.2, style: 'bold' });
-      this.roundedField(x + lw + 3, y, w - lw - 4, 5.6, name, { size: 8.6, placeholder: this.blank ? 'Full name' : '' });
-      y += SIGN_NAME_H;
-    }
-    const sigH = SIGN_PAD_H;
-    this.rect(x + 1, y, w - 2, sigH, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.35, r: RADIUS.sig });
-    if (signature && signature.dataUrl) {
-      const pad = 1.2;
-      const ratio = Math.min((w - 2 - pad * 2) / signature.width, (sigH - pad * 2) / signature.height);
-      const sw = signature.width * ratio, sh = signature.height * ratio;
-      this.image(signature.dataUrl, x + 1 + (w - 2 - sw) / 2, y + (sigH - sh) / 2, sw, sh);
-    }
-    this.text('Signature', x + 1, y + sigH + 3, { size: 7, color: COLORS.band });
-    y += sigH + SIGN_PAD_LABEL_H;
-    let dx = x + 1;
-    dx += this.text('Date:', dx, y + 4, { size: 8.2, style: 'bold' }) + 2.5;
-    const [yy, mm, dd] = String(iso || '').split('-');
-    const bo = { bw: 4.4, bh: 5.2, gap: 0.7, size: 8.6 };
-    dx += this.charBoxes(dx, y, (dd || '').split(''), 2, bo) + 1.2;
-    this.text('/', dx, centreBaseline(y, bo.bh, 9), { size: 9, color: COLORS.band }); dx += 2.2;
-    dx += this.charBoxes(dx, y, (mm || '').split(''), 2, bo) + 1.2;
-    this.text('/', dx, centreBaseline(y, bo.bh, 9), { size: 9, color: COLORS.band }); dx += 2.2;
-    this.charBoxes(dx, y, (yy || '').split(''), 4, bo);
-    return y + bo.bh - top;
-  }
-
+  /**
+   * Sign-off: the term and week the form covers, the dates that week runs
+   * between, and the educator's signature.
+   */
   signOffSection() {
     const so = this.form.signOff;
     const bodyH = this.signOffBodyHeight();
@@ -760,26 +679,101 @@ class Builder {
     this.cardHeader(so.letter, so.title, '');
     const x0 = this.x0 + CARD_PAD, cw = this.cw - CARD_PAD * 2;
     const y = this.y + BAND_GAP;
-    const decl = this.wrap(so.declaration, cw - 6, 8.2, 'italic');
-    decl.forEach((l, i) => this.text(l, x0 + 3, y + 3.6 + i * 4, { size: 8.2, style: 'italic', color: COLORS.band }));
-    const top = y + 3.6 + decl.length * 4 + 1.5;
-    // two columns: the educator signs on submission, the HOD counter-signs after
-    const gap = 6, colW = (cw - gap) / 2;
     const sign = this.data.signOff || {};
-    this.signBlock(x0, colW, {
-      caption: so.educatorLabel, nameLabel: null, name: '',
-      signature: sign.signature, iso: sign.date, top,
-    });
-    this.signBlock(x0 + colW + gap, colW, {
-      caption: so.hodLabel, nameLabel: 'Name:', name: sign.hod?.name || '',
-      signature: sign.hod?.signature, iso: sign.hod?.date, top,
-    });
+    const decl = this.wrap(so.declaration, cw - 6, 7.8, 'italic');
+    decl.forEach((l, i) => this.text(l, x0 + 3, y + 3.2 + i * 3.7, { size: 7.8, style: 'italic', color: COLORS.band }));
+
+    // one band carrying term, week and the two dates
+    const rowY = y + 3.2 + decl.length * 3.7 + 1.6;
+    this.rect(x0, rowY, cw, SIGN_FIELD_ROW_H, { fill: COLORS.paleAlt, r: RADIUS.band });
+    const by = centreBaseline(rowY, SIGN_FIELD_ROW_H, 8.4);
+    const bo = { bw: 4.6, bh: 5.2, gap: 0.7, size: 8.6 };
+    const boxY = rowY + (SIGN_FIELD_ROW_H - bo.bh) / 2;
+    let x = x0 + 3;
+    for (const f of so.fields) {
+      x += this.text(f.label, x, by, { size: 8.4, style: 'bold', color: COLORS.brand }) + 2.2;
+      // a single-digit week reads better in the right-hand box, as "  5" not "5  "
+      const raw = String(sign[f.key] || '');
+      const chars = f.alignRight ? raw.padStart(f.length, ' ').split('').map((c) => c.trim()) : raw.split('');
+      x += this.charBoxes(x, boxY, chars, f.length, bo) + 7;
+    }
+    for (const d of so.dates) {
+      x += this.text(d.label, x, by, { size: 8.4, style: 'bold', color: COLORS.brand }) + 2.2;
+      x += this.dateBoxes(x, boxY, sign[d.key], bo) + 7;
+    }
+
+    const padY = rowY + SIGN_FIELD_ROW_H + 1.8;
+    const padW = Math.min(cw - 6, 96);
+    this.rect(x0 + 3, padY, padW, SIGN_PAD_H, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.35, r: RADIUS.sig });
+    const sig = sign.signature;
+    if (sig && sig.dataUrl) {
+      const pad = 1.2;
+      const ratio = Math.min((padW - pad * 2) / sig.width, (SIGN_PAD_H - pad * 2) / sig.height);
+      const sw = sig.width * ratio, sh = sig.height * ratio;
+      this.image(sig.dataUrl, x0 + 3 + (padW - sw) / 2, padY + (SIGN_PAD_H - sh) / 2, sw, sh);
+    }
+    const capBy = padY + SIGN_PAD_H + 3;
+    this.text(`${so.educatorLabel} signature`, x0 + 3, capBy, { size: 7, color: COLORS.band });
+    // the stamp shares the caption's baseline rather than taking a line of its
+    // own, so a submitted form is exactly as tall as a blank and stays on one page
     if (!this.blank) {
       const gen = this.generatedAt;
       const stamp = `${String(gen.getDate()).padStart(2, '0')}/${String(gen.getMonth() + 1).padStart(2, '0')}/${gen.getFullYear()} ${String(gen.getHours()).padStart(2, '0')}:${String(gen.getMinutes()).padStart(2, '0')}`;
-      this.text(`Document No. ${this.docNumber}   ·   Reference ${this.identifier}   ·   Generated ${stamp}`, x0 + cw - 1, y + bodyH - 1.6, { size: 6.8, color: COLORS.band, align: 'right' });
+      this.text(`Document No. ${this.docNumber}   ·   Reference ${this.identifier}   ·   Generated ${stamp}`, x0 + cw - 1, capBy, { size: 6.6, color: COLORS.band, align: 'right' });
     }
     this.y = y + bodyH;
+    this.endCard();
+  }
+
+  /** DD / MM / YYYY boxes from an ISO date. Returns the width drawn. */
+  dateBoxes(x, y, iso, bo) {
+    const [yy, mm, dd] = String(iso || '').split('-');
+    let dx = x;
+    dx += this.charBoxes(dx, y, (dd || '').split(''), 2, bo) + 1;
+    this.text('/', dx, centreBaseline(y, bo.bh, 8.6), { size: 8.6, color: COLORS.band }); dx += 2;
+    dx += this.charBoxes(dx, y, (mm || '').split(''), 2, bo) + 1;
+    this.text('/', dx, centreBaseline(y, bo.bh, 8.6), { size: 8.6, color: COLORS.band }); dx += 2;
+    dx += this.charBoxes(dx, y, (yy || '').split(''), 4, bo);
+    return dx - x;
+  }
+
+  /** Section C on the subject form: ATP reference, completion tick and notes. */
+  atpSection() {
+    const sec = this.form.atp;
+    const atp = this.data.atp || { code: '', status: '' };
+    const size = 8.6, lh = 5.2;
+    const lines = this.wrap(this.data.comments, this.cw - CARD_PAD * 2 - 6, size);
+    const rowH = 8.8, labH = 5.6;
+    this.ensure(CARD_PAD + CARD_HEADER_H + BAND_GAP + rowH + BAND_GAP + labH + lh * this.form.comments.minLines + 2 + CARD_PAD + CARD_GAP);
+    this.beginCard();
+    this.cardHeader(sec.letter, sec.title, '');
+    const x0 = this.x0 + CARD_PAD, cw = this.cw - CARD_PAD * 2;
+    const y = this.y + BAND_GAP;
+    this.rect(x0, y, cw, rowH, { fill: COLORS.paleAlt, r: RADIUS.band });
+    const by = centreBaseline(y, rowH, 8.6);
+    let x = x0 + 3;
+    x += this.text(sec.codeLabel, x, by, { size: 8.6, style: 'bold', color: COLORS.brand }) + 3;
+    const fieldW = 48;
+    this.roundedField(x, y + 2, fieldW, rowH - 4, atp.code, { size: 9, style: 'bold' });
+    x += fieldW + 8;
+    for (const st of ATP_STATUS) {
+      const bs = 4.8; const cy = y + (rowH - bs) / 2;
+      this.rect(x, cy, bs, bs, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.3, r: RADIUS.box });
+      if (atp.status === st.value) {
+        this.line(x + 1, cy + 2.5, x + 2, cy + 3.8, COLORS.brand, 0.6);
+        this.line(x + 2, cy + 3.8, x + 3.9, cy + 1.1, COLORS.brand, 0.6);
+      }
+      x += bs + 2;
+      x += this.text(st.label, x, by, { size: 8.6 }) + 6;
+    }
+    this.y = y + rowH + BAND_GAP;
+    this.rect(x0, this.y, cw, labH, { fill: COLORS.pale, r: RADIUS.band });
+    this.runs([
+      { s: sec.commentsLabel, size: 8.4, style: 'bold', color: COLORS.brand },
+      { s: ` ${sec.commentsHint}`, size: 7.6, style: 'italic', color: COLORS.band },
+    ], x0 + 3, centreBaseline(this.y, labH, 8.4));
+    this.y += labH;
+    this.flowLines(lines, { lh, minLines: this.form.comments.minLines, size, ruled: true });
     this.endCard();
   }
 
@@ -788,8 +782,6 @@ class Builder {
     this.metaTable();
     this.attendanceSection();
     this.observationsSection();
-    this.attendanceOverflowSection();
-    this.codeListBox();
     if (this.form.atp) this.atpSection(); else this.commentsSection();
     this.signOffSection();
     this.footers();

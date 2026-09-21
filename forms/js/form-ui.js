@@ -3,8 +3,7 @@
  * shared data model. Provides character boxes, table grids, signature pad,
  * keyboard navigation and inline validation display.
  */
-import { SCHOOL, DAYS, OBSERVATION_CODES, ATP_STATUS, getForm } from './schema.js';
-import { emptyAttendanceRow, emptyObservationRow } from './model.js';
+import { SCHOOL, DAYS, OBSERVATION_CODES, CODE_LIST, ATP_STATUS, getForm } from './schema.js';
 
 // ------------------------------------------------------------ helpers
 function el(tag, attrs = {}, children = []) {
@@ -165,8 +164,8 @@ export function renderForm(root, data, { onChange } = {}) {
     el('img', { class: 'crest', src: './assets/crest.svg', alt: 'Fisantekraal High School crest' }),
     el('div', { class: 'brand' }, [
       el('h1', { class: 'school-name', text: SCHOOL.name }),
-      el('div', { class: 'motto', text: SCHOOL.motto }),
-      el('div', { class: 'tagline', text: SCHOOL.tagline }),
+      el('div', { class: 'motto', text: form.headerTitle }),
+      el('div', { class: 'tagline', text: form.headerPeriod }),
     ]),
     el('div', { class: 'form-code-box', 'aria-label': 'Form code' }, [
       el('div', { class: 'fc-label', text: 'FORM CODE' }),
@@ -219,9 +218,16 @@ export function renderForm(root, data, { onChange } = {}) {
   // ---- Section A: attendance (slot model) + Section A2 continuation
   const att = form.attendance;
   const attHead = () => el('thead', {}, [
-    el('tr', {}, [el('th', { rowspan: 3, class: 'col-no', text: '#' }), ...DAYS.map((d) => el('th', { colspan: 2, text: d.label }))]),
+    // period row: which period each day's register was taken in
+    att.periodRow ? el('tr', { class: 'period-row' }, [
+      el('th', { class: 'col-no period-label', text: att.periodRow.label }),
+      ...DAYS.map((d) => el('th', { colspan: 2 }, textInput(`periods.${d.key}`, {
+        maxLength: 6, upper: true, class: 'period-input',
+        ariaLabel: `${d.label} period`, placeholder: 'P1',
+      }))),
+    ]) : null,
+    el('tr', {}, [el('th', { rowspan: 2, class: 'col-no', text: '#' }), ...DAYS.map((d) => el('th', { colspan: 2, text: d.label }))]),
     el('tr', {}, DAYS.flatMap((d) => [el('th', { class: 'sub', text: 'A', 'aria-label': `${d.label} absent` }), el('th', { class: 'sub', text: 'L', 'aria-label': `${d.label} late` })])),
-    el('tr', {}, DAYS.flatMap(() => [el('th', { class: 'sub sub-tight', text: 'Learner No.' }), el('th', { class: 'sub sub-tight', text: 'Learner No.' })])),
   ]);
   /** Builds one attendance grid over data.attendance[from..to). */
   const attendanceGrid = (from, to, extraClass = '') => {
@@ -248,27 +254,13 @@ export function renderForm(root, data, { onChange } = {}) {
     return { wrap, render, tbody };
   };
 
+  // Section A. The grid is a fixed set of entry slots on a single-page form,
+  // so there is no continuation section and no add/remove row controls.
   const secA = el('section', { class: 'form-section', 'aria-labelledby': 'sec-a' });
   const bannerA = banner(att.letter, att.title, att.subtitle); bannerA.id = 'sec-a';
   secA.append(bannerA, notes(att.notes));
-  const gridA = attendanceGrid(0, att.defaultRows, 'attendance-primary');
-  secA.appendChild(gridA.wrap);
-  secA.appendChild(el('div', { class: 'row-note', text: att.continueNote }));
+  secA.appendChild(attendanceGrid(0, att.defaultRows, 'attendance-primary').wrap);
   root.appendChild(secA);
-
-  const secA2 = el('section', { class: 'form-section', 'aria-labelledby': 'sec-a2' });
-  const bannerA2 = banner(att.overflow.letter, att.overflow.title, att.overflow.subtitle); bannerA2.id = 'sec-a2';
-  secA2.append(bannerA2);
-  const gridA2 = attendanceGrid(att.defaultRows, null, 'attendance-overflow');
-  secA2.appendChild(gridA2.wrap);
-  secA2.appendChild(rowControls({
-    label: `Slots ${att.defaultRows + 1} onwards`,
-    canRemove: () => data.attendance.length > att.defaultRows + att.overflowRows,
-    canAdd: () => data.attendance.length < att.maxRows,
-    onAdd: () => { data.attendance.push(emptyAttendanceRow()); gridA2.render(); change('attendance'); focusLastRow(gridA2.tbody); },
-    onRemove: () => { data.attendance.pop(); gridA2.render(); change('attendance'); },
-  }));
-  root.appendChild(secA2);
 
   // ---- Section B: observations
   const secB = el('section', { class: 'form-section', 'aria-labelledby': 'sec-b' });
@@ -296,20 +288,13 @@ export function renderForm(root, data, { onChange } = {}) {
   renderObsRows();
   tableBWrap.appendChild(tableB);
   secB.appendChild(tableBWrap);
-  secB.appendChild(rowControls({
-    label: 'Additional observations',
-    canRemove: () => data.observations.length > form.observations.defaultRows,
-    canAdd: () => data.observations.length < form.observations.maxRows,
-    onAdd: () => { data.observations.push(emptyObservationRow()); renderObsRows(); change('observations'); focusLastRow(tbodyB); },
-    onRemove: () => { data.observations.pop(); renderObsRows(); change('observations'); },
-  }));
-  root.appendChild(secB);
 
-  // ---- code list
-  root.appendChild(el('div', { class: 'code-list' }, [
-    el('div', { class: 'code-list-title' }, [el('strong', { text: form.codeList.title }), ' ', el('span', { text: form.codeList.subtitle })]),
-    el('div', { class: `code-list-items style-${form.codeList.style}` }, OBSERVATION_CODES.map((c) => el('span', { class: 'code-item' }, [el('b', { text: c.code }), el('span', { class: 'code-sep', text: form.codeList.style === 'equals' ? '=' : '' }), el('span', { text: c.label })]))),
+  // ---- code list: sits inside Section B, identical on both forms
+  secB.appendChild(el('div', { class: 'code-list' }, [
+    el('div', { class: 'code-list-title' }, [el('strong', { text: CODE_LIST.title }), ' ', el('span', { text: CODE_LIST.subtitle })]),
+    el('div', { class: 'code-list-items' }, OBSERVATION_CODES.map((c) => el('span', { class: 'code-item' }, [el('b', { text: c.code }), el('span', { text: c.label })]))),
   ]));
+  root.appendChild(secB);
 
   // ---- Section C (ATP) or additional comments
   if (form.atp) {
@@ -341,7 +326,7 @@ export function renderForm(root, data, { onChange } = {}) {
     root.appendChild(secC);
   }
 
-  // ---- sign-off: educator signs on submission, HOD counter-signs afterwards
+  // ---- sign-off: term, week, the week's dates and the educator's signature
   const secD = el('section', { class: 'form-section signoff', 'aria-labelledby': 'sec-signoff' });
   const bannerD = banner(form.signOff.letter, form.signOff.title, ''); bannerD.id = 'sec-signoff';
   secD.appendChild(bannerD);
@@ -384,25 +369,22 @@ export function renderForm(root, data, { onChange } = {}) {
     return field;
   };
 
-  const signColumns = el('div', { class: 'signoff-columns' });
+  // term, week and the dates the week runs between
+  const fieldRow = el('div', { class: 'signoff-row' });
+  for (const f of form.signOff.fields) {
+    const field = el('div', { class: 'signoff-field', 'data-path': `signOff.${f.key}` });
+    field.appendChild(el('span', { class: 'field-label', text: f.label }));
+    field.appendChild(charGroup({ data, path: `signOff.${f.key}`, length: f.length, charset: 'digit', label: f.label.replace(/:$/, ''), onChange: change }));
+    fieldRow.appendChild(field);
+  }
+  for (const d of form.signOff.dates) fieldRow.appendChild(dateField(`signOff.${d.key}`, d.label));
+  body.appendChild(fieldRow);
 
-  const educatorCol = el('div', { class: 'signoff-col' }, [el('h3', { class: 'signoff-col-title', text: form.signOff.educatorLabel })]);
-  educatorCol.appendChild(el('div', { class: 'signoff-field' }, [el('span', { class: 'field-label', text: 'Signature:' }), signaturePad({ data, path: 'signOff.signature', onChange: change, who: form.signOff.educatorLabel })]));
-  educatorCol.appendChild(dateField('signOff.date', 'Date:'));
-  signColumns.appendChild(educatorCol);
+  body.appendChild(el('div', { class: 'signoff-field signoff-sign' }, [
+    el('span', { class: 'field-label', text: `${form.signOff.educatorLabel} signature:` }),
+    signaturePad({ data, path: 'signOff.signature', onChange: change, who: form.signOff.educatorLabel }),
+  ]));
 
-  const hodCol = el('div', { class: 'signoff-col' }, [
-    el('h3', { class: 'signoff-col-title' }, [form.signOff.hodLabel, el('span', { class: 'optional-tag', text: 'optional' })]),
-  ]);
-  const hodName = el('div', { class: 'signoff-field', 'data-path': 'signOff.hod.name' });
-  hodName.appendChild(el('span', { class: 'field-label', text: 'Name:' }));
-  hodName.appendChild(textInput('signOff.hod.name', { maxLength: 60, placeholder: 'Full name', ariaLabel: 'HOD full name', class: 'hod-name' }));
-  hodCol.appendChild(hodName);
-  hodCol.appendChild(el('div', { class: 'signoff-field' }, [el('span', { class: 'field-label', text: 'Signature:' }), signaturePad({ data, path: 'signOff.hod.signature', onChange: change, who: form.signOff.hodLabel })]));
-  hodCol.appendChild(dateField('signOff.hod.date', 'Date:'));
-  signColumns.appendChild(hodCol);
-
-  body.appendChild(signColumns);
   secD.appendChild(body);
   root.appendChild(secD);
 
@@ -425,23 +407,6 @@ function commentsArea(data, form, change, ariaLabel) {
   return el('div', { class: `comments-wrap style-${form.comments.style}` }, [ta, counter]);
 }
 
-function rowControls({ label, canAdd, canRemove, onAdd, onRemove }) {
-  const wrap = el('div', { class: 'row-controls' });
-  const info = el('span', { class: 'row-info', text: `${label} – add rows as needed.` });
-  const add = el('button', { type: 'button', class: 'btn btn-ghost btn-sm', text: '+ Add row' });
-  const rem = el('button', { type: 'button', class: 'btn btn-ghost btn-sm', text: '– Remove last row' });
-  const refresh = () => { add.disabled = !canAdd(); rem.disabled = !canRemove(); };
-  add.addEventListener('click', () => { onAdd(); refresh(); });
-  rem.addEventListener('click', () => { onRemove(); refresh(); });
-  refresh();
-  wrap.append(info, add, rem);
-  return wrap;
-}
-
-function focusLastRow(tbody) {
-  const inp = tbody.lastElementChild?.querySelector('input');
-  if (inp) inp.focus();
-}
 
 /** Arrow-key navigation between cells of the grid tables. */
 function enableGridKeyboardNav(root) {

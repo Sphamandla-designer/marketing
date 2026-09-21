@@ -228,3 +228,24 @@ main { max-width: 1040px; margin: 0 auto; padding: 16px; }
 .optional-tag { font-size: 10.5px; font-weight: 400; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); background: var(--pale); border-radius: 999px; padding: 2px 8px; }
 .hod-name { border: 1.5px solid var(--box-border); border-radius: var(--r-box); padding: 8px 10px; font-size: 15px; background: #fff; min-width: 0; flex: 1; }
 @media (max-width: 760px) { .signoff-columns { grid-template-columns: 1fr; } }
+
+/* period row above the day header: white boxes on the band, as in the PDF */
+.grid-table thead tr.period-row th { background: transparent; padding: 2px 0; }
+.grid-table thead tr.period-row th.period-label {
+  background: var(--pale); color: var(--brand); font-size: 11px; letter-spacing: .04em;
+  border-radius: var(--r-box);
+}
+.period-input {
+  width: 72%; max-width: 96px; height: 27px; text-align: center; font-weight: 700;
+  border: 1.5px solid var(--box-border); border-radius: var(--r-box); background: #fff;
+  outline: none; font-size: 14px; color: var(--brand);
+}
+.period-input:focus { border-color: var(--focus); box-shadow: 0 0 0 2px rgba(31,95,191,.25); background: #F3F7FF; }
+.period-input::placeholder { color: var(--placeholder); font-weight: 400; font-style: italic; }
+
+/* sign-off: term / week / dates on one row, then the signature */
+.signoff-row { display: flex; flex-wrap: wrap; gap: 14px 26px; align-items: flex-start; margin-bottom: 16px; }
+.signoff-row .signoff-field { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; margin: 0; }
+.signoff-row .field-label { white-space: nowrap; }
+.signoff-row .field-hint { font-size: 11px; }
+.signoff-sign { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
