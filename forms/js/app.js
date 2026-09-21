@@ -1,7 +1,7 @@
 /** Page glue: renders the interactive form, handles submit → PDF + PNG, result panel. */
 import { createEmptyData, validate, normalise } from './model.js';
 import { renderForm, showErrors } from './form-ui.js';
-import { submitForm, downloadBlob } from './export.js';
+import { submitForm, generateBlank, downloadBlob } from './export.js';
 import { loadFonts } from './fonts.js';
 import { loadCrest } from './crest.js';
 import { saveDraft, loadDraft, clearDraft } from './storage.js';
@@ -40,6 +40,20 @@ export function initFormPage(formType) {
     } catch (e) {
       console.error(e);
       alert(`Something went wrong while generating the form: ${e.message}`);
+    } finally {
+      setBusy(false);
+    }
+  });
+
+  $('#btn-blank').addEventListener('click', async () => {
+    setBusy(true, 'Preparing a blank form…');
+    try {
+      const blank = await generateBlank(formType);
+      downloadBlob(blank.pdf.blob, blank.pdf.filename);
+      window.__lastBlank = { pdfName: blank.pdf.filename, pageCount: blank.pageCount, images: blank.images.map((i) => ({ filename: i.filename, w: i.canvas.width, h: i.canvas.height })) };
+    } catch (e) {
+      console.error(e);
+      alert(`Could not produce the blank form: ${e.message}`);
     } finally {
       setBusy(false);
     }

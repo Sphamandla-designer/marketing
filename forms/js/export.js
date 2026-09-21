@@ -3,7 +3,7 @@
  * Both outputs are produced from the same `doc` primitives.
  */
 import { getForm } from './schema.js';
-import { normalise, buildIdentifier, nextDocumentNumber } from './model.js';
+import { createEmptyData, normalise, buildIdentifier, nextDocumentNumber } from './model.js';
 import { buildDocument } from './layout.js';
 import { renderPdf, renderPageToCanvas, canvasToPngBlob, makeMeasurer } from './painters.js';
 import { loadFonts } from './fonts.js';
@@ -12,7 +12,7 @@ import { CONFIG } from './config.js';
 import { saveSubmission } from './storage.js';
 
 /** Build the layout document for the given data (no side effects). */
-export async function buildFormDocument(rawData, { docNumber, identifier, generatedAt } = {}) {
+export async function buildFormDocument(rawData, { docNumber, identifier, generatedAt, blank } = {}) {
   const [fonts, crest] = await Promise.all([loadFonts(), loadCrest()]);
   const data = normalise(rawData);
   const form = getForm(data.formType);
@@ -20,7 +20,7 @@ export async function buildFormDocument(rawData, { docNumber, identifier, genera
   identifier = identifier || buildIdentifier(data, docNumber);
   const doc = buildDocument({
     formType: data.formType, data, docNumber, identifier,
-    generatedAt: generatedAt || new Date(), crest, measure: makeMeasurer(),
+    generatedAt: generatedAt || new Date(), crest, measure: makeMeasurer(), blank,
   });
   return { doc, data, fonts, form, docNumber, identifier };
 }
@@ -84,4 +84,28 @@ export function downloadBlob(blob, filename) {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+/**
+ * Blank (unfilled) form for printing and hand completion.
+ *
+ * It runs the same data model → layout → PDF/PNG pipeline as a submission —
+ * it is simply fed an empty data object — so a blank can never drift from the
+ * form people actually fill in. Validation is not involved: nothing is being
+ * submitted, so there is nothing to validate.
+ */
+export async function generateBlank(formType, opts = {}) {
+  const form = getForm(formType);
+  const data = createEmptyData(formType);
+  if (opts.rows) {
+    const { emptyAttendanceRow, emptyObservationRow } = await import('./model.js');
+    while (data.attendance.length < opts.rows) data.attendance.push(emptyAttendanceRow());
+    while (data.observations.length < opts.rows) data.observations.push(emptyObservationRow());
+  }
+  return generateOutputs(data, {
+    ...opts,
+    blank: true,
+    docNumber: form.docPrefix + 'BLANK',
+    identifier: 'BLANK',
+  });
 }

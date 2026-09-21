@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node server.js",
     "qa": "node qa/run-qa.mjs",
-    "qa:inspect": "python3 qa/check_outputs.py"
+    "qa:inspect": "python3 qa/check_outputs.py",
+    "blanks": "node qa/blanks.mjs"
   },
   "devDependencies": {
     "jspdf": "^2.5.2",

@@ -7,7 +7,7 @@
 <link rel="icon" href="./assets/crest.svg" type="image/svg+xml">
 <link rel="stylesheet" href="./css/forms.css">
 </head>
-<body>
+<body data-form-type="register">
 <header class="site-header">
   <a href="./index.html">Fisantekraal High School · Forms</a>
   <nav aria-label="Forms">
@@ -20,6 +20,7 @@
   <div id="form-root" class="sheet" aria-label="Register Class Weekly Attendance &amp; Observation form"></div>
   <div class="submit-bar">
     <span class="hint">All fields marked in the error list must be completed before the form can be generated.</span>
+    <button type="button" id="btn-blank" class="btn btn-ghost">Download blank form</button>
     <button type="button" id="btn-clear" class="btn btn-ghost">Clear form</button>
     <button type="button" id="btn-submit" class="btn btn-primary">Submit / Generate Form</button>
   </div>

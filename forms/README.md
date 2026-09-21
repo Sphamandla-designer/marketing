@@ -6,6 +6,13 @@ Attendance & Observation) forms, with submission output as a professional
 **PDF** and a high-resolution **PNG image** generated from the same completed
 form data.
 
+The design follows the **First Home Finance application form** held at the
+repository root: navy `#001F5F` for every rule, heading and header bar, a slate
+band for instructions, pale grey label cells, values in their own rounded white
+boxes, and no square corners anywhere. The barcode modules are the single
+deliberate exception — rounding them would stop them scanning — and
+`npm run blanks` asserts that nothing else is square.
+
 ```
 Completed form  →  Form data model  →  layout engine (A4, mm)  →  PDF (jsPDF, vector, embedded Roboto)
                                                               →  PNG (canvas, 2480 × 3508 px, 300 DPI)
@@ -27,6 +34,19 @@ must be served over HTTP (ES modules), not opened from `file://`.
 | `index.html` | Choose a form; re-download forms generated on this device |
 | `register-class.html` | Interactive Register Class form |
 | `subject-class.html` | Interactive Subject Class form |
+
+## Blank forms
+
+**Download blank form** on either page produces the unfilled form for printing
+and completion by hand (`Register-Class-BLANK.pdf`, `Subject-Class-BLANK.pdf`).
+It runs the same data model → layout → PDF/PNG pipeline as a submission, fed an
+empty data object, so a blank can never drift from the form people fill in.
+Validation is not involved: nothing is being submitted. On a blank the schema
+placeholders are printed as grey hints, the write-in boxes grow to fill the
+page, and the generation stamp is omitted.
+
+Run `npm run blanks` to regenerate them into `qa/output/blank/`; the committed
+copies are in `samples/`.
 
 ## User flow
 
