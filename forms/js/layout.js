@@ -17,23 +17,24 @@ import { formatDisplayDate } from './model.js';
 
 export const PAGE = { w: 210, h: 297, ml: 10, mr: 10, mt: 7, mb: 8, footerH: 8 };
 export const COLORS = {
-  // Palette taken from the First Home Finance application form: a single navy
-  // for every rule, heading and header bar, a slate band for sub-headings and
-  // a pale grey for label cells. Nothing else is used.
-  navy: '#001F5F',
-  navyDeep: '#00164A',
-  slate: '#626782',
-  slateLight: '#8A8FA6',
+  // Structure follows the First Home Finance application form; the hue is the
+  // school's own, taken from the crest: #B5121B is the shield, #8F0F19 the
+  // ribbon. `band` is that red desaturated and lightened the same way the
+  // reference derives its instruction band from its header bar.
+  brand: '#B5121B',
+  brandDeep: '#8F0F19',
+  band: '#8C5F62',
+  bandLight: '#A08B8C',
   pale: '#EBECEE',
   paleAlt: '#F5F6F7',
-  border: '#001F5F',
-  hair: '#C3C7D4',
+  border: '#B5121B',
+  hair: '#D3CACB',
   text: '#1B1B1B',
   muted: '#5C6166',
-  placeholder: '#A8B0C8',
+  placeholder: '#B0A4A5',
   white: '#FFFFFF',
   boxFill: '#FFFFFF',
-  boxBorder: '#001F5F',
+  boxBorder: '#B5121B',
   crestRed: '#B5121B',
 };
 
@@ -98,7 +99,7 @@ class Builder {
     const r = Math.min(want, w / 2, h / 2);
     this.ops.push({ t: 'rect', x, y, w, h, fill: o.fill || null, stroke: o.stroke || null, lw: o.lw || 0.25, r });
   }
-  line(x1, y1, x2, y2, color = COLORS.navy, lw = 0.25) { this.ops.push({ t: 'line', x1, y1, x2, y2, color, lw }); }
+  line(x1, y1, x2, y2, color = COLORS.brand, lw = 0.25) { this.ops.push({ t: 'line', x1, y1, x2, y2, color, lw }); }
   image(src, x, y, w, h) { this.ops.push({ t: 'image', src, x, y, w, h }); }
   /** Draw text; align: 'left' | 'center' | 'right'. y is the baseline. */
   text(s, x, y, o = {}) {
@@ -163,9 +164,9 @@ class Builder {
     const bw = o.bw || 5.4, bh = o.bh || 5.6, gap = o.gap ?? 0.9;
     for (let i = 0; i < n; i++) {
       const bx = x + i * (bw + gap);
-      this.rect(bx, y, bw, bh, { fill: COLORS.boxFill, stroke: COLORS.navy, lw: 0.3, r: RADIUS.box });
+      this.rect(bx, y, bw, bh, { fill: COLORS.boxFill, stroke: COLORS.brand, lw: 0.3, r: RADIUS.box });
       const c = chars[i] || '';
-      if (c) this.text(c, bx + bw / 2, centreBaseline(y, bh, o.size || 10), { size: o.size || 10, style: 'bold', align: 'center', color: COLORS.navy });
+      if (c) this.text(c, bx + bw / 2, centreBaseline(y, bh, o.size || 10), { size: o.size || 10, style: 'bold', align: 'center', color: COLORS.brand });
     }
     return n * bw + (n - 1) * gap;
   }
@@ -174,7 +175,7 @@ class Builder {
    * in light grey, the way the reference prints "DD / MM / YYYY" and "R".
    */
   roundedField(x, y, w, h, value, o = {}) {
-    this.rect(x, y, w, h, { fill: COLORS.boxFill, stroke: COLORS.navy, lw: 0.3, r: RADIUS.box });
+    this.rect(x, y, w, h, { fill: COLORS.boxFill, stroke: COLORS.brand, lw: 0.3, r: RADIUS.box });
     const size = o.size || 9;
     const shown = value ? String(value) : (o.placeholder || '');
     if (!shown) return;
@@ -226,7 +227,7 @@ class Builder {
     if (!c) return;
     Object.assign(c.ph, {
       t: 'rect', x: this.x0, y: c.y0, w: this.cw, h: Math.max(endY - c.y0, 6),
-      fill: COLORS.white, stroke: COLORS.navy, lw: 0.4, r: RADIUS.card,
+      fill: COLORS.white, stroke: COLORS.brand, lw: 0.4, r: RADIUS.card,
     });
   }
   endCard(gap = CARD_GAP) {
@@ -239,7 +240,7 @@ class Builder {
     const h = 7.4;
     const x = this.x0 + CARD_PAD, w = this.cw - CARD_PAD * 2;
     this.y += CARD_PAD;
-    this.rect(x, this.y, w, h, { fill: COLORS.navy, r: RADIUS.bar });
+    this.rect(x, this.y, w, h, { fill: COLORS.brand, r: RADIUS.bar });
     const by = centreBaseline(this.y, h, 10.5);
     let tx = x + 3;
     if (letter) tx += this.runs([{ s: `${letter}.`, size: 10.5, style: 'bold', color: COLORS.white }], tx, by) + 2.6;
@@ -254,7 +255,7 @@ class Builder {
     const lines = notes.flatMap((n) => this.wrap(n, w - 5, size, 'italic'));
     const h = lines.length * lh + pad * 2;
     this.y += BAND_GAP;
-    this.rect(x, this.y, w, h, { fill: COLORS.slate, r: RADIUS.band });
+    this.rect(x, this.y, w, h, { fill: COLORS.band, r: RADIUS.band });
     lines.forEach((l, i) => this.text(l, x + 2.6, this.y + pad + lh * (i + 1) - 1.1, { size, style: 'italic', color: COLORS.white }));
     this.y += h;
   }
@@ -264,35 +265,35 @@ class Builder {
     if (this.crest) this.image(this.crest.dataUrl, this.x0, y, 23, 23);
     const panelW = 44, panelX = this.x0 + this.cw - panelW;
     const cx = (this.x0 + 25 + panelX - 3) / 2;
-    this.text(SCHOOL.name, cx, y + 9, { size: 19, style: 'bold', color: COLORS.navy, align: 'center' });
-    this.spacedText(SCHOOL.motto, cx, y + 14.6, { size: 7.6, spacing: 1.1, align: 'center', color: COLORS.slate });
-    this.text(SCHOOL.tagline, cx, y + 20.4, { size: 9.5, style: 'italic', align: 'center', color: COLORS.navy });
-    // form code panel: navy cap bar over a white body, both rounded
+    this.text(SCHOOL.name, cx, y + 9, { size: 19, style: 'bold', color: COLORS.brand, align: 'center' });
+    this.spacedText(SCHOOL.motto, cx, y + 14.6, { size: 7.6, spacing: 1.1, align: 'center', color: COLORS.band });
+    this.text(SCHOOL.tagline, cx, y + 20.4, { size: 9.5, style: 'italic', align: 'center', color: COLORS.brand });
+    // form code panel: brand cap bar over a white body, both rounded
     const capH = 4.6, panelH = 16.4;
-    this.rect(panelX, y, panelW, panelH, { fill: COLORS.white, stroke: COLORS.navy, lw: 0.4, r: RADIUS.chip });
-    this.rect(panelX + 0.8, y + 0.8, panelW - 1.6, capH, { fill: COLORS.navy, r: 0.8 });
+    this.rect(panelX, y, panelW, panelH, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.4, r: RADIUS.chip });
+    this.rect(panelX + 0.8, y + 0.8, panelW - 1.6, capH, { fill: COLORS.brand, r: 0.8 });
     this.text('FORM CODE', panelX + panelW / 2, centreBaseline(y + 0.8, capH, 6.2), { size: 6.2, style: 'bold', align: 'center', color: COLORS.white });
-    this.text(this.form.formCode, panelX + panelW / 2, y + 11.2, { size: 12, style: 'bold', align: 'center', color: COLORS.navy });
-    this.text(this.form.codeBoxLines[0], panelX + panelW / 2, y + 13.7, { size: 4.9, style: 'bold', align: 'center', color: COLORS.slate });
-    this.text(this.form.codeBoxLines[1], panelX + panelW / 2, y + 15.9, { size: 4.9, style: 'bold', align: 'center', color: COLORS.slate });
+    this.text(this.form.formCode, panelX + panelW / 2, y + 11.2, { size: 12, style: 'bold', align: 'center', color: COLORS.brand });
+    this.text(this.form.codeBoxLines[0], panelX + panelW / 2, y + 13.7, { size: 4.9, style: 'bold', align: 'center', color: COLORS.band });
+    this.text(this.form.codeBoxLines[1], panelX + panelW / 2, y + 15.9, { size: 4.9, style: 'bold', align: 'center', color: COLORS.band });
     // barcode sits in its own rounded white plate
     const bcY = y + panelH + 1.4, bcH = 9.6;
     this.rect(panelX, bcY, panelW, bcH, { fill: COLORS.white, stroke: COLORS.hair, lw: 0.3, r: RADIUS.box });
     this.barcode(panelX + 1.2, bcY + 1.1, panelW - 2.4, 5, this.docNumber);
-    this.text(this.docNumber, panelX + panelW / 2, bcY + bcH - 1.4, { size: 5.8, align: 'center', color: COLORS.slate });
+    this.text(this.docNumber, panelX + panelW / 2, bcY + bcH - 1.4, { size: 5.8, align: 'center', color: COLORS.band });
     this.y = Math.max(y + 24.5, bcY + bcH) + 2.6;
   }
   compactHeader() {
     const y = this.y;
     if (this.crest) this.image(this.crest.dataUrl, this.x0, y, 11, 11);
-    this.text(SCHOOL.name, this.x0 + 13.5, y + 4.6, { size: 11, style: 'bold', color: COLORS.navy });
-    this.text(`${this.form.formCode}  ·  ${this.form.title}  ·  continued`, this.x0 + 13.5, y + 9.2, { size: 7.6, color: COLORS.slate });
+    this.text(SCHOOL.name, this.x0 + 13.5, y + 4.6, { size: 11, style: 'bold', color: COLORS.brand });
+    this.text(`${this.form.formCode}  ·  ${this.form.title}  ·  continued`, this.x0 + 13.5, y + 9.2, { size: 7.6, color: COLORS.band });
     const right = this.x0 + this.cw;
-    this.text(this.docNumber, right, y + 4.6, { size: 8.2, style: 'bold', align: 'right', color: COLORS.navy });
+    this.text(this.docNumber, right, y + 4.6, { size: 8.2, style: 'bold', align: 'right', color: COLORS.brand });
     const m = this.data.meta;
     const ctx = [m.registerClass || m.subjectClass, m.academicYear && `Year ${m.academicYear}`, m.term && `Term ${m.term}`, m.week && `Week ${m.week}`].filter(Boolean).join('  ·  ');
-    this.text(ctx, right, y + 9.2, { size: 7.6, color: COLORS.slate, align: 'right' });
-    this.rect(this.x0, y + 12.4, this.cw, 0.5, { fill: COLORS.navy, r: 0.25 });
+    this.text(ctx, right, y + 9.2, { size: 7.6, color: COLORS.band, align: 'right' });
+    this.rect(this.x0, y + 12.4, this.cw, 0.5, { fill: COLORS.brand, r: 0.25 });
     this.y = y + 16;
   }
   barcode(x, y, w, h, value) {
@@ -314,16 +315,16 @@ class Builder {
       this.rect(this.x0, y + 1.5, this.cw, 0.35, { fill: COLORS.hair, r: 0.17 });
       const by = y + 6.2;
       this.runs([
-        { s: this.form.formCode, size: 7.2, style: 'bold', color: COLORS.navy },
+        { s: this.form.formCode, size: 7.2, style: 'bold', color: COLORS.brand },
         { s: '   |   ', size: 7.2, color: COLORS.hair },
-        { s: this.form.title, size: 7.2, color: COLORS.slate },
+        { s: this.form.title, size: 7.2, color: COLORS.band },
       ], this.x0, by);
-      this.text(SCHOOL.name.replace(/\b(\w)(\w*)/g, (_, a, r) => a + r.toLowerCase()), this.x0 + this.cw / 2 - 10, by, { size: 7.2, color: COLORS.slate, align: 'center' });
+      this.text(SCHOOL.name.replace(/\b(\w)(\w*)/g, (_, a, r) => a + r.toLowerCase()), this.x0 + this.cw / 2 - 10, by, { size: 7.2, color: COLORS.band, align: 'center' });
       // page chip, matching the numbered chip in the reference header
       const chipW = 20, chipH = 5.2, chipX = this.x0 + this.cw - chipW, chipY = by - 3.9;
       this.rect(chipX, chipY, chipW, chipH, { fill: COLORS.pale, r: RADIUS.chip });
-      this.text(`Page ${i + 1} of ${n}`, chipX + chipW / 2, centreBaseline(chipY, chipH, 7), { size: 7, style: 'bold', color: COLORS.navy, align: 'center' });
-      this.text(SCHOOL.mottoWords.join('  ·  '), chipX - 4, by, { size: 7.2, color: COLORS.slate, align: 'right' });
+      this.text(`Page ${i + 1} of ${n}`, chipX + chipW / 2, centreBaseline(chipY, chipH, 7), { size: 7, style: 'bold', color: COLORS.brand, align: 'center' });
+      this.text(SCHOOL.mottoWords.join('  ·  '), chipX - 4, by, { size: 7.2, color: COLORS.band, align: 'right' });
       this.ops = saved;
     });
   }
@@ -348,7 +349,7 @@ class Builder {
         const w = (cw * f.span) / spanTotal;
         const labelW = this.measure(f.label, 9, 'bold') + 5;
         this.rect(x + 0.4, y + 0.4, labelW, rowH - 0.8, { fill: COLORS.pale, r: RADIUS.band });
-        this.text(f.label, x + 3, centreBaseline(y, rowH, 9), { size: 9, style: 'bold', color: COLORS.navy });
+        this.text(f.label, x + 3, centreBaseline(y, rowH, 9), { size: 9, style: 'bold', color: COLORS.brand });
         const value = String(this.data.meta[f.key] ?? '');
         if (f.kind === 'chars') {
           const chars = value.split('');
@@ -380,8 +381,8 @@ class Builder {
           if (cell.skip) { x += w; ci += cell.span; continue; } // covered by a rowSpan cell above
           const rowSpanH = cell.rowSpan ? headerRows.slice(headerRows.indexOf(hr), headerRows.indexOf(hr) + cell.rowSpan).reduce((a, r) => a + r.h, 0) : hr.h;
           // each header group is its own rounded chip with a hairline gap
-          this.rect(x + 0.3, y + 0.3, w - 0.6, rowSpanH - 0.6, { fill: cell.tone === 'pale' ? COLORS.pale : COLORS.slate, r: RADIUS.band });
-          if (cell.text) this.text(cell.text, x + w / 2, centreBaseline(y, rowSpanH, cell.size || 8.6), { size: cell.size || 8.6, style: 'bold', align: 'center', color: cell.tone === 'pale' ? COLORS.navy : COLORS.white });
+          this.rect(x + 0.3, y + 0.3, w - 0.6, rowSpanH - 0.6, { fill: cell.tone === 'pale' ? COLORS.pale : COLORS.band, r: RADIUS.band });
+          if (cell.text) this.text(cell.text, x + w / 2, centreBaseline(y, rowSpanH, cell.size || 8.6), { size: cell.size || 8.6, style: 'bold', align: 'center', color: cell.tone === 'pale' ? COLORS.brand : COLORS.white });
           x += w; ci += cell.span;
         }
         y += hr.h;
@@ -409,7 +410,7 @@ class Builder {
     });
     if (footerRow) {
       this.rect(x0 + 0.3, this.y + 0.6, cw - 0.6, footerRow.h - 0.6, { fill: COLORS.pale, r: RADIUS.band });
-      this.text(footerRow.text, x0 + 3, centreBaseline(this.y + 0.6, footerRow.h - 0.6, 8.4), { size: 8.4, style: 'italic', color: COLORS.navy });
+      this.text(footerRow.text, x0 + 3, centreBaseline(this.y + 0.6, footerRow.h - 0.6, 8.4), { size: 8.4, style: 'italic', color: COLORS.brand });
       this.y += footerRow.h;
     }
   }
@@ -418,12 +419,12 @@ class Builder {
   cell(x, y, w, h, value, o = {}) {
     const ix = x + CELL_INSET, iy = y + CELL_INSET;
     const iw = w - CELL_INSET * 2, ih = h - CELL_INSET * 2;
-    this.rect(ix, iy, iw, ih, { fill: COLORS.white, stroke: COLORS.navy, lw: 0.25, r: RADIUS.box });
+    this.rect(ix, iy, iw, ih, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.25, r: RADIUS.box });
     if (value !== '' && value != null) this.text(value, ix + iw / 2, centreBaseline(iy, ih, o.size || 9), { size: o.size || 9, style: o.style || 'normal', align: 'center', color: o.color || COLORS.text });
   }
-  /** Row-number gutter: plain navy figure on the band, no box (as the reference). */
+  /** Row-number gutter: plain brand-coloured figure on the band, no box (as the reference). */
   rowNumber(x, y, w, h, n) {
-    this.text(String(n), x + w / 2, centreBaseline(y, h, 8.6), { size: 8.6, style: 'bold', align: 'center', color: COLORS.navy });
+    this.text(String(n), x + w / 2, centreBaseline(y, h, 8.6), { size: 8.6, style: 'bold', align: 'center', color: COLORS.brand });
   }
 
   attendanceSection() {
@@ -493,7 +494,7 @@ class Builder {
           this.rowNumber(x, y, noW, h, i + 1); x += noW;
           for (const d of DAYS) {
             this.cell(x, y, learnerW, h, row[d.key].learner); x += learnerW;
-            this.cell(x, y, codeW, h, row[d.key].code, { style: 'bold', color: COLORS.navy }); x += codeW;
+            this.cell(x, y, codeW, h, row[d.key].code, { style: 'bold', color: COLORS.brand }); x += codeW;
           }
         },
       });
@@ -511,10 +512,10 @@ class Builder {
             const codeW = 6.4, gap = 1.2;
             const fieldW = dayW - codeW - gap - CELL_INSET * 2;
             const ix = x + CELL_INSET, iy = y + CELL_INSET, ih = h - CELL_INSET * 2;
-            this.rect(ix, iy, fieldW, ih, { fill: COLORS.white, stroke: COLORS.navy, lw: 0.25, r: RADIUS.box });
-            if (learner) this.runs([{ s: 'Learner ', size: 7, color: COLORS.slate }, { s: learner, size: 9 }], ix + 1.8, centreBaseline(iy, ih, 9));
-            this.rect(ix + fieldW + gap, iy, codeW, ih, { fill: COLORS.white, stroke: COLORS.navy, lw: 0.25, r: RADIUS.box });
-            if (code) this.text(code, ix + fieldW + gap + codeW / 2, centreBaseline(iy, ih, 9), { size: 9, style: 'bold', align: 'center', color: COLORS.navy });
+            this.rect(ix, iy, fieldW, ih, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.25, r: RADIUS.box });
+            if (learner) this.runs([{ s: 'Learner ', size: 7, color: COLORS.band }, { s: learner, size: 9 }], ix + 1.8, centreBaseline(iy, ih, 9));
+            this.rect(ix + fieldW + gap, iy, codeW, ih, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.25, r: RADIUS.box });
+            if (code) this.text(code, ix + fieldW + gap + codeW / 2, centreBaseline(iy, ih, 9), { size: 9, style: 'bold', align: 'center', color: COLORS.brand });
             x += dayW;
           }
         },
@@ -532,7 +533,7 @@ class Builder {
     const x0 = this.x0 + CARD_PAD, cw = this.cw - CARD_PAD * 2;
     const y = this.y;
     this.rect(x0, y, cw, h1, { fill: COLORS.pale, r: RADIUS.band });
-    this.runs([{ s: cl.title, size: 9.5, style: 'bold', color: COLORS.navy }, { s: `  ${cl.subtitle}`, size: 8.2, style: 'italic', color: COLORS.slate }], x0 + 3, centreBaseline(y, h1, 9.5));
+    this.runs([{ s: cl.title, size: 9.5, style: 'bold', color: COLORS.brand }, { s: `  ${cl.subtitle}`, size: 8.2, style: 'italic', color: COLORS.band }], x0 + 3, centreBaseline(y, h1, 9.5));
     const by = centreBaseline(y + h1, h2, 9.5);
     const n = OBSERVATION_CODES.length;
     const slot = (cw - 4) / n;
@@ -540,8 +541,8 @@ class Builder {
       const sx = x0 + 2 + i * slot;
       // the code itself sits in a small rounded box, like the reference's tick boxes
       const bw = 5.4, bh = 5.4, bY = y + h1 + (h2 - bh) / 2;
-      this.rect(sx, bY, bw, bh, { fill: COLORS.white, stroke: COLORS.navy, lw: 0.3, r: RADIUS.box });
-      this.text(c.code, sx + bw / 2, centreBaseline(bY, bh, 9.5), { size: 9.5, style: 'bold', align: 'center', color: COLORS.navy });
+      this.rect(sx, bY, bw, bh, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.3, r: RADIUS.box });
+      this.text(c.code, sx + bw / 2, centreBaseline(bY, bh, 9.5), { size: 9.5, style: 'bold', align: 'center', color: COLORS.brand });
       this.text(c.label, sx + bw + 2.4, by, { size: 8.6 });
     });
     this.y = y + h1 + h2;
@@ -567,7 +568,7 @@ class Builder {
       // avoid orphaning a single last text line on the next page
       if (remainingText > take && remainingText - take === 1 && take > 2) take -= 1;
       const y0 = this.y + BAND_GAP;
-      this.rect(x0, y0, cw, take * lh + 2, { fill: COLORS.white, stroke: COLORS.navy, lw: 0.3, r: RADIUS.box });
+      this.rect(x0, y0, cw, take * lh + 2, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.3, r: RADIUS.box });
       for (let k = 0; k < take; k++) {
         const ly = y0 + 1 + lh * k;
         if (ruled && k < take - 1) this.rect(x0 + 3, ly + lh, cw - 6, 0.25, { fill: COLORS.hair, r: 0.12 });
@@ -623,16 +624,16 @@ class Builder {
     this.rect(x0, y, cw, rowH, { fill: COLORS.paleAlt, r: RADIUS.band });
     const by = centreBaseline(y, rowH, 9);
     let x = x0 + 3;
-    x += this.text(sec.codeLabel, x, by, { size: 9, style: 'bold', color: COLORS.navy }) + 3;
+    x += this.text(sec.codeLabel, x, by, { size: 9, style: 'bold', color: COLORS.brand }) + 3;
     const fieldW = 52;
     this.roundedField(x, y + 2.2, fieldW, rowH - 4.4, atp.code, { size: 9.5, style: 'bold' });
     x += fieldW + 8;
     for (const s of ATP_STATUS) {
       const bs = 5.2; const cy = y + (rowH - bs) / 2;
-      this.rect(x, cy, bs, bs, { fill: COLORS.white, stroke: COLORS.navy, lw: 0.3, r: RADIUS.box });
+      this.rect(x, cy, bs, bs, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.3, r: RADIUS.box });
       if (atp.status === s.value) {
-        this.line(x + 1.1, cy + 2.7, x + 2.2, cy + 4.1, COLORS.navy, 0.6);
-        this.line(x + 2.2, cy + 4.1, x + 4.3, cy + 1.2, COLORS.navy, 0.6);
+        this.line(x + 1.1, cy + 2.7, x + 2.2, cy + 4.1, COLORS.brand, 0.6);
+        this.line(x + 2.2, cy + 4.1, x + 4.3, cy + 1.2, COLORS.brand, 0.6);
       }
       x += bs + 2.2;
       x += this.text(s.label, x, by, { size: 9 }) + 7;
@@ -642,7 +643,7 @@ class Builder {
     const labH = 6.6;
     this.y += BAND_GAP;
     this.rect(x0, this.y, cw, labH, { fill: COLORS.pale, r: RADIUS.band });
-    this.runs([{ s: sec.commentsLabel, size: 9, style: 'bold', color: COLORS.navy }, { s: ` ${sec.commentsHint}`, size: 8.2, style: 'italic', color: COLORS.slate }], x0 + 3, centreBaseline(this.y, labH, 9));
+    this.runs([{ s: sec.commentsLabel, size: 9, style: 'bold', color: COLORS.brand }, { s: ` ${sec.commentsHint}`, size: 8.2, style: 'italic', color: COLORS.band }], x0 + 3, centreBaseline(this.y, labH, 9));
     this.y += labH;
     this.flowLines(lines, { lh, minLines: this.writingLines(this.form.comments.minLines, lh), size, ruled: true, continuedBanner: () => open(true) });
     this.endCard();
@@ -657,12 +658,12 @@ class Builder {
     const x0 = this.x0 + CARD_PAD, cw = this.cw - CARD_PAD * 2;
     const y = this.y + BAND_GAP;
     const decl = this.wrap(so.declaration, cw - 6, 8.2, 'italic');
-    decl.forEach((l, i) => this.text(l, x0 + 3, y + 3.6 + i * 4, { size: 8.2, style: 'italic', color: COLORS.slate }));
+    decl.forEach((l, i) => this.text(l, x0 + 3, y + 3.6 + i * 4, { size: 8.2, style: 'italic', color: COLORS.band }));
     const rowY = y + 3.6 + decl.length * 4 + 1;
     let x = x0 + 3;
     const sigW = 70, sigH = 16;
-    x += this.text('Educator signature:', x, rowY + sigH / 2 + 1.2, { size: 9, style: 'bold', color: COLORS.navy }) + 3;
-    this.rect(x, rowY, sigW, sigH, { fill: COLORS.white, stroke: COLORS.navy, lw: 0.35, r: RADIUS.sig });
+    x += this.text('Educator signature:', x, rowY + sigH / 2 + 1.2, { size: 9, style: 'bold', color: COLORS.brand }) + 3;
+    this.rect(x, rowY, sigW, sigH, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.35, r: RADIUS.sig });
     const sig = this.data.signOff?.signature;
     if (sig && sig.dataUrl) {
       const pad = 1.2;
@@ -672,19 +673,19 @@ class Builder {
       this.image(sig.dataUrl, x + (sigW - w) / 2, rowY + (sigH - h) / 2, w, h);
     }
     x += sigW + 8;
-    x += this.text('Date:', x, rowY + sigH / 2 + 1.2, { size: 9, style: 'bold', color: COLORS.navy }) + 3;
+    x += this.text('Date:', x, rowY + sigH / 2 + 1.2, { size: 9, style: 'bold', color: COLORS.brand }) + 3;
     const iso = this.data.signOff?.date || '';
     const [yy, mm, dd] = iso.split('-');
     const boxY = rowY + (sigH - 5.6) / 2;
     x += this.charBoxes(x, boxY, (dd || '').split(''), 2) + 1.5;
-    this.text('/', x, centreBaseline(boxY, 5.6, 10), { size: 10, color: COLORS.slate }); x += 2.5;
+    this.text('/', x, centreBaseline(boxY, 5.6, 10), { size: 10, color: COLORS.band }); x += 2.5;
     x += this.charBoxes(x, boxY, (mm || '').split(''), 2) + 1.5;
-    this.text('/', x, centreBaseline(boxY, 5.6, 10), { size: 10, color: COLORS.slate }); x += 2.5;
+    this.text('/', x, centreBaseline(boxY, 5.6, 10), { size: 10, color: COLORS.band }); x += 2.5;
     x += this.charBoxes(x, boxY, (yy || '').split(''), 4);
     if (!this.blank) {
       const gen = this.generatedAt;
       const stamp = `${String(gen.getDate()).padStart(2, '0')}/${String(gen.getMonth() + 1).padStart(2, '0')}/${gen.getFullYear()} ${String(gen.getHours()).padStart(2, '0')}:${String(gen.getMinutes()).padStart(2, '0')}`;
-      this.text(`Document No. ${this.docNumber}   ·   Reference ${this.identifier}   ·   Generated ${stamp}`, x0 + cw - 1, y + bodyH - 2, { size: 6.8, color: COLORS.slate, align: 'right' });
+      this.text(`Document No. ${this.docNumber}   ·   Reference ${this.identifier}   ·   Generated ${stamp}`, x0 + cw - 1, y + bodyH - 2, { size: 6.8, color: COLORS.band, align: 'right' });
     }
     this.y = y + bodyH;
     this.endCard();

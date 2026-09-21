@@ -6,11 +6,14 @@ Attendance & Observation) forms, with submission output as a professional
 **PDF** and a high-resolution **PNG image** generated from the same completed
 form data.
 
-The design follows the **First Home Finance application form** held at the
-repository root: navy `#001F5F` for every rule, heading and header bar, a slate
-band for instructions, pale grey label cells, values in their own rounded white
-boxes, and no square corners anywhere. The barcode modules are the single
-deliberate exception — rounding them would stop them scanning — and
+The layout follows the **First Home Finance application form** held at the
+repository root; the colour is the school's own, taken from the crest. Brand
+red `#B5121B` (the shield) carries every rule, heading and header bar, with
+`#8F0F19` (the ribbon) for depth and `#8C5F62` — that red desaturated the way
+the reference derives its instruction band from its header bar — for the
+instruction bands. Label cells are pale grey, values sit in their own rounded
+white boxes, and nothing has a square corner. The barcode modules are the
+single deliberate exception, since rounding them would stop them scanning, and
 `npm run blanks` asserts that nothing else is square.
 
 ```
