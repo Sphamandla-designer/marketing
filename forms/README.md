@@ -1,8 +1,8 @@
 # Fisantekraal High School – Weekly Attendance & Observation Forms
 
-Interactive web forms for the **Register Class** (SA-01 Register Class Weekly
-Attendance & Observation) and **Subject Class** (SA-01 Subject Weekly
-Attendance & Observation) forms, with submission output as a professional
+Interactive web forms for the **Register Class** (**SA-01** Register Class
+Weekly Attendance & Observation) and **Subject Class** (**SA-02** Subject
+Weekly Attendance & Observation) forms, with submission output as a professional
 **PDF** and a high-resolution **PNG image** generated from the same completed
 form data.
 
@@ -37,6 +37,32 @@ must be served over HTTP (ES modules), not opened from `file://`.
 | `index.html` | Choose a form; re-download forms generated on this device |
 | `register-class.html` | Interactive Register Class form |
 | `subject-class.html` | Interactive Subject Class form |
+
+## How the attendance grid works
+
+The grid is a **slot model**, not one row per learner: a row is an entry slot,
+and the educator writes a learner's position number into the A (absent) or L
+(late) column for the relevant day. A row per learner cannot fit a 45-learner
+class on a page, so the form does not pretend to.
+
+| | Section A (page 1) | Section A2 (page 2) | Total slots per day |
+| --- | --- | --- | --- |
+| Register Class (SA-01) | 10 | 12 | 22 |
+| Subject Class (SA-02) | 6 | 8 | 14 |
+
+Section A2 is a real continuation grid on page 2, not a note pointing at the
+back of the page. It is laid out whole on one page; slots added beyond the
+designed size flow normally rather than stranding a part-empty page. More
+slots can be added from Section A2 on screen, up to `maxRows`.
+
+Every page carries its own barcode and printed page code — `SA01-P1`,
+`SA01-P2`, `SA02-P1` … — so a page separated from its set is identifiable, and
+pages 2 onwards repeat a strip of Year, Term, Week and Class (plus Subject on
+the subject form).
+
+Sign-off has two columns. The educator signs on submission; the **HOD**
+column (name, signature, date) is optional in validation because it is
+normally counter-signed after the form is printed.
 
 ## Blank forms
 

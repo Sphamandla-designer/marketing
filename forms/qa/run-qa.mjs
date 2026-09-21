@@ -68,7 +68,7 @@ async function fill(page, sc) {
     if (await group.count()) await typeChars(page, `.char-group[data-path="meta.${k}"]`, v);
     else await page.locator(`input[data-path="meta.${k}"]`).fill(v);
   }
-  for (let i = 0; i < (sc.extraAttendanceRows || 0); i++) await page.locator('.attendance-table').locator('..').locator('..').locator('.row-controls button', { hasText: 'Add row' }).click();
+  for (let i = 0; i < (sc.extraAttendanceRows || 0); i++) await page.locator('.attendance-overflow').locator('..').locator('..').locator('.row-controls button', { hasText: 'Add row' }).click();
   for (let i = 0; i < (sc.extraObservationRows || 0); i++) await page.locator('.obs-table').locator('..').locator('..').locator('.row-controls button', { hasText: 'Add row' }).click();
   for (const [row, days] of Object.entries(sc.attendance || {})) for (const [d, cells] of Object.entries(days)) for (const [k, v] of Object.entries(cells)) await page.locator(`input[data-path="attendance.${row}.${d}.${k}"]`).fill(v);
   for (const [row, days] of Object.entries(sc.observations || {})) for (const [d, cells] of Object.entries(days)) for (const [k, v] of Object.entries(cells)) await page.locator(`input[data-path="observations.${row}.${d}.${k}"]`).fill(v);
@@ -77,8 +77,9 @@ async function fill(page, sc) {
     await page.locator(`label[for="atp-status-${sc.atp.status}"]`).click();
   }
   if (sc.comments) await page.locator('textarea[data-path="comments"]').fill(sc.comments);
-  // signature: draw a looping stroke
-  const pad = page.locator('canvas.sig-pad');
+  // signature: draw a looping stroke on the educator pad (the HOD counter-signs
+  // after printing, so that pad is deliberately left empty here)
+  const pad = page.locator('[data-path="signOff.signature"] canvas.sig-pad');
   await pad.evaluate((el) => el.scrollIntoView({ block: 'center' }));
   const box = await pad.boundingBox();
   const pts = [];

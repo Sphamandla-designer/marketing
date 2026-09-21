@@ -76,11 +76,11 @@ export function charGroup({ data, path, length, charset = 'any', label, onChange
 }
 
 // ------------------------------------------------------------ signature pad
-export function signaturePad({ data, path, onChange }) {
+export function signaturePad({ data, path, onChange, who = 'Educator' }) {
   const wrap = el('div', { class: 'sig-wrap', 'data-path': path });
-  const canvas = el('canvas', { class: 'sig-pad', width: 900, height: 240, 'aria-label': 'Educator signature pad. Draw your signature with a mouse, finger or stylus.', role: 'img', tabindex: 0 });
+  const canvas = el('canvas', { class: 'sig-pad', width: 900, height: 240, 'aria-label': `${who} signature pad. Draw your signature with a mouse, finger or stylus.`, role: 'img', tabindex: 0 });
   const hint = el('div', { class: 'sig-hint', text: 'Sign here' });
-  const clearBtn = el('button', { type: 'button', class: 'btn btn-ghost btn-sm', text: 'Clear signature' });
+  const clearBtn = el('button', { type: 'button', class: 'btn btn-ghost btn-sm', text: 'Clear signature', 'aria-label': `Clear ${who.toLowerCase()} signature` });
   wrap.append(canvas, hint, clearBtn);
   const ctx = canvas.getContext('2d');
   ctx.lineWidth = 3.2; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#14213d';
@@ -216,41 +216,59 @@ export function renderForm(root, data, { onChange } = {}) {
     return inp;
   };
 
-  // ---- Section A: attendance
-  const secA = el('section', { class: 'form-section', 'aria-labelledby': 'sec-a' });
-  const bannerA = banner(form.attendance.letter, form.attendance.title, form.attendance.subtitle); bannerA.id = 'sec-a';
-  secA.append(bannerA, notes(form.attendance.notes));
-  const tableAWrap = el('div', { class: 'table-scroll' });
-  const tableA = el('table', { class: 'grid-table attendance-table' });
-  tableA.appendChild(el('thead', {}, [
-    el('tr', {}, [el('th', { rowspan: 2, class: 'col-no', text: 'No.' }), ...DAYS.map((d) => el('th', { colspan: 2, text: d.label }))]),
+  // ---- Section A: attendance (slot model) + Section A2 continuation
+  const att = form.attendance;
+  const attHead = () => el('thead', {}, [
+    el('tr', {}, [el('th', { rowspan: 3, class: 'col-no', text: '#' }), ...DAYS.map((d) => el('th', { colspan: 2, text: d.label }))]),
     el('tr', {}, DAYS.flatMap((d) => [el('th', { class: 'sub', text: 'A', 'aria-label': `${d.label} absent` }), el('th', { class: 'sub', text: 'L', 'aria-label': `${d.label} late` })])),
-  ]));
-  const tbodyA = el('tbody');
-  tableA.appendChild(tbodyA);
-  const renderAttendanceRows = () => {
-    tbodyA.innerHTML = '';
-    data.attendance.forEach((row, i) => {
-      const tr = el('tr', {}, [el('th', { scope: 'row', class: 'col-no', text: String(i + 1) })]);
-      for (const d of DAYS) {
-        for (const k of ['a', 'l']) {
-          tr.appendChild(el('td', {}, cellInput(`attendance.${i}.${d.key}.${k}`, { maxLength: 3, charset: 'digit', inputmode: 'numeric', ariaLabel: `Row ${i + 1} ${d.label} ${k === 'a' ? 'absent' : 'late'} learner number` })));
+    el('tr', {}, DAYS.flatMap(() => [el('th', { class: 'sub sub-tight', text: 'Learner No.' }), el('th', { class: 'sub sub-tight', text: 'Learner No.' })])),
+  ]);
+  /** Builds one attendance grid over data.attendance[from..to). */
+  const attendanceGrid = (from, to, extraClass = '') => {
+    const wrap = el('div', { class: 'table-scroll' });
+    const table = el('table', { class: `grid-table attendance-table ${extraClass}`.trim() });
+    table.appendChild(attHead());
+    const tbody = el('tbody');
+    table.appendChild(tbody);
+    const render = () => {
+      tbody.innerHTML = '';
+      const end = to == null ? data.attendance.length : Math.min(to, data.attendance.length);
+      for (let i = from; i < end; i++) {
+        const tr = el('tr', {}, [el('th', { scope: 'row', class: 'col-no', text: String(i + 1) })]);
+        for (const d of DAYS) {
+          for (const k of ['a', 'l']) {
+            tr.appendChild(el('td', {}, cellInput(`attendance.${i}.${d.key}.${k}`, { maxLength: 3, charset: 'digit', inputmode: 'numeric', ariaLabel: `Slot ${i + 1} ${d.label} ${k === 'a' ? 'absent' : 'late'} learner number` })));
+          }
         }
+        tbody.appendChild(tr);
       }
-      tbodyA.appendChild(tr);
-    });
+    };
+    render();
+    wrap.appendChild(table);
+    return { wrap, render, tbody };
   };
-  renderAttendanceRows();
-  tableAWrap.appendChild(tableA);
-  secA.appendChild(tableAWrap);
-  secA.appendChild(rowControls({
-    label: form.attendance.extraRowsNoteLabel,
-    canRemove: () => data.attendance.length > form.attendance.defaultRows,
-    canAdd: () => data.attendance.length < form.attendance.maxRows,
-    onAdd: () => { data.attendance.push(emptyAttendanceRow()); renderAttendanceRows(); change('attendance'); focusLastRow(tbodyA); },
-    onRemove: () => { data.attendance.pop(); renderAttendanceRows(); change('attendance'); },
-  }));
+
+  const secA = el('section', { class: 'form-section', 'aria-labelledby': 'sec-a' });
+  const bannerA = banner(att.letter, att.title, att.subtitle); bannerA.id = 'sec-a';
+  secA.append(bannerA, notes(att.notes));
+  const gridA = attendanceGrid(0, att.defaultRows, 'attendance-primary');
+  secA.appendChild(gridA.wrap);
+  secA.appendChild(el('div', { class: 'row-note', text: att.continueNote }));
   root.appendChild(secA);
+
+  const secA2 = el('section', { class: 'form-section', 'aria-labelledby': 'sec-a2' });
+  const bannerA2 = banner(att.overflow.letter, att.overflow.title, att.overflow.subtitle); bannerA2.id = 'sec-a2';
+  secA2.append(bannerA2);
+  const gridA2 = attendanceGrid(att.defaultRows, null, 'attendance-overflow');
+  secA2.appendChild(gridA2.wrap);
+  secA2.appendChild(rowControls({
+    label: `Slots ${att.defaultRows + 1} onwards`,
+    canRemove: () => data.attendance.length > att.defaultRows + att.overflowRows,
+    canAdd: () => data.attendance.length < att.maxRows,
+    onAdd: () => { data.attendance.push(emptyAttendanceRow()); gridA2.render(); change('attendance'); focusLastRow(gridA2.tbody); },
+    onRemove: () => { data.attendance.pop(); gridA2.render(); change('attendance'); },
+  }));
+  root.appendChild(secA2);
 
   // ---- Section B: observations
   const secB = el('section', { class: 'form-section', 'aria-labelledby': 'sec-b' });
@@ -258,14 +276,10 @@ export function renderForm(root, data, { onChange } = {}) {
   secB.append(bannerB, notes(form.observations.notes));
   const tableBWrap = el('div', { class: 'table-scroll' });
   const tableB = el('table', { class: `grid-table obs-table obs-${form.observations.mode}` });
-  if (form.observations.mode === 'split') {
-    tableB.appendChild(el('thead', {}, [
-      el('tr', {}, [el('th', { rowspan: 2, class: 'col-no', text: 'No.' }), ...DAYS.map((d) => el('th', { colspan: 2, text: d.label }))]),
-      el('tr', {}, DAYS.flatMap(() => [el('th', { class: 'sub', text: 'Learner No.' }), el('th', { class: 'sub', text: 'Code' })])),
-    ]));
-  } else {
-    tableB.appendChild(el('thead', {}, [el('tr', {}, [el('th', { class: 'col-no', text: 'No.' }), ...DAYS.map((d) => el('th', { colspan: 2, text: d.label }))])]));
-  }
+  tableB.appendChild(el('thead', {}, [
+    el('tr', {}, [el('th', { rowspan: 2, class: 'col-no', text: 'No.' }), ...DAYS.map((d) => el('th', { colspan: 2, text: d.label }))]),
+    el('tr', {}, DAYS.flatMap(() => [el('th', { class: 'sub', text: 'Learner No.' }), el('th', { class: 'sub', text: 'Code' })])),
+  ]));
   const tbodyB = el('tbody');
   tableB.appendChild(tbodyB);
   const renderObsRows = () => {
@@ -273,8 +287,8 @@ export function renderForm(root, data, { onChange } = {}) {
     data.observations.forEach((row, i) => {
       const tr = el('tr', {}, [el('th', { scope: 'row', class: 'col-no', text: String(i + 1) })]);
       for (const d of DAYS) {
-        tr.appendChild(el('td', { class: 'learner-cell' }, cellInput(`observations.${i}.${d.key}.learner`, { maxLength: 3, charset: 'digit', inputmode: 'numeric', placeholder: form.observations.mode === 'combined' ? 'No.' : '', ariaLabel: `Row ${i + 1} ${d.label} learner number` })));
-        tr.appendChild(el('td', { class: 'code-cell' }, cellInput(`observations.${i}.${d.key}.code`, { maxLength: 1, charset: 'code', upper: true, class: 'char-box', placeholder: form.observations.mode === 'combined' ? 'Code' : '', ariaLabel: `Row ${i + 1} ${d.label} observation code` })));
+        tr.appendChild(el('td', { class: 'learner-cell' }, cellInput(`observations.${i}.${d.key}.learner`, { maxLength: 3, charset: 'digit', inputmode: 'numeric', ariaLabel: `Row ${i + 1} ${d.label} learner number` })));
+        tr.appendChild(el('td', { class: 'code-cell' }, cellInput(`observations.${i}.${d.key}.code`, { maxLength: 1, charset: 'code', upper: true, class: 'char-box', ariaLabel: `Row ${i + 1} ${d.label} observation code` })));
       }
       tbodyB.appendChild(tr);
     });
@@ -327,48 +341,68 @@ export function renderForm(root, data, { onChange } = {}) {
     root.appendChild(secC);
   }
 
-  // ---- sign-off
+  // ---- sign-off: educator signs on submission, HOD counter-signs afterwards
   const secD = el('section', { class: 'form-section signoff', 'aria-labelledby': 'sec-signoff' });
   const bannerD = banner(form.signOff.letter, form.signOff.title, ''); bannerD.id = 'sec-signoff';
   secD.appendChild(bannerD);
   const body = el('div', { class: 'signoff-body' });
   body.appendChild(el('p', { class: 'declaration', text: form.signOff.declaration }));
-  const sigRow = el('div', { class: 'signoff-row' });
-  sigRow.appendChild(el('div', { class: 'signoff-field' }, [el('span', { class: 'field-label', text: 'Educator signature:' }), signaturePad({ data, path: 'signOff.signature', onChange: change })]));
-  const dateField = el('div', { class: 'signoff-field date-field', 'data-path': 'signOff.date' });
-  dateField.appendChild(el('span', { class: 'field-label', text: 'Date:' }));
-  const dateParts = { dd: '', mm: '', yyyy: '' };
-  const iso = data.signOff?.date || '';
-  if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) { [dateParts.yyyy, dateParts.mm, dateParts.dd] = iso.split('-'); }
-  const dateScratch = { ...dateParts };
-  const dateBoxes = el('div', { class: 'date-boxes' });
-  const mkPart = (key, len, label) => {
-    const g = charGroup({ data: dateScratch, path: key, length: len, charset: 'digit', label, onChange: () => {
-      const { dd, mm, yyyy } = dateScratch;
-      const all = dd || mm || yyyy;
-      setPath(data, 'signOff.date', all ? `${yyyy}-${mm}-${dd}` : '');
-      change('signOff.date');
-    } });
-    g.classList.add('date-part');
-    return g;
+
+  /** Date field with DD / MM / YYYY boxes bound to an ISO path on `data`. */
+  const dateField = (path, label) => {
+    const field = el('div', { class: 'signoff-field date-field', 'data-path': path });
+    field.appendChild(el('span', { class: 'field-label', text: label }));
+    const parts = { dd: '', mm: '', yyyy: '' };
+    const current = getPath(data, path) || '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(current)) { [parts.yyyy, parts.mm, parts.dd] = current.split('-'); }
+    const scratch = { ...parts };
+    const boxes = el('div', { class: 'date-boxes' });
+    const mkPart = (key, len, partLabel) => {
+      const g = charGroup({ data: scratch, path: key, length: len, charset: 'digit', label: partLabel, onChange: () => {
+        const { dd, mm, yyyy } = scratch;
+        setPath(data, path, (dd || mm || yyyy) ? `${yyyy}-${mm}-${dd}` : '');
+        change(path);
+      } });
+      g.classList.add('date-part');
+      return g;
+    };
+    boxes.append(mkPart('dd', 2, 'Day'), el('span', { class: 'date-sep', text: '/' }), mkPart('mm', 2, 'Month'), el('span', { class: 'date-sep', text: '/' }), mkPart('yyyy', 4, 'Year'));
+    field.appendChild(boxes);
+    field.appendChild(el('span', { class: 'field-hint', text: 'DD / MM / YYYY' }));
+    const todayBtn = el('button', { type: 'button', class: 'btn btn-ghost btn-sm', text: 'Use today' });
+    todayBtn.addEventListener('click', () => {
+      const t = new Date();
+      const yyyy = String(t.getFullYear()), mm = String(t.getMonth() + 1).padStart(2, '0'), dd = String(t.getDate()).padStart(2, '0');
+      Object.assign(scratch, { dd, mm, yyyy });
+      for (const [k, v] of Object.entries({ dd, mm, yyyy })) {
+        const g = boxes.querySelector(`[data-path="${k}"]`);
+        [...g.querySelectorAll('input')].forEach((inp, i) => { inp.value = v[i] || ''; });
+      }
+      setPath(data, path, `${yyyy}-${mm}-${dd}`); change(path);
+    });
+    field.appendChild(todayBtn);
+    return field;
   };
-  dateBoxes.append(mkPart('dd', 2, 'Day'), el('span', { class: 'date-sep', text: '/' }), mkPart('mm', 2, 'Month'), el('span', { class: 'date-sep', text: '/' }), mkPart('yyyy', 4, 'Year'));
-  dateField.appendChild(dateBoxes);
-  dateField.appendChild(el('span', { class: 'field-hint', text: 'DD / MM / YYYY' }));
-  const todayBtn = el('button', { type: 'button', class: 'btn btn-ghost btn-sm', text: 'Use today' });
-  todayBtn.addEventListener('click', () => {
-    const t = new Date();
-    const yyyy = String(t.getFullYear()), mm = String(t.getMonth() + 1).padStart(2, '0'), dd = String(t.getDate()).padStart(2, '0');
-    Object.assign(dateScratch, { dd, mm, yyyy });
-    for (const [k, v] of Object.entries({ dd, mm, yyyy })) {
-      const g = dateBoxes.querySelector(`[data-path="${k}"]`);
-      [...g.querySelectorAll('input')].forEach((inp, i) => { inp.value = v[i] || ''; });
-    }
-    setPath(data, 'signOff.date', `${yyyy}-${mm}-${dd}`); change('signOff.date');
-  });
-  dateField.appendChild(todayBtn);
-  sigRow.appendChild(dateField);
-  body.appendChild(sigRow);
+
+  const signColumns = el('div', { class: 'signoff-columns' });
+
+  const educatorCol = el('div', { class: 'signoff-col' }, [el('h3', { class: 'signoff-col-title', text: form.signOff.educatorLabel })]);
+  educatorCol.appendChild(el('div', { class: 'signoff-field' }, [el('span', { class: 'field-label', text: 'Signature:' }), signaturePad({ data, path: 'signOff.signature', onChange: change, who: form.signOff.educatorLabel })]));
+  educatorCol.appendChild(dateField('signOff.date', 'Date:'));
+  signColumns.appendChild(educatorCol);
+
+  const hodCol = el('div', { class: 'signoff-col' }, [
+    el('h3', { class: 'signoff-col-title' }, [form.signOff.hodLabel, el('span', { class: 'optional-tag', text: 'optional' })]),
+  ]);
+  const hodName = el('div', { class: 'signoff-field', 'data-path': 'signOff.hod.name' });
+  hodName.appendChild(el('span', { class: 'field-label', text: 'Name:' }));
+  hodName.appendChild(textInput('signOff.hod.name', { maxLength: 60, placeholder: 'Full name', ariaLabel: 'HOD full name', class: 'hod-name' }));
+  hodCol.appendChild(hodName);
+  hodCol.appendChild(el('div', { class: 'signoff-field' }, [el('span', { class: 'field-label', text: 'Signature:' }), signaturePad({ data, path: 'signOff.hod.signature', onChange: change, who: form.signOff.hodLabel })]));
+  hodCol.appendChild(dateField('signOff.hod.date', 'Date:'));
+  signColumns.appendChild(hodCol);
+
+  body.appendChild(signColumns);
   secD.appendChild(body);
   root.appendChild(secD);
 

@@ -21,13 +21,15 @@ export function createEmptyData(type) {
   const form = getForm(type);
   const meta = {};
   for (const row of form.meta.rows) for (const f of row) meta[f.key] = '';
+  // attendance slots span Section A (page 1) and the Section A2 continuation
+  const slots = form.attendance.defaultRows + (form.attendance.overflowRows || 0);
   const data = {
     formType: type,
     meta,
-    attendance: Array.from({ length: form.attendance.defaultRows }, emptyAttendanceRow),
+    attendance: Array.from({ length: slots }, emptyAttendanceRow),
     observations: Array.from({ length: form.observations.defaultRows }, emptyObservationRow),
     comments: '',
-    signOff: { signature: null, date: '' },
+    signOff: { signature: null, date: '', hod: { name: '', signature: null, date: '' } },
   };
   if (form.atp) data.atp = { code: '', status: '' };
   return data;
@@ -101,6 +103,13 @@ export function validate(data) {
   else if (!isValidIsoDate(date)) push('signOff.date', 'Enter a valid date (DD MM YYYY).');
   if (!data.signOff?.signature) push('signOff.signature', 'Educator signature is required.');
 
+  // The HOD counter-signs after the form is printed, so none of it is required
+  // to submit — but anything captured on screen must still be well formed.
+  const hod = data.signOff?.hod || {};
+  const hodDate = (hod.date || '').trim();
+  if (hodDate && !isValidIsoDate(hodDate)) push('signOff.hod.date', 'Enter a valid HOD date (DD MM YYYY).');
+  if ((hod.name || '').length > 60) push('signOff.hod.name', 'HOD name is too long.');
+
   return errors;
 }
 
@@ -120,6 +129,9 @@ export function normalise(data) {
   for (const row of out.observations) for (const d of DAYS) { row[d.key].learner = row[d.key].learner.trim(); row[d.key].code = row[d.key].code.trim().toUpperCase(); }
   if (out.atp) out.atp.code = String(out.atp.code || '').trim();
   out.comments = String(out.comments || '').replace(/\r\n?/g, '\n').trim();
+  if (!out.signOff) out.signOff = { signature: null, date: '' };
+  if (!out.signOff.hod) out.signOff.hod = { name: '', signature: null, date: '' };
+  out.signOff.hod.name = String(out.signOff.hod.name || '').trim();
   return out;
 }
 

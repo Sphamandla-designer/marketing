@@ -92,8 +92,6 @@ main { max-width: 1040px; margin: 0 auto; padding: 16px; }
 .cell-input::placeholder { color: var(--placeholder); font-size: 11px; }
 .cell-input.is-invalid { border-color: var(--error); box-shadow: 0 0 0 2px rgba(179,38,30,.2); background: #FFF3F2; }
 .obs-table td.code-cell .cell-input { font-weight: 700; color: var(--brand); }
-.obs-combined td.learner-cell { width: 17%; }
-.obs-combined td.code-cell { width: 8%; }
 .obs-split td.learner-cell { width: 11%; }
 .obs-split td.code-cell { width: 7%; }
 .row-controls { display: flex; gap: 10px; align-items: center; padding: 8px 12px; border-top: 1px solid var(--hair); font-size: 13.5px; flex-wrap: wrap; }
@@ -218,3 +216,15 @@ main { max-width: 1040px; margin: 0 auto; padding: 16px; }
 
 /* placeholder hints, matching the grey "DD / MM / YYYY" of the reference form */
 .rounded-field input::placeholder, .comments-input::placeholder { color: var(--placeholder); font-style: italic; }
+
+/* attendance slot header: the third header row is tight, so it gets its own size */
+.grid-table thead th.sub-tight { font-size: 10.5px; height: 22px; letter-spacing: .01em; }
+.row-note { padding: 9px 13px; font-size: 13.5px; color: var(--muted); font-style: italic; }
+
+/* sign-off: educator and HOD side by side */
+.signoff-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.signoff-col { border: 1.5px solid var(--brand); border-radius: var(--r-card); padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.signoff-col-title { margin: 0; font-size: 14px; color: var(--brand); display: flex; align-items: center; gap: 8px; }
+.optional-tag { font-size: 10.5px; font-weight: 400; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); background: var(--pale); border-radius: 999px; padding: 2px 8px; }
+.hod-name { border: 1.5px solid var(--box-border); border-radius: var(--r-box); padding: 8px 10px; font-size: 15px; background: #fff; min-width: 0; flex: 1; }
+@media (max-width: 760px) { .signoff-columns { grid-template-columns: 1fr; } }

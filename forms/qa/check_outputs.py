@@ -51,8 +51,25 @@ for scen in sorted(os.listdir(OUT)):
     missing = [v for v in expected_values(info['data']) if v not in flat]
     print(f'  values checked: {len(expected_values(info["data"]))}; missing from PDF text: {missing if missing else "none"}')
     if missing: failures += 1
-    for must in [info['docNumber'], info['identifier'], 'FISANTEKRAAL HIGH SCHOOL', 'FORM CODE', 'Educator signature', f'Page {len(doc)} of {len(doc)}']:
+    form_code = 'SA-02' if 'Subject' in info['pdfName'] else 'SA-01'
+    prefix = form_code.replace('-', '')
+    must_have = [
+        info['docNumber'], info['identifier'],
+        'FISANTEKRAAL HIGH SCHOOL', 'FORM CODE', form_code,
+        'Educator', 'Signature', 'HOD',                 # both sign-off columns
+        'Position numbers as per class list dated',     # class list reference
+        f'Page {len(doc)} of {len(doc)}',
+    ]
+    if len(doc) > 1:
+        must_have.append('ATTENDANCE (CONTINUED)')      # Section A2
+    for must in must_have:
         if must not in flat: failures += 1; print(f'  FAIL: "{must}" not found in PDF text')
+    # every page carries its own barcode identifier, e.g. SA01-P1 … SA01-Pn
+    for i in range(len(doc)):
+        code = f'{prefix}-P{i+1}'
+        if code not in re.sub(r'\s+', ' ', doc[i].get_text()):
+            failures += 1; print(f'  FAIL: page {i+1} is missing its page code "{code}"')
+    print(f'  page codes: {prefix}-P1 … {prefix}-P{len(doc)}')
     idir = os.path.join(d, 'inspect'); os.makedirs(idir, exist_ok=True)
     for i, page in enumerate(doc):
         pix = page.get_pixmap(dpi=110)
