@@ -1,3 +1,32 @@
+# Marketing assets
+
+This repository holds two separate bodies of work.
+
+| Directory | Project |
+| --- | --- |
+| `brand-assets/`, `tools/brand/` | **AX-Channels brand asset kit** — graphic design built from the AX-Channels logo artwork |
+| `creative/`, `copy/`, `assets/workshop/` | **AI training workshop** — imagery direction and channel copy |
+
+---
+
+# AX-Channels — brand asset kit
+
+Logo kit, brand guidelines, social graphics, presentation frames, print
+stationery, collateral and display ads, all generated from the supplied
+AX-Channels logo files.
+
+- Start with `brand-assets/00-kit-overview.png` — one contact sheet of everything.
+- `brand-assets/README.md` has the full index, the print specs, and the list of
+  placeholder details to swap before publishing.
+- Everything is generated: `python3 tools/brand/build.py` rebuilds every PNG from
+  the templates in `tools/brand/`.
+
+The source logo PNGs supplied for the job stay in the repository root
+(`AX-Channels logo [Vectorized]*.png`, `Group 9*.png`); `brand-assets/logo/`
+holds the same artwork trimmed, named and extended into colourways and icons.
+
+---
+
 # AI Training Workshop — Marketing Materials
 
 Visual and copy assets for a premium AI training workshop aimed at South African
