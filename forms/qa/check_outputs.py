@@ -29,8 +29,6 @@ def expected_values(data):
             if row[d]['code']: vals.append(row[d]['code'])
     if data.get('atp'):
         vals.append(data['atp']['code'])
-    sign = data.get('signOff') or {}
-    if sign.get('term'): vals.append(sign['term'])
     if data.get('comments'):
         vals += [w for w in re.findall(r"[A-Za-z0-9']+", data['comments']) if len(w) > 3][:80]
     return vals
@@ -62,7 +60,7 @@ for scen in sorted(os.listdir(OUT)):
         'FISANTEKRAAL HIGH SCHOOL', 'FORM CODE', form_code,
         'ATTENDANCE', 'Period',                         # section A and its period row
         'Observation Code List',                        # printed inside section B
-        'SIGN-OFF', 'Term:', 'Week:', 'Week starts:', 'Week ends:',
+        'SIGN-OFF', 'Week:',
         'Educator signature',
         'Date:',                                        # header date field
         f'Page {len(doc)} of {len(doc)}',

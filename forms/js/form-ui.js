@@ -372,7 +372,7 @@ export function renderForm(root, data, { onChange } = {}) {
     return field;
   };
 
-  // term, week and the dates the week runs between
+  // any fields the sign-off captures besides the signature (none at present)
   const fieldRow = el('div', { class: 'signoff-row' });
   for (const f of form.signOff.fields) {
     const field = el('div', { class: 'signoff-field', 'data-path': `signOff.${f.key}` });
@@ -381,7 +381,7 @@ export function renderForm(root, data, { onChange } = {}) {
     fieldRow.appendChild(field);
   }
   for (const d of form.signOff.dates) fieldRow.appendChild(dateField(`signOff.${d.key}`, d.label));
-  body.appendChild(fieldRow);
+  if (fieldRow.childElementCount) body.appendChild(fieldRow);
 
   body.appendChild(el('div', { class: 'signoff-field signoff-sign' }, [
     el('span', { class: 'field-label', text: `${form.signOff.educatorLabel} signature:` }),

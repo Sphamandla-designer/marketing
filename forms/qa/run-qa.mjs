@@ -25,7 +25,6 @@ const scenarios = [
     attendance: { 0: { mon: { a: '14' }, wed: { l: '7' } }, 1: { mon: { a: '22' }, thu: { a: '22' } }, 2: { tue: { l: '3' } }, 3: { fri: { a: '31' } }, 4: { wed: { a: '9' }, thu: { a: '9' }, fri: { a: '9' } } },
     observations: { 0: { mon: { learner: '14', code: 'C' }, wed: { learner: '5', code: 'P' } }, 1: { tue: { learner: '22', code: 'N' } }, 2: { fri: { learner: '8', code: 'E' } } },
     comments: 'Learner 9 absent three days; parents contacted Thursday.',
-    signOff: { term: '2', startDate: { dd: '04', mm: '05', yyyy: '2026' }, endDate: { dd: '08', mm: '05', yyyy: '2026' } },
   },
   {
     name: 'subject-standard', page: 'subject-class.html',
@@ -35,7 +34,6 @@ const scenarios = [
     observations: { 0: { mon: { learner: '14', code: 'C' }, wed: { learner: '11', code: 'E' } }, 1: { fri: { learner: '3', code: 'P' } }, 2: { wed: { learner: '27', code: 'N' } } },
     atp: { code: 'MATH-9-T2-W5', status: 'not_completed' },
     comments: 'Deviation: Unit 5.3 not completed due to Wednesday assembly.',
-    signOff: { term: '2', startDate: { dd: '04', mm: '05', yyyy: '2026' }, endDate: { dd: '08', mm: '05', yyyy: '2026' } },
   },
   {
     name: 'register-full', page: 'register-class.html',
@@ -45,7 +43,6 @@ const scenarios = [
     attendance: Object.fromEntries(Array.from({ length: 8 }, (_, i) => [i, { mon: { a: String(i + 1) }, fri: { l: String((i * 3) % 40 + 1) } }])),
     observations: Object.fromEntries(Array.from({ length: 8 }, (_, i) => [i, { tue: { learner: String(i + 1), code: 'PECN'[i % 4] } }])),
     comments: 'A deliberately long comment used to check that the write-in box holds its designed size and does not push the sign-off onto a second page even when the text overflows the visible lines.',
-    signOff: { term: '4', startDate: { dd: '23', mm: '11', yyyy: '2026' }, endDate: { dd: '27', mm: '11', yyyy: '2026' } },
   },
   {
     name: 'subject-full', page: 'subject-class.html',
@@ -55,7 +52,6 @@ const scenarios = [
     observations: Object.fromEntries(Array.from({ length: 6 }, (_, i) => [i, { thu: { learner: String(i + 1), code: 'PECN'[i % 4] } }])),
     atp: { code: 'PHSC-11-T4-W2', status: 'completed' },
     comments: 'Practical investigation on Newton’s second law completed; learners requiring consolidation are listed in the observations above.',
-    signOff: { term: '4', startDate: { dd: '12', mm: '10', yyyy: '2026' }, endDate: { dd: '16', mm: '10', yyyy: '2026' } },
   },
 ];
 
@@ -79,15 +75,6 @@ async function fill(page, sc) {
     await page.locator(`label[for="atp-status-${sc.atp.status}"]`).click();
   }
   if (sc.comments) await page.locator('textarea[data-path="comments"]').fill(sc.comments);
-
-  // term and week, then the two dates
-  await typeChars(page, '.char-group[data-path="signOff.term"]', sc.signOff.term);
-  for (const key of ['startDate', 'endDate']) {
-    const parts = sc.signOff[key];
-    for (const part of ['dd', 'mm', 'yyyy']) {
-      await typeChars(page, `[data-path="signOff.${key}"] .date-part[data-path="${part}"]`, parts[part]);
-    }
-  }
 
   // signature: draw a looping stroke
   const pad = page.locator('canvas.sig-pad');

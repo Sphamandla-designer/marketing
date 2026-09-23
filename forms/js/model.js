@@ -161,16 +161,15 @@ export function isRowEmpty(row) {
 }
 
 /**
- * Human-readable identifier used in file names, e.g. "9A-T3-W5".
- * Built from the class and week in the header plus the term from the
- * sign-off; falls back to the document number if any part is missing.
+ * Human-readable identifier used in file names, e.g. "9A-W5".
+ * Built from the class and week in the header; falls back to the document
+ * number if either is missing.
  */
 export function buildIdentifier(data, docNumber) {
   const form = getForm(data.formType);
   const sign = data.signOff || {};
   const parts = [
     ...form.identifierKeys.map((k) => String(data.meta[k] || '').trim()),
-    sign.term ? `T${sign.term}` : '',
     data.meta.week ? `W${String(data.meta.week).trim()}` : '',
   ];
   if (parts.some((p) => !p)) return docNumber;

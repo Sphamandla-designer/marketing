@@ -24,10 +24,10 @@ Completed form  →  Form data model  →  layout engine (A4, mm)  →  PDF (jsP
                                                               →  PNG (canvas, 2480 × 3508 px, 300 DPI)
 ```
 
-The header carries the class, the week, the educator and a date. The sign-off
-carries the term, the dates the week runs between and the educator's
-signature. Two period slots per day are recorded in the Period row above the
-attendance grid.
+The header carries the class, the week, the educator and a date, and the term
+is printed in the masthead; the sign-off therefore captures nothing but the
+educator's signature. Two period slots per day are recorded in the Period row
+above the attendance grid.
 
 ## Run it
 
@@ -68,9 +68,11 @@ periods that day's register was taken in (`PERIOD_SLOTS` in `schema.js`).
 Each page carries its own barcode and printed page code (`SA01-P1`, `SA02-P1`),
 so a page separated from its set is identifiable.
 
-Sign-off records the **term**, the dates that week **starts** and **ends**, and
-the educator's **signature**; the **week** itself is in the header. Validation
-requires all of them, and rejects an end date that falls before its start date.
+Sign-off records the educator's **signature** and nothing else — the week is a
+header field and the term is printed in the masthead. `signOff.fields` and
+`signOff.dates` in `schema.js` are empty, and the layout drops the field band
+entirely rather than printing an empty one; adding an entry to either brings
+it back.
 
 ## Blank forms
 

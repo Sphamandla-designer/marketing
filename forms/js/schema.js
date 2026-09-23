@@ -68,21 +68,16 @@ const META_EDUCATOR = {
 export const CODE_LIST = { title: 'Observation Code List', subtitle: '(the same on both forms — one character per entry)' };
 
 /**
- * The sign-off block: term, week, the week's start and end dates, and the
- * educator's signature.
+ * The sign-off block. The term is printed in the masthead and the week is a
+ * header field, so nothing is captured here but the educator's signature.
  */
 const SIGN_OFF = (declaration) => ({
   letter: null,
   title: 'SIGN-OFF',
   declaration,
   educatorLabel: 'Educator',
-  fields: [
-    { key: 'term', label: 'Term:', length: 1, validate: (v) => (/^[1-4]$/.test(v) ? null : 'Term must be 1, 2, 3 or 4.') },
-  ],
-  dates: [
-    { key: 'startDate', label: 'Week starts:' },
-    { key: 'endDate', label: 'Week ends:' },
-  ],
+  fields: [],
+  dates: [],
 });
 
 export const FORMS = {
@@ -196,7 +191,7 @@ export const FORMS = {
       key: 'comments',
       title: null, // rendered inside section C
       required: false,
-      minLines: 4,
+      minLines: 6,
       maxLength: 600,
       style: 'lines',
     },

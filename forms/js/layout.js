@@ -668,10 +668,16 @@ class Builder {
    * rest. Guessing this is what previously pushed the date boxes through the
    * bottom of the card.
    */
+  /** True when the sign-off captures anything besides the signature. */
+  hasSignOffFields() {
+    const so = this.form.signOff;
+    return (so.fields?.length || 0) + (so.dates?.length || 0) > 0;
+  }
   signOffBodyHeight() {
     const cw = this.cw - CARD_PAD * 2;
     const declLines = this.wrap(this.form.signOff.declaration, cw - 6, 7.8, 'italic').length;
-    return 3.2 + declLines * 3.7 + 1.6 + SIGN_FIELD_ROW_H + 1.8 + SIGN_PAD_H + SIGN_PAD_LABEL_H;
+    const band = this.hasSignOffFields() ? SIGN_FIELD_ROW_H + 1.6 : 0;
+    return 3.2 + declLines * 3.7 + band + 1.8 + SIGN_PAD_H + SIGN_PAD_LABEL_H;
   }
 
   /**
@@ -690,26 +696,30 @@ class Builder {
     const decl = this.wrap(so.declaration, cw - 6, 7.8, 'italic');
     decl.forEach((l, i) => this.text(l, x0 + 3, y + 3.2 + i * 3.7, { size: 7.8, style: 'italic', color: COLORS.band }));
 
-    // one band carrying term, week and the two dates
-    const rowY = y + 3.2 + decl.length * 3.7 + 1.6;
-    this.rect(x0, rowY, cw, SIGN_FIELD_ROW_H, { fill: COLORS.paleAlt, r: RADIUS.band });
-    const by = centreBaseline(rowY, SIGN_FIELD_ROW_H, 8.4);
-    const bo = { bw: 4.6, bh: 5.2, gap: 0.7, size: 8.6 };
-    const boxY = rowY + (SIGN_FIELD_ROW_H - bo.bh) / 2;
-    let x = x0 + 3;
-    for (const f of so.fields) {
-      x += this.text(f.label, x, by, { size: 8.4, style: 'bold', color: COLORS.brand }) + 2.2;
-      // a single-digit week reads better in the right-hand box, as "  5" not "5  "
-      const raw = String(sign[f.key] || '');
-      const chars = f.alignRight ? raw.padStart(f.length, ' ').split('').map((c) => c.trim()) : raw.split('');
-      x += this.charBoxes(x, boxY, chars, f.length, bo) + 7;
-    }
-    for (const d of so.dates) {
-      x += this.text(d.label, x, by, { size: 8.4, style: 'bold', color: COLORS.brand }) + 2.2;
-      x += this.dateBoxes(x, boxY, sign[d.key], bo) + 7;
+    // a band of fields, only when the sign-off captures anything besides the signature
+    let rowY = y + 3.2 + decl.length * 3.7;
+    if (this.hasSignOffFields()) {
+      rowY += 1.6;
+      this.rect(x0, rowY, cw, SIGN_FIELD_ROW_H, { fill: COLORS.paleAlt, r: RADIUS.band });
+      const by = centreBaseline(rowY, SIGN_FIELD_ROW_H, 8.4);
+      const bo = { bw: 4.6, bh: 5.2, gap: 0.7, size: 8.6 };
+      const boxY = rowY + (SIGN_FIELD_ROW_H - bo.bh) / 2;
+      let x = x0 + 3;
+      for (const f of so.fields) {
+        x += this.text(f.label, x, by, { size: 8.4, style: 'bold', color: COLORS.brand }) + 2.2;
+        // a single-digit value reads better in the right-hand box, as "  5" not "5  "
+        const raw = String(sign[f.key] || '');
+        const chars = f.alignRight ? raw.padStart(f.length, ' ').split('').map((c) => c.trim()) : raw.split('');
+        x += this.charBoxes(x, boxY, chars, f.length, bo) + 7;
+      }
+      for (const d of so.dates) {
+        x += this.text(d.label, x, by, { size: 8.4, style: 'bold', color: COLORS.brand }) + 2.2;
+        x += this.dateBoxes(x, boxY, sign[d.key], bo) + 7;
+      }
+      rowY += SIGN_FIELD_ROW_H;
     }
 
-    const padY = rowY + SIGN_FIELD_ROW_H + 1.8;
+    const padY = rowY + 1.8;
     const padW = Math.min(cw - 6, 62);
     this.rect(x0 + 3, padY, padW, SIGN_PAD_H, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.35, r: RADIUS.sig });
     const sig = sign.signature;
