@@ -98,11 +98,13 @@ export const FORMS = {
     meta: {
       rows: [
         [
-          { key: 'registerClass', label: 'Register Class:', kind: 'text', required: true, maxLength: 20, span: 3, placeholder: 'e.g. 9A' },
-          { ...META_WEEK },
-          { ...META_DATE },
+          { key: 'registerClass', label: 'Register Class:', kind: 'text', required: true, maxLength: 20, span: 8, placeholder: 'e.g. 9A' },
+          { ...META_WEEK, span: 4 },
         ],
-        [{ ...META_EDUCATOR }],
+        [
+          { ...META_EDUCATOR, span: 8 },
+          { ...META_DATE, span: 4 },
+        ],
       ],
     },
     attendance: {
@@ -111,8 +113,8 @@ export const FORMS = {
       subtitle: '(Record absences and late arrivals only)',
       notes: ATTENDANCE_NOTES,
       /** Entry slots printed in Section A. The form is one page: it does not overflow. */
-      defaultRows: 8,
-      maxRows: 8,
+      defaultRows: 10,
+      maxRows: 10,
       /** Per-day period row printed above the A / L header. */
       periodRow: { label: 'Period', slots: 2 },
     },
@@ -123,21 +125,14 @@ export const FORMS = {
       notes: OBSERVATION_NOTES,
       /** 'split' = separate Learner No. and Code sub-columns per day. */
       mode: 'split',
-      defaultRows: 8,
-      maxRows: 8,
-      /** Print the shared observation code list inside this section. */
-      showCodeList: true,
+      defaultRows: 10,
+      maxRows: 10,
+      // left off, as on the subject form, to keep the sheet to one page
+      showCodeList: false,
     },
-    comments: {
-      key: 'comments',
-      title: 'ADDITIONAL COMMENTS',
-      subtitle: '(Optional)',
-      required: false,
-      minLines: 3,
-      maxLength: 600,
-      style: 'box',
-    },
-    signOff: SIGN_OFF('I confirm that the attendance and observations recorded on this form are accurate for the week indicated.'),
+    // no comments section: the sheet is the attendance and observation record
+    comments: null,
+    signOff: { ...SIGN_OFF('I confirm that the attendance and observations recorded on this form are accurate for the week indicated.'), style: 'bare' },
   },
 
   subject: {

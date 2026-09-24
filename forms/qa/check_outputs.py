@@ -68,10 +68,9 @@ for scen in sorted(os.listdir(OUT)):
     if len(doc) != 1:
         failures += 1
         print(f'  FAIL: expected 1 page, got {len(doc)}')
-    # the register prints the code list and a titled sign-off; the subject form
-    # leaves both off to make room for section C
-    if 'Register' in info['pdfName']:
-        must_have += ['Observation Code List', 'SIGN-OFF']
+    # section C is the subject form's alone
+    if 'Subject' in info['pdfName']:
+        must_have += ['ATP REFERENCE AND COMPLETION']
     for must in must_have:
         if must not in flat: failures += 1; print(f'  FAIL: "{must}" not found in PDF text')
     # every page carries its own barcode identifier, e.g. SA01-P1 … SA01-Pn

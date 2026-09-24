@@ -29,10 +29,11 @@ is printed in the masthead; the sign-off therefore captures nothing but the
 educator's signature. Two period slots per day are recorded in the Period row
 above the attendance grid.
 
-The two forms differ where the subject form needs the room for Section C: it
-leaves the observation code list off (`observations.showCodeList`) and prints
-the signature on its own, right-aligned, instead of inside a titled section
-(`signOff.style: 'bare'`).
+Both forms leave the observation code list off
+(`observations.showCodeList`) and print the signature on its own,
+right-aligned, rather than inside a titled section (`signOff.style: 'bare'`).
+The register form has no comments section at all (`comments: null`); the
+subject form's write-in box lives inside Section C.
 
 ## Run it
 
@@ -60,7 +61,7 @@ class on a page, so the form does not pretend to.
 
 | | Entry slots per day |
 | --- | --- |
-| Register Class (SA-01) | 8 |
+| Register Class (SA-01) | 10 |
 | Subject Class (SA-02) | 6 |
 
 The slot count is fixed: the form is one page, so there is no continuation

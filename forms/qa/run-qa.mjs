@@ -24,7 +24,6 @@ const scenarios = [
     periods: { mon: ['P1', 'P2'], tue: ['P1', 'P2'], wed: ['P1', 'P2'], thu: ['P1', 'P2'], fri: ['P1', 'P2'] },
     attendance: { 0: { mon: { a: '14' }, wed: { l: '7' } }, 1: { mon: { a: '22' }, thu: { a: '22' } }, 2: { tue: { l: '3' } }, 3: { fri: { a: '31' } }, 4: { wed: { a: '9' }, thu: { a: '9' }, fri: { a: '9' } } },
     observations: { 0: { mon: { learner: '14', code: 'C' }, wed: { learner: '5', code: 'P' } }, 1: { tue: { learner: '22', code: 'N' } }, 2: { fri: { learner: '8', code: 'E' } } },
-    comments: 'Learner 9 absent three days; parents contacted Thursday.',
   },
   {
     name: 'subject-standard', page: 'subject-class.html',
@@ -40,9 +39,8 @@ const scenarios = [
     meta: { registerClass: '10B', week: '10', educator: 'Mrs S. van der Merwe', date: '23 / 11 / 2026' },
     periods: { mon: ['P1', 'P2'], tue: ['P1', 'P2'], wed: ['P1', 'P2'], thu: ['P1', 'P2'], fri: ['P1', 'P2'] },
     // every slot filled: the grid is fixed, so this is the worst case it must hold
-    attendance: Object.fromEntries(Array.from({ length: 8 }, (_, i) => [i, { mon: { a: String(i + 1) }, fri: { l: String((i * 3) % 40 + 1) } }])),
-    observations: Object.fromEntries(Array.from({ length: 8 }, (_, i) => [i, { tue: { learner: String(i + 1), code: 'PECN'[i % 4] } }])),
-    comments: 'A deliberately long comment used to check that the write-in box holds its designed size and does not push the sign-off onto a second page even when the text overflows the visible lines.',
+    attendance: Object.fromEntries(Array.from({ length: 10 }, (_, i) => [i, { mon: { a: String(i + 1) }, fri: { l: String((i * 3) % 40 + 1) } }])),
+    observations: Object.fromEntries(Array.from({ length: 10 }, (_, i) => [i, { tue: { learner: String(i + 1), code: 'PECN'[i % 4] } }])),
   },
   {
     name: 'subject-full', page: 'subject-class.html',

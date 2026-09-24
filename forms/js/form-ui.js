@@ -322,7 +322,7 @@ export function renderForm(root, data, { onChange } = {}) {
     secC.appendChild(el('div', { class: 'comments-label' }, [el('strong', { text: form.atp.commentsLabel }), ' ', el('span', { text: form.atp.commentsHint })]));
     secC.appendChild(commentsArea(data, form, change, 'Educator comments'));
     root.appendChild(secC);
-  } else {
+  } else if (form.comments) {
     const secC = el('section', { class: 'form-section', 'aria-labelledby': 'sec-comments' });
     const bannerC = banner(null, form.comments.title, form.comments.subtitle); bannerC.id = 'sec-comments';
     secC.append(bannerC, commentsArea(data, form, change, 'Additional comments'));

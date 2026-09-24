@@ -825,7 +825,8 @@ class Builder {
     this.metaTable();
     this.attendanceSection();
     this.observationsSection();
-    if (this.form.atp) this.atpSection(); else this.commentsSection();
+    if (this.form.atp) this.atpSection();
+    else if (this.form.comments) this.commentsSection();
     this.signOffSection();
     this.footers();
     return {
