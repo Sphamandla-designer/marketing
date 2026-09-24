@@ -292,8 +292,8 @@ export function renderForm(root, data, { onChange } = {}) {
   tableBWrap.appendChild(tableB);
   secB.appendChild(tableBWrap);
 
-  // ---- code list: sits inside Section B, identical on both forms
-  secB.appendChild(el('div', { class: 'code-list' }, [
+  // ---- code list: sits inside Section B, where the form prints it
+  if (form.observations.showCodeList) secB.appendChild(el('div', { class: 'code-list' }, [
     el('div', { class: 'code-list-title' }, [el('strong', { text: CODE_LIST.title }), ' ', el('span', { text: CODE_LIST.subtitle })]),
     el('div', { class: 'code-list-items' }, OBSERVATION_CODES.map((c) => el('span', { class: 'code-item' }, [el('b', { text: c.code }), el('span', { text: c.label })]))),
   ]));
@@ -329,12 +329,16 @@ export function renderForm(root, data, { onChange } = {}) {
     root.appendChild(secC);
   }
 
-  // ---- sign-off: term, week, the week's dates and the educator's signature
-  const secD = el('section', { class: 'form-section signoff', 'aria-labelledby': 'sec-signoff' });
-  const bannerD = banner(form.signOff.letter, form.signOff.title, ''); bannerD.id = 'sec-signoff';
-  secD.appendChild(bannerD);
+  // ---- sign-off
+  const bare = form.signOff.style === 'bare';
+  const secD = el('section', { class: `form-section signoff${bare ? ' signoff-bare' : ''}`, 'aria-labelledby': 'sec-signoff' });
+  if (!bare) {
+    const bannerD = banner(form.signOff.letter, form.signOff.title, ''); bannerD.id = 'sec-signoff';
+    secD.appendChild(bannerD);
+  }
   const body = el('div', { class: 'signoff-body' });
-  body.appendChild(el('p', { class: 'declaration', text: form.signOff.declaration }));
+  if (!bare) body.appendChild(el('p', { class: 'declaration', text: form.signOff.declaration }));
+  else body.id = 'sec-signoff';
 
   /** Date field with DD / MM / YYYY boxes bound to an ISO path on `data`. */
   const dateField = (path, label) => {

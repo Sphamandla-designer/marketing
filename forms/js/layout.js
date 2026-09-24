@@ -389,13 +389,14 @@ class Builder {
     this.beginCard();
     this.y += CARD_PAD;
     const x0 = this.x0 + CARD_PAD, cw = this.cw - CARD_PAD * 2;
+    const leadLabelW = Math.max(...rows.map((row) => this.measure(row[0].label, 8.6, 'bold'))) + 4.6;
     rows.forEach((row, ri) => {
       const y = this.y + ri * rowH;
       const spanTotal = row.reduce((a, f) => a + f.span, 0);
       let x = x0;
-      for (const f of row) {
+      row.forEach((f, fi) => {
         const w = (cw * f.span) / spanTotal;
-        const labelW = this.measure(f.label, 8.6, 'bold') + 4.6;
+        const labelW = fi === 0 ? leadLabelW : this.measure(f.label, 8.6, 'bold') + 4.6;
         this.rect(x + 0.4, y + 0.4, labelW, rowH - 0.8, { fill: COLORS.pale, r: RADIUS.band });
         this.text(f.label, x + 3, centreBaseline(y, rowH, 9), { size: 8.6, style: 'bold', color: COLORS.brand });
         const value = String(this.data.meta[f.key] ?? '');
@@ -407,7 +408,7 @@ class Builder {
           this.roundedField(x + labelW + 2.4, y + 1.2, w - labelW - 4.4, rowH - 2.4, value, { placeholder: this.blank ? f.placeholder : '' });
         }
         x += w;
-      }
+      });
     });
     this.y += rowH * rows.length;
     this.endCard();
@@ -568,7 +569,7 @@ class Builder {
     ];
     const headerH = headerRows.reduce((a, r) => a + r.h, 0);
     const frame = CARD_PAD + CARD_HEADER_H + this.bandHeight(sec.notes) + BAND_GAP + headerH;
-    this.ensure(frame + rowH * rows.length + this.codeListHeight() + CARD_PAD + CARD_GAP);
+    this.ensure(frame + rowH * rows.length + (sec.showCodeList ? this.codeListHeight() : 0) + CARD_PAD + CARD_GAP);
     this.beginCard();
     this.cardHeader(sec.letter, sec.title, sec.subtitle);
     this.instructionBand(sec.notes);
@@ -585,9 +586,9 @@ class Builder {
         }
       },
     });
-    // the code list belongs with the observations it explains, so it sits
-    // inside this card rather than in one of its own
-    this.codeList();
+    // where it is printed, the code list belongs with the observations it
+    // explains, so it sits inside this card rather than one of its own
+    if (sec.showCodeList) this.codeList();
     this.endCard();
   }
 
@@ -680,11 +681,25 @@ class Builder {
     return 3.2 + declLines * 3.7 + band + 1.8 + SIGN_PAD_H + SIGN_PAD_LABEL_H;
   }
 
+  /** The signature pad itself, drawn at (x, y). */
+  signaturePad(x, y, w) {
+    this.rect(x, y, w, SIGN_PAD_H, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.35, r: RADIUS.sig });
+    const sig = this.data.signOff?.signature;
+    if (sig && sig.dataUrl) {
+      const pad = 1.2;
+      const ratio = Math.min((w - pad * 2) / sig.width, (SIGN_PAD_H - pad * 2) / sig.height);
+      const sw = sig.width * ratio, sh = sig.height * ratio;
+      this.image(sig.dataUrl, x + (w - sw) / 2, y + (SIGN_PAD_H - sh) / 2, sw, sh);
+    }
+  }
+
   /**
-   * Sign-off: the term and week the form covers, the dates that week runs
-   * between, and the educator's signature.
+   * Sign-off. 'card' draws a titled section with the declaration; 'bare' drops
+   * the section entirely and leaves a right-aligned signature box, which gives
+   * the section above it the rest of the page.
    */
   signOffSection() {
+    if (this.form.signOff.style === 'bare') return this.bareSignature();
     const so = this.form.signOff;
     const bodyH = this.signOffBodyHeight();
     this.ensure(this.signOffHeight());
@@ -721,25 +736,36 @@ class Builder {
 
     const padY = rowY + 1.8;
     const padW = Math.min(cw - 6, 62);
-    this.rect(x0 + 3, padY, padW, SIGN_PAD_H, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.35, r: RADIUS.sig });
-    const sig = sign.signature;
-    if (sig && sig.dataUrl) {
-      const pad = 1.2;
-      const ratio = Math.min((padW - pad * 2) / sig.width, (SIGN_PAD_H - pad * 2) / sig.height);
-      const sw = sig.width * ratio, sh = sig.height * ratio;
-      this.image(sig.dataUrl, x0 + 3 + (padW - sw) / 2, padY + (SIGN_PAD_H - sh) / 2, sw, sh);
-    }
+    this.signaturePad(x0 + 3, padY, padW);
     const capBy = padY + SIGN_PAD_H + 3;
     this.text(`${so.educatorLabel} signature`, x0 + 3, capBy, { size: 7, color: COLORS.band });
     // the stamp shares the caption's baseline rather than taking a line of its
     // own, so a submitted form is exactly as tall as a blank and stays on one page
-    if (!this.blank) {
-      const gen = this.generatedAt;
-      const stamp = `${String(gen.getDate()).padStart(2, '0')}/${String(gen.getMonth() + 1).padStart(2, '0')}/${gen.getFullYear()} ${String(gen.getHours()).padStart(2, '0')}:${String(gen.getMinutes()).padStart(2, '0')}`;
-      this.text(`Document No. ${this.docNumber}   ·   Reference ${this.identifier}   ·   Generated ${stamp}`, x0 + cw - 1, capBy, { size: 6.6, color: COLORS.band, align: 'right' });
-    }
+    if (!this.blank) this.text(this.stampLine(), x0 + cw - 1, capBy, { size: 6.6, color: COLORS.band, align: 'right' });
     this.y = y + bodyH;
     this.endCard();
+  }
+
+  /** Signature box alone, right-aligned, with no surrounding section. */
+  bareSignature() {
+    const so = this.form.signOff;
+    const w = 62;
+    const h = CARD_PAD + SIGN_PAD_H + SIGN_PAD_LABEL_H;
+    this.ensure(h + CARD_GAP);
+    const y = this.y + CARD_PAD;
+    const x = this.x0 + this.cw - w;
+    this.signaturePad(x, y, w);
+    const capBy = y + SIGN_PAD_H + 3;
+    this.text(`${so.educatorLabel} signature`, x, capBy, { size: 7, color: COLORS.band });
+    if (!this.blank) this.text(this.stampLine(), this.x0, capBy, { size: 6.6, color: COLORS.band });
+    this.y = y + SIGN_PAD_H + SIGN_PAD_LABEL_H + CARD_GAP;
+  }
+
+  /** Document number, reference and generation time, for submitted forms. */
+  stampLine() {
+    const gen = this.generatedAt;
+    const stamp = `${String(gen.getDate()).padStart(2, '0')}/${String(gen.getMonth() + 1).padStart(2, '0')}/${gen.getFullYear()} ${String(gen.getHours()).padStart(2, '0')}:${String(gen.getMinutes()).padStart(2, '0')}`;
+    return `Document No. ${this.docNumber}   ·   Reference ${this.identifier}   ·   Generated ${stamp}`;
   }
 
   /** DD / MM / YYYY boxes from an ISO date. Returns the width drawn. */

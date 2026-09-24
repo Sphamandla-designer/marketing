@@ -78,6 +78,8 @@ const SIGN_OFF = (declaration) => ({
   educatorLabel: 'Educator',
   fields: [],
   dates: [],
+  /** 'card' = a titled section; 'bare' = just a right-aligned signature box. */
+  style: 'card',
 });
 
 export const FORMS = {
@@ -123,6 +125,8 @@ export const FORMS = {
       mode: 'split',
       defaultRows: 8,
       maxRows: 8,
+      /** Print the shared observation code list inside this section. */
+      showCodeList: true,
     },
     comments: {
       key: 'comments',
@@ -152,12 +156,14 @@ export const FORMS = {
         // Day / Period(s) used to live here; the per-day Period row above the
         // attendance grid records it more precisely, so it is not repeated.
         [
-          { key: 'subject', label: 'Subject:', kind: 'text', required: true, maxLength: 40, span: 3, placeholder: 'e.g. Mathematics' },
-          { key: 'subjectClass', label: 'Subject Class:', kind: 'text', required: true, maxLength: 20, span: 3, placeholder: 'e.g. 9A G1' },
-          { ...META_WEEK },
-          { ...META_DATE },
+          { key: 'subject', label: 'Subject:', kind: 'text', required: true, maxLength: 40, span: 5, placeholder: 'e.g. Mathematics' },
+          { key: 'subjectClass', label: 'Subject Class Code:', kind: 'text', required: true, maxLength: 20, span: 4, placeholder: 'e.g. 9A G1' },
+          { ...META_WEEK, span: 3 },
         ],
-        [{ ...META_EDUCATOR }],
+        [
+          { ...META_EDUCATOR, span: 8 },
+          { ...META_DATE, span: 4 },
+        ],
       ],
     },
     attendance: {
@@ -178,6 +184,8 @@ export const FORMS = {
       mode: 'split',
       defaultRows: 6,
       maxRows: 6,
+      // the subject form leaves the code list off to make room for Section C
+      showCodeList: false,
     },
     atp: {
       letter: 'C',
@@ -191,11 +199,11 @@ export const FORMS = {
       key: 'comments',
       title: null, // rendered inside section C
       required: false,
-      minLines: 6,
+      minLines: 12,
       maxLength: 600,
       style: 'lines',
     },
-    signOff: { ...SIGN_OFF('I confirm that the attendance, observations and ATP information recorded on this form are accurate for the week indicated.'), letter: 'D' },
+    signOff: { ...SIGN_OFF('I confirm that the attendance, observations and ATP information recorded on this form are accurate for the week indicated.'), letter: 'D', style: 'bare' },
   },
 };
 

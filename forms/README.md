@@ -29,6 +29,11 @@ is printed in the masthead; the sign-off therefore captures nothing but the
 educator's signature. Two period slots per day are recorded in the Period row
 above the attendance grid.
 
+The two forms differ where the subject form needs the room for Section C: it
+leaves the observation code list off (`observations.showCodeList`) and prints
+the signature on its own, right-aligned, instead of inside a titled section
+(`signOff.style: 'bare'`).
+
 ## Run it
 
 ```bash
@@ -72,7 +77,12 @@ Sign-off records the educator's **signature** and nothing else — the week is a
 header field and the term is printed in the masthead. `signOff.fields` and
 `signOff.dates` in `schema.js` are empty, and the layout drops the field band
 entirely rather than printing an empty one; adding an entry to either brings
-it back.
+it back. On the register form the signature sits in a titled SIGN-OFF section;
+on the subject form `signOff.style: 'bare'` drops the section and right-aligns
+the box, leaving Section C the rest of the page.
+
+Within a header block the first field of every row shares one label width, so
+the value boxes down the left edge line up.
 
 ## Blank forms
 

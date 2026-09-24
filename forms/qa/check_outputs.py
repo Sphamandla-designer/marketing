@@ -59,8 +59,7 @@ for scen in sorted(os.listdir(OUT)):
         info['docNumber'], info['identifier'],
         'FISANTEKRAAL HIGH SCHOOL', 'FORM CODE', form_code,
         'ATTENDANCE', 'Period',                         # section A and its period row
-        'Observation Code List',                        # printed inside section B
-        'SIGN-OFF', 'Week:',
+        'Week:',
         'Educator signature',
         'Date:',                                        # header date field
         f'Page {len(doc)} of {len(doc)}',
@@ -69,6 +68,10 @@ for scen in sorted(os.listdir(OUT)):
     if len(doc) != 1:
         failures += 1
         print(f'  FAIL: expected 1 page, got {len(doc)}')
+    # the register prints the code list and a titled sign-off; the subject form
+    # leaves both off to make room for section C
+    if 'Register' in info['pdfName']:
+        must_have += ['Observation Code List', 'SIGN-OFF']
     for must in must_have:
         if must not in flat: failures += 1; print(f'  FAIL: "{must}" not found in PDF text')
     # every page carries its own barcode identifier, e.g. SA01-P1 … SA01-Pn
