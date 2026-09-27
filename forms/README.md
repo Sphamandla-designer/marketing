@@ -121,6 +121,19 @@ Used height: 280.6 mm of the 281 available, on all three sheets.
 pitch below 7 mm, any type below 7 pt, if info-panel fields overlap, or if any
 sheet spills onto a second page.
 
+## Spacing
+
+Horizontal padding (`CARD_PAD_X`, `CELL_GAP_X`) is separate from vertical
+(`CARD_PAD`), because horizontal air costs nothing on a fixed-width page while
+vertical air comes out of the page budget.
+
+Block gaps are adaptive. `buildDocument` builds the document once to learn its
+natural height, gives whatever is left over back to the gaps between blocks,
+and rebuilds. A form with room to spare — SA-01 has about 11 mm — therefore
+spreads out instead of being cramped at the top and empty at the foot, while a
+form with none, like SA-02, is left exactly as it is. The respaced build is
+kept only if it is still one page.
+
 ## The three sheets
 
 | Code | What it is |

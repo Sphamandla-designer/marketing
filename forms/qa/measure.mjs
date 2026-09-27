@@ -12,7 +12,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = 8161;
 // the restored design's figures: the header block plus its trailing gap,
 // and a 60 x 12 mm signature box
-const MIN_CELL_H = 6.5, ROW_PITCH = 7, MIN_PT = 7, MAX_HEADER = 26, PAGE_BOTTOM = 289;
+// MAX_HEADER covers the header block plus its block gap, which grows to fill the page
+const MIN_CELL_H = 6.5, ROW_PITCH = 7, MIN_PT = 7, MAX_HEADER = 32, PAGE_BOTTOM = 289;
 const SIG_BOX = '60x12';
 
 const server = spawn(process.execPath, [path.join(root, 'server.js')], { env: { ...process.env, PORT: String(PORT) }, stdio: 'ignore' });

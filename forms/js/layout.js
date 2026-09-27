@@ -47,12 +47,14 @@ export const RADIUS = { card: 2.4, bar: 1.6, band: 1.2, box: 1.0, chip: 1.4, sig
  * least CELL_H tall on a ROW_PITCH grid, which is what the rest of the budget
  * is built around.
  */
-const CARD_PAD = 1.5;          // card outline to contents
-const BAND_GAP = 0;            // bands butt against each other on the budget
+const CARD_PAD = 1.5;          // card outline to contents, vertically
+const CARD_PAD_X = 3.2;        // card outline to contents, horizontally (free)
+const BAND_GAP = 0;            // between a title bar and the band under it
 const CARD_GAP = 3;            // between blocks
 const ROW_PITCH = 7;           // row to row
 const CELL_H = 6.5;            // handwriting cell height
 const CELL_INSET = (ROW_PITCH - CELL_H) / 2;
+const CELL_GAP_X = 1.1;        // horizontal air between adjacent cells
 const FIELD_H = 7;             // header entry fields
 const BOX_7 = 7;               // week / term character boxes
 const TICK = 5;                // completion tick boxes
@@ -80,10 +82,22 @@ function centreBaseline(top, h, sizePt) {
   return top + (h + CAP * sizePt * PT) / 2;
 }
 
-export function buildDocument({ formType, data, docNumber, identifier, generatedAt, crest, measure, blank }) {
-  const b = new Builder({ formType, data, docNumber, identifier, generatedAt, crest, measure, blank });
-  return b.build();
+export function buildDocument(opts) {
+  const doc = new Builder(opts).build();
+  // A form that fits on one page with room to spare reads as cramped at the
+  // top and empty at the foot. Measure the slack and give it back to the block
+  // gaps, then rebuild. Forms with no slack are left exactly as they are.
+  if (doc.pages.length !== 1 || !doc.marks?.length) return doc;
+  const gaps = doc.marks.length - 1;
+  const slack = BOTTOM - doc.marks[doc.marks.length - 1].y - GAP_SAFETY;
+  if (gaps < 1 || slack < 1) return doc;
+  const respaced = new Builder({ ...opts, extraGap: slack / gaps }).build();
+  return respaced.pages.length === 1 ? respaced : doc;
 }
+
+/** Content limit and the margin kept below the last block. */
+const BOTTOM = PAGE.h - PAGE.mb - PAGE.footerH;
+const GAP_SAFETY = 1.5;
 
 class Builder {
   constructor(opts) {
@@ -95,6 +109,8 @@ class Builder {
     this.crest = opts.crest;
     this.measureFn = opts.measure;
     this.blank = !!opts.blank;
+    /** Extra millimetres added to every block gap, to use up spare page. */
+    this.extraGap = opts.extraGap || 0;
     /** Cumulative y after each block, for the print-geometry measurement. */
     this.marks = [];
     this.pages = [];
@@ -251,7 +267,7 @@ class Builder {
       fill: COLORS.white, stroke: COLORS.brand, lw: 0.4, r: RADIUS.card,
     });
   }
-  endCard(gap = CARD_GAP) {
+  endCard(gap = CARD_GAP + this.extraGap) {
     this.sealCard(this.y + CARD_PAD);
     this.card = null;
     this.y += CARD_PAD + gap;
@@ -259,7 +275,7 @@ class Builder {
   /** Navy header bar inside the top of the open card. */
   cardHeader(letter, title, subtitle) {
     const h = TITLE_BAR_H;
-    const x = this.x0 + CARD_PAD, w = this.cw - CARD_PAD * 2;
+    const x = this.x0 + CARD_PAD_X, w = this.cw - CARD_PAD_X * 2;
     this.y += CARD_PAD;
     this.rect(x, this.y, w, h, { fill: COLORS.brand, r: RADIUS.bar });
     const by = centreBaseline(this.y, h, 11);
@@ -273,7 +289,7 @@ class Builder {
   /** One instruction bar, INSTRUCTION_H tall, 8 pt italic on the band grey. */
   instructionBand(notes) {
     const size = 8;
-    const x = this.x0 + CARD_PAD, w = this.cw - CARD_PAD * 2;
+    const x = this.x0 + CARD_PAD_X, w = this.cw - CARD_PAD_X * 2;
     const line = notes.join(' ');
     this.rect(x, this.y, w, INSTRUCTION_H, { fill: COLORS.band, r: RADIUS.band });
     this.text(line, x + 2.6, centreBaseline(this.y, INSTRUCTION_H, size), { size, style: 'italic', color: COLORS.white });
@@ -317,7 +333,7 @@ class Builder {
     const codeW = this.measure(pageCode, 7) + 2.4;
     this.barcode(panelX + 1.2, bcY + 0.8, panelW - 2.4 - codeW, bcH - 1.6, pageCode);
     this.text(pageCode, panelX + panelW - 1.2, centreBaseline(bcY, bcH, 7), { size: 7, align: 'right', color: COLORS.band });
-    this.y = y + HEADER_H + CARD_GAP;
+    this.y = y + HEADER_H + CARD_GAP + this.extraGap;
   }
 
   compactHeader() {
@@ -401,7 +417,7 @@ class Builder {
     this.ensure(CARD_PAD * 2 + FIELD_H * rows.length + CARD_GAP);
     this.beginCard();
     this.y += CARD_PAD;
-    const x0 = this.x0 + CARD_PAD, cw = this.cw - CARD_PAD * 2;
+    const x0 = this.x0 + CARD_PAD_X, cw = this.cw - CARD_PAD_X * 2;
     // one label width for the first field of every row, so the boxes line up
     const leadLabelW = Math.max(...rows.map((r) => this.labelWidth(r[0]))) + 4;
     rows.forEach((row, ri) => {
@@ -441,7 +457,7 @@ class Builder {
    * as alternating full-width bands; `drawRow` places the inset field boxes.
    */
   table({ cols, headerRows, rows, rowH, drawRow, keepWithHeader = 2, continuedBanner, footerRow }) {
-    const x0 = this.x0 + CARD_PAD, cw = this.cw - CARD_PAD * 2;
+    const x0 = this.x0 + CARD_PAD_X, cw = this.cw - CARD_PAD_X * 2;
     const headerH = headerRows.reduce((a, r) => a + r.h, 0);
     const drawHeader = () => {
       let y = this.y + BAND_GAP;
@@ -452,7 +468,7 @@ class Builder {
           if (cell.skip) { x += w; ci += cell.span; continue; } // covered by a rowSpan cell above
           const rowSpanH = cell.rowSpan ? headerRows.slice(headerRows.indexOf(hr), headerRows.indexOf(hr) + cell.rowSpan).reduce((a, r) => a + r.h, 0) : hr.h;
           // each header group is its own rounded chip with a hairline gap
-          this.rect(x + 0.3, y + 0.3, w - 0.6, rowSpanH - 0.6, { fill: cell.tone === 'pale' ? COLORS.pale : COLORS.band, r: RADIUS.band });
+          this.rect(x + CELL_GAP_X, y + 0.3, w - CELL_GAP_X * 2, rowSpanH - 0.6, { fill: cell.tone === 'pale' ? COLORS.pale : COLORS.band, r: RADIUS.band });
           if (cell.text) this.text(cell.text, x + w / 2, centreBaseline(y, rowSpanH, cell.size || 9), { size: cell.size || 9, style: 'bold', align: 'center', color: cell.tone === 'pale' ? COLORS.brand : COLORS.white });
           x += w; ci += cell.span;
         }
@@ -488,8 +504,8 @@ class Builder {
 
   /** One inset rounded field inside a table row. */
   cell(x, y, w, h, value, o = {}) {
-    const ix = x + 0.4, iy = y + CELL_INSET;
-    const iw = w - 0.8, ih = CELL_H;
+    const ix = x + CELL_GAP_X, iy = y + CELL_INSET;
+    const iw = w - CELL_GAP_X * 2, ih = CELL_H;
     this.rect(ix, iy, iw, ih, { fill: COLORS.white, stroke: COLORS.rule, lw: RULE_LW, r: RADIUS.box, tag: 'cell' });
     if (value !== '' && value != null) this.text(value, ix + iw / 2, centreBaseline(iy, ih, o.size || 10), { size: o.size || 10, style: o.style || 'normal', align: 'center', color: o.color || COLORS.text });
   }
@@ -503,7 +519,7 @@ class Builder {
    * slots that fit on page 1; anything beyond continues in Section A2.
    */
   attendanceGrid({ sec, rows, firstSlot, letter, title, subtitle, notes, footerText }) {
-    const cw = this.cw - CARD_PAD * 2;
+    const cw = this.cw - CARD_PAD_X * 2;
     const noW = NO_COL_W; const dayW = (cw - noW) / DAYS.length; const subW = dayW / 2;
     const cols = [{ w: noW }, ...DAYS.flatMap(() => [{ w: subW }, { w: subW }])];
     const headerRows = [
@@ -527,7 +543,7 @@ class Builder {
       cols, headerRows, rows, rowH,
       footerRow: footerText ? { h: 6, text: footerText } : null,
       drawRow: (row, i, y, h) => {
-        let x = this.x0 + CARD_PAD;
+        let x = this.x0 + CARD_PAD_X;
         this.rowNumber(x, y, noW, h, firstSlot + i); x += noW;
         for (const d of DAYS) {
           this.cell(x, y, subW, h, row[d.key].a); x += subW;
@@ -540,7 +556,7 @@ class Builder {
 
   /** A row of per-day period boxes sitting above the day header. */
   periodRow(cfg, noW, dayW) {
-    const x0 = this.x0 + CARD_PAD;
+    const x0 = this.x0 + CARD_PAD_X;
     const y = this.y;
     const h = PERIOD_ROW_H;
     const slots = cfg.slots || PERIOD_SLOTS;
@@ -575,7 +591,7 @@ class Builder {
   observationsSection() {
     const sec = this.form.observations;
     const rows = this.data.observations;
-    const cw = this.cw - CARD_PAD * 2;
+    const cw = this.cw - CARD_PAD_X * 2;
     const noW = NO_COL_W; const dayW = (cw - noW) / DAYS.length;
     const rowH = ROW_H;
     const headerRows = [
@@ -593,7 +609,7 @@ class Builder {
     this.table({
       cols, headerRows, rows, rowH,
       drawRow: (row, i, y, h) => {
-        let x = this.x0 + CARD_PAD;
+        let x = this.x0 + CARD_PAD_X;
         this.rowNumber(x, y, noW, h, i + 1); x += noW;
         for (const d of DAYS) {
           this.cell(x, y, learnerW, h, row[d.key].learner); x += learnerW;
@@ -611,7 +627,7 @@ class Builder {
 
   /** Observation codes, printed inside Section B. Identical on both forms. */
   codeList() {
-    const x0 = this.x0 + CARD_PAD, cw = this.cw - CARD_PAD * 2;
+    const x0 = this.x0 + CARD_PAD_X, cw = this.cw - CARD_PAD_X * 2;
     const y = this.y + BAND_GAP;
     const h1 = 5.0, h2 = 5.8;
     this.rect(x0, y, cw, h1, { fill: COLORS.pale, r: RADIUS.band });
@@ -637,7 +653,7 @@ class Builder {
    * spills onto a new page.
    */
   flowLines(lines, { lh, minLines, size, style, ruled, continuedBanner }) {
-    const x0 = this.x0 + CARD_PAD, cw = this.cw - CARD_PAD * 2;
+    const x0 = this.x0 + CARD_PAD_X, cw = this.cw - CARD_PAD_X * 2;
     const textCount = lines.length;
     const total = Math.max(textCount, minLines || 0);
     let i = 0;
@@ -666,7 +682,7 @@ class Builder {
   commentsSection() {
     const c = this.form.comments;
     const size = 8.6, lh = 5.2;
-    const lines = this.wrap(this.data.comments, this.cw - CARD_PAD * 2 - 6, size);
+    const lines = this.wrap(this.data.comments, this.cw - CARD_PAD_X * 2 - 6, size);
     this.ensure(CARD_PAD + CARD_HEADER_H + lh * 2 + 6);
     const open = (cont) => { this.beginCard(); this.cardHeader(null, c.title, cont ? '(continued)' : c.subtitle); };
     open(false);
@@ -690,7 +706,7 @@ class Builder {
     return (so.fields?.length || 0) + (so.dates?.length || 0) > 0;
   }
   signOffBodyHeight() {
-    const cw = this.cw - CARD_PAD * 2;
+    const cw = this.cw - CARD_PAD_X * 2;
     const declLines = this.wrap(this.form.signOff.declaration, cw - 6, 7.8, 'italic').length;
     const band = this.hasSignOffFields() ? SIGN_FIELD_ROW_H + 1.6 : 0;
     return 3.2 + declLines * 3.7 + band + 1.8 + SIGN_PAD_H + SIGN_PAD_LABEL_H;
@@ -720,7 +736,7 @@ class Builder {
     this.ensure(this.signOffHeight());
     this.beginCard();
     this.cardHeader(so.letter, so.title, '');
-    const x0 = this.x0 + CARD_PAD, cw = this.cw - CARD_PAD * 2;
+    const x0 = this.x0 + CARD_PAD_X, cw = this.cw - CARD_PAD_X * 2;
     const y = this.y + BAND_GAP;
     const sign = this.data.signOff || {};
     const decl = this.wrap(so.declaration, cw - 6, 7.8, 'italic');
@@ -801,13 +817,13 @@ class Builder {
     const sec = this.form.atp;
     const atp = this.data.atp || { code: '', status: '' };
     const size = 9, lh = COMMENT_LINE_H;
-    const lines = this.wrap(this.data.comments, this.cw - CARD_PAD * 2 - 6, size);
+    const lines = this.wrap(this.data.comments, this.cw - CARD_PAD_X * 2 - 6, size);
     const rowH = 9, labH = INSTRUCTION_H;
     const minLines = this.form.comments.minLines;
     this.ensure(CARD_PAD * 2 + TITLE_BAR_H + labH + rowH + labH + lh * minLines + 1.5 + CARD_GAP);
     this.beginCard();
     this.cardHeader(sec.letter, sec.title, '');
-    const x0 = this.x0 + CARD_PAD, cw = this.cw - CARD_PAD * 2;
+    const x0 = this.x0 + CARD_PAD_X, cw = this.cw - CARD_PAD_X * 2;
     // the ATP label is 86 mm at 9 pt, so it takes its own bar rather than
     // squeezing the 60 mm field and the tick boxes off the page
     this.rect(x0, this.y, cw, labH, { fill: COLORS.pale, r: RADIUS.band });
@@ -852,7 +868,7 @@ class Builder {
     this.ensure(CARD_PAD + CARD_HEADER_H + BAND_GAP + 5 + bodyH + CARD_PAD + CARD_GAP);
     this.beginCard();
     this.cardHeader(null, title, subtitle);
-    const x0 = this.x0 + CARD_PAD, cw = this.cw - CARD_PAD * 2;
+    const x0 = this.x0 + CARD_PAD_X, cw = this.cw - CARD_PAD_X * 2;
     const descX = x0 + codeW + obsW;
     const descW = cw - codeW - obsW;
 
