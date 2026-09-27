@@ -36,10 +36,10 @@ const ATTENDANCE_NOTES = [
   'Write the learner’s position number in the A (absent) or L (late) column. Leave unused slots blank.',
 ];
 const OBSERVATION_NOTES = [
-  'Use the learner’s position number and one observation code per learner per day. Leave blank if there is nothing to record.',
+  'Use the learner’s position number and one code from the Observation Codes sheet (SA-OC) per learner per day. Leave blank if there is nothing to record.',
 ];
-/** Printed under the masthead: the year, then a box for the term. */
-const HEADER_YEAR = '2026';
+/** Printed under the masthead. Not a field. */
+const HEADER_PERIOD = '2026 · Term 2';
 
 export const ATP_STATUS = [
   { value: 'completed', label: 'Completed' },
@@ -48,13 +48,8 @@ export const ATP_STATUS = [
 
 /** Meta (header) fields shared by both forms. */
 const META_DATE = {
-  key: 'date', label: 'Date:', hint: '(DD/MM/YYYY)', kind: 'text',
+  key: 'date', label: 'Date', hint: '(DD/MM/YYYY):', kind: 'text',
   required: false, maxLength: 20, span: 3,
-};
-/** Printed in the masthead as "2026 · Term: [ ]", not in the info panel. */
-const META_TERM = {
-  key: 'term', label: 'Term:', kind: 'chars', length: 1, charset: 'digit', required: true,
-  validate: (v) => (/^[1-4]$/.test(v) ? null : 'Term must be 1, 2, 3 or 4.'),
 };
 const META_WEEK = {
   key: 'week', label: 'Week:', kind: 'chars', length: 2, charset: 'digit',
@@ -92,15 +87,22 @@ export const FORMS = {
     type: 'register',
     formCode: 'SA-01',
     docPrefix: 'SA01',
-    title: 'Register Class Weekly Attendance and Observation',
+    title: 'Register class weekly attendance and observation',
     shortTitle: 'Register Class',
     fileStem: 'Register-Class',
-    codeBoxLines: ['REGISTER CLASS WEEKLY', 'ATTENDANCE AND OBSERVATION'],
+    codeBoxText: 'SA-01 · Register class weekly attendance and observation',
     headerTitle: 'REGISTER CLASS ATTENDANCE',
-    headerYear: HEADER_YEAR,
-    headerTerm: META_TERM,
-    /** Term and week now live in the sign-off, so the identifier reads from there. */
+    headerPeriod: HEADER_PERIOD,
     identifierKeys: ['registerClass'],
+    /** Info panel: padding, row gap, lead-field width and the rows themselves. */
+    panel: {
+      padY: 3, rowGap: 2, leadW: 84, colGap: 3,
+      rows: [
+        [{ key: 'registerClass', label: 'Register class:' }, { ...META_WEEK }],
+        [{ key: 'educator', label: 'Educator:' }, { ...META_DATE, width: 45 }],
+      ],
+    },
+
     meta: {
       rows: [
         [
@@ -145,14 +147,25 @@ export const FORMS = {
     type: 'subject',
     formCode: 'SA-02',
     docPrefix: 'SA02',
-    title: 'Subject Class Weekly Attendance and Observation',
+    title: 'Subject class weekly attendance and observation',
     shortTitle: 'Subject Class',
     fileStem: 'Subject-Class',
-    codeBoxLines: ['SUBJECT CLASS WEEKLY', 'ATTENDANCE AND OBSERVATION'],
+    codeBoxText: 'SA-02 · Subject class weekly attendance and observation',
     headerTitle: 'SUBJECT CLASS ATTENDANCE',
-    headerYear: HEADER_YEAR,
-    headerTerm: META_TERM,
+    headerPeriod: HEADER_PERIOD,
     identifierKeys: ['subjectClass'],
+    panel: {
+      padY: 2.5, rowGap: 1, leadW: 70, colGap: 3,
+      rows: [
+        [
+          { key: 'subject', label: 'Subject:' },
+          { key: 'subjectClass', label: 'Subject class code:', width: 22 },
+          { ...META_WEEK },
+        ],
+        [{ key: 'educator', label: 'Educator:' }, { ...META_DATE, width: 45 }],
+      ],
+    },
+
     meta: {
       rows: [
         // Day / Period(s) used to live here; the per-day Period row above the
@@ -192,8 +205,8 @@ export const FORMS = {
     atp: {
       letter: 'C',
       title: 'ATP REFERENCE AND COMPLETION',
-      codeLabel: 'Annual Teaching Plan (ATP) code (from term master sheet):',
-      tickLabel: 'Tick one',
+      codeLabel: 'ATP code (from term master sheet):',
+      tickLabel: 'Tick one:',
       codeMaxLength: 24,
       commentsLabel: 'Educator comments or explanation',
       commentsHint: '(e.g. deviation, focus for next week, additional notes):',
@@ -208,6 +221,39 @@ export const FORMS = {
     },
     signOff: { ...SIGN_OFF('I confirm that the attendance, observations and ATP information recorded on this form are accurate for the week indicated.'), letter: 'D', style: 'bare' },
   },
+};
+
+/** SA-OC: the observation-code reference sheet. No fields, printed and pinned up. */
+FORMS.codes = {
+  type: 'codes',
+  kind: 'reference',
+  formCode: 'SA-OC',
+  docPrefix: 'SAOC',
+  title: 'Observation codes',
+  shortTitle: 'Observation codes',
+  fileStem: 'Observation-Codes',
+  codeBoxText: 'SA-OC · Observation codes for SA-01 and SA-02',
+  headerTitle: 'OBSERVATION CODES',
+  headerPeriod: HEADER_PERIOD,
+  identifierKeys: [],
+  intro: 'Write one code in the Code column of Section B on SA-01 or SA-02, next to the learner’s position number. One code per learner per day.',
+  columns: { code: 24, observation: 55 },
+  rowH: 11,
+  rows: [
+    ['DIS', 'Disruptive behaviour', 'Disrupts the class or lesson so that teaching or learning is interrupted.'],
+    ['NW', 'Not working in class', 'Present, but does not complete classwork.'],
+    ['NH', 'No homework', 'Homework not completed or not submitted.'],
+    ['SLP', 'Sleeping in class', 'Sleeps during the lesson.'],
+    ['DSP', 'Disengaged', 'Physically present but mentally disengaged, e.g. staring into space.'],
+    ['TB', 'Talking back', 'Disrespectful or defiant response to the educator.'],
+    ['XT', 'Excessive talking', 'Persistent talking that interferes with teaching or learning.'],
+    ['NP', 'Not participating', 'Does not take part in the lesson or a required activity.'],
+    ['OC', 'Outside class without permission', 'Seen outside the classroom instead of attending class.'],
+    ['FGT', 'Fighting or aggressive conduct', 'Physical fighting, or aggressive or threatening behaviour towards others.'],
+  ],
+  blankHeading: 'Additional codes (school to complete)',
+  blankRows: 6,
+  note: 'Late arrival is recorded in the L column of Section A, not as an observation code.',
 };
 
 export function getForm(type) {

@@ -165,15 +165,12 @@ export function renderForm(root, data, { onChange } = {}) {
     el('div', { class: 'brand' }, [
       el('h1', { class: 'school-name', text: SCHOOL.name }),
       el('div', { class: 'motto', text: form.headerTitle }),
-      el('div', { class: 'tagline term-line' }, [
-        el('span', { text: `${form.headerYear}  ·  ${form.headerTerm.label}` }),
-        charGroup({ data, path: `meta.${form.headerTerm.key}`, length: form.headerTerm.length, charset: form.headerTerm.charset, label: 'Term', onChange: change }),
-      ]),
+      el('div', { class: 'tagline', text: form.headerPeriod }),
     ]),
     el('div', { class: 'form-code-box', 'aria-label': 'Form code' }, [
       el('div', { class: 'fc-label', text: 'FORM CODE' }),
       el('div', { class: 'fc-code', text: form.formCode }),
-      el('div', { class: 'fc-title', html: form.codeBoxLines.join('<br>') }),
+      el('div', { class: 'fc-title', text: form.codeBoxText }),
     ]),
   ]));
 

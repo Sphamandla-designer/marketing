@@ -19,9 +19,9 @@ export function emptyObservationRow() {
 /** Create a blank data object for a form type. */
 export function createEmptyData(type) {
   const form = getForm(type);
+  if (form.kind === 'reference') return { formType: type, meta: {} };
   const meta = {};
   for (const row of form.meta.rows) for (const f of row) meta[f.key] = '';
-  if (form.headerTerm) meta[form.headerTerm.key] = '';
   // attendance slots span Section A (page 1) and the Section A2 continuation
   const slots = form.attendance.defaultRows + (form.attendance.overflowRows || 0);
   const data = {
@@ -47,13 +47,12 @@ const STATUS_SET = new Set(ATP_STATUS.map((s) => s.value));
  */
 export function validate(data) {
   const form = getForm(data.formType);
+  if (form.kind === 'reference') return [];
   const errors = [];
   const push = (path, message) => errors.push({ path, message });
 
-  const metaFields = [...form.meta.rows.flat()];
-  if (form.headerTerm) metaFields.push(form.headerTerm);
   {
-    for (const f of metaFields) {
+    for (const f of form.meta.rows.flat()) {
       const v = (data.meta[f.key] || '').trim();
       if (!v) {
         if (f.required) push(`meta.${f.key}`, `${f.label.replace(/:$/, '')} is required.`);
@@ -143,6 +142,7 @@ export function isValidIsoDate(s) {
 /** Normalise user input (trim, upper-case codes) without altering meaning. */
 export function normalise(data) {
   const out = JSON.parse(JSON.stringify(data));
+  if (getForm(out.formType).kind === 'reference') return out;
   for (const k of Object.keys(out.meta)) out.meta[k] = String(out.meta[k] || '').trim();
   for (const row of out.attendance) for (const d of DAYS) { row[d.key].a = row[d.key].a.trim(); row[d.key].l = row[d.key].l.trim(); }
   for (const row of out.observations) for (const d of DAYS) { row[d.key].learner = row[d.key].learner.trim(); row[d.key].code = row[d.key].code.trim().toUpperCase(); }
@@ -170,10 +170,10 @@ export function isRowEmpty(row) {
  */
 export function buildIdentifier(data, docNumber) {
   const form = getForm(data.formType);
+  if (form.kind === 'reference') return 'SHEET';
   const sign = data.signOff || {};
   const parts = [
     ...form.identifierKeys.map((k) => String(data.meta[k] || '').trim()),
-    data.meta.term ? `T${String(data.meta.term).trim()}` : '',
     data.meta.week ? `W${String(data.meta.week).trim()}` : '',
   ];
   if (parts.some((p) => !p)) return docNumber;

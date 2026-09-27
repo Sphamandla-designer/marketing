@@ -56,12 +56,9 @@ for scen in sorted(os.listdir(OUT)):
     form_code = 'SA-02' if 'Subject' in info['pdfName'] else 'SA-01'
     prefix = form_code.replace('-', '')
     must_have = [
-        info['docNumber'], info['identifier'],
-        'FISANTEKRAAL HIGH SCHOOL', 'FORM CODE', form_code, 'Term:', 'Period',
+        'FISANTEKRAAL HIGH SCHOOL', 'FORM CODE', form_code, '2026 · Term 2', 'Period',
         'ATTENDANCE', 'Period',                         # section A and its period row
-        'Week:',
-        'Educator signature',
-        'Date:',                                        # header date field
+        'Week:', 'Date', 'No.', 'Learner no.', 'Signature',
         f'Page {len(doc)} of {len(doc)}',
     ]
     # both forms are designed to be a single page

@@ -17,8 +17,10 @@ const outDir = path.join(here, 'output', 'blank');
 const PORT = 8124;
 
 const PAGES = [
-  { name: 'Register Class', page: 'register-class.html' },
-  { name: 'Subject Class', page: 'subject-class.html' },
+  { name: 'Register Class', page: 'register-class.html', type: 'register' },
+  { name: 'Subject Class', page: 'subject-class.html', type: 'subject' },
+  // SA-OC has no fields, so it is generated from the register page
+  { name: 'Observation Codes', page: 'register-class.html', type: 'codes', viaApi: true },
 ];
 
 async function run() {
@@ -37,10 +39,21 @@ async function run() {
       await page.goto(`http://localhost:${PORT}/${target.page}`);
       await page.waitForSelector('#form-root .meta-grid');
 
-      const [dl] = await Promise.all([page.waitForEvent('download'), page.click('#btn-blank')]);
-      await dl.saveAs(path.join(outDir, dl.suggestedFilename()));
-      await page.waitForFunction(() => window.__lastBlank);
-      const info = await page.evaluate(() => window.__lastBlank);
+      let info;
+      if (target.viaApi) {
+        info = await page.evaluate(async (type) => {
+          const { generateBlank } = await import('./js/export.js');
+          const res = await generateBlank(type);
+          const toB64 = (blob) => new Promise((resolve) => { const r = new FileReader(); r.onload = () => resolve(String(r.result).split(',')[1]); r.readAsDataURL(blob); });
+          return { pdfName: res.pdf.filename, pageCount: res.pageCount, pdfB64: await toB64(res.pdf.blob), images: res.images.map((i) => ({ filename: i.filename, w: i.canvas.width, h: i.canvas.height })) };
+        }, target.type);
+        fs.writeFileSync(path.join(outDir, info.pdfName), Buffer.from(info.pdfB64, 'base64'));
+      } else {
+        const [dl] = await Promise.all([page.waitForEvent('download'), page.click('#btn-blank')]);
+        await dl.saveAs(path.join(outDir, dl.suggestedFilename()));
+        await page.waitForFunction(() => window.__lastBlank);
+        info = await page.evaluate(() => window.__lastBlank);
+      }
       console.log(`[blank] ${target.name}: ${info.pdfName} (${info.pageCount} page(s)); images ${info.images.map((i) => `${i.filename} ${i.w}x${i.h}`).join(', ')}`);
 
       // a blank must not be padded out with extra pages
@@ -49,30 +62,29 @@ async function run() {
       // the design brief is that nothing on the form has a square corner;
       // the barcode modules are the one deliberate exception
       // save the blank PNGs too, so the image output is reviewable alongside the PDF
-      const pngs = await page.evaluate(async () => {
+      const pngs = await page.evaluate(async (type) => {
         const { generateBlank } = await import('./js/export.js');
-        const res = await generateBlank(document.body.dataset.formType);
+        const res = await generateBlank(type);
         const toB64 = (blob) => new Promise((resolve) => {
           const r = new FileReader();
           r.onload = () => resolve(String(r.result).split(',')[1]);
           r.readAsDataURL(blob);
         });
         return Promise.all(res.images.map(async (im) => ({ filename: im.filename, b64: await toB64(im.blob) })));
-      });
+      }, target.type);
       for (const im of pngs) fs.writeFileSync(path.join(outDir, im.filename), Buffer.from(im.b64, 'base64'));
       console.log(`  saved ${pngs.length} PNG page(s): ${pngs.map((i) => i.filename).join(', ')}`);
 
-      const corners = await page.evaluate(async () => {
+      const corners = await page.evaluate(async (type) => {
         const { buildFormDocument } = await import('./js/export.js');
         const { createEmptyData } = await import('./js/model.js');
-        const type = document.body.dataset.formType;
         const { doc } = await buildFormDocument(createEmptyData(type), { blank: true, docNumber: 'SA01BLANK', identifier: 'BLANK' });
         const square = [];
         doc.pages.forEach((p, pi) => p.ops.forEach((op) => {
           if (op.t === 'rect' && !op.r && op.fill !== '#000000') square.push({ page: pi + 1, x: op.x, y: op.y, w: op.w, h: op.h });
         }));
         return { total: doc.pages.reduce((a, p) => a + p.ops.filter((o) => o.t === 'rect').length, 0), square };
-      });
+      }, target.type);
       console.log(`  rounded: ${corners.total - corners.square.length}/${corners.total} rectangles; square corners outside the barcode: ${corners.square.length}`);
       if (corners.square.length) { failures++; console.log('  FAIL: square corners at', JSON.stringify(corners.square.slice(0, 5))); }
 

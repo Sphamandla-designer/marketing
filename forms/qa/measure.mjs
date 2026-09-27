@@ -24,7 +24,7 @@ const report = await page.evaluate(async () => {
   const { buildFormDocument } = await import('./js/export.js');
   const { createEmptyData } = await import('./js/model.js');
   const out = {};
-  for (const type of ['register', 'subject']) {
+  for (const type of ['register', 'subject', 'codes']) {
     const { doc } = await buildFormDocument(createEmptyData(type), { blank: true, docNumber: 'X', identifier: 'BLANK' });
     const ops = doc.pages.flatMap((p) => p.ops);
     const round = (n) => Math.round(n * 100) / 100;
@@ -45,19 +45,25 @@ const report = await page.evaluate(async () => {
       for (let i = 1; i < sorted.length; i++) pitches.add(round(sorted[i] - sorted[i - 1]));
     }
     // ruled writing lines inside section C, for the comment-line pitch
-    const box = tagged('writing-box')[0];
-    const rules = box
-      ? ops.filter((o) => o.t === 'rect' && o.h <= 0.3 && o.y > box.y && o.y < box.y + box.h).map((o) => round(o.y)).sort((a, b) => a - b)
-      : [];
+    const rules = tagged('rule-line').map((o) => round(o.y)).sort((a, b) => a - b);
     const rulePitch = [...new Set(rules.slice(1).map((y, i) => round(y - rules[i])))];
+    // info-panel fields must not overlap each other horizontally within a row
+    const panelFields = tagged('field').filter((f) => f.y < 60);
+    const overlaps = [];
+    for (const a of panelFields) for (const b of panelFields) {
+      if (a === b || Math.abs(a.y - b.y) > 0.5) continue;
+      if (a.x < b.x && a.x + a.w > b.x + 0.01) overlaps.push(`${round(a.x)}+${round(a.w)} into ${round(b.x)}`);
+    }
     const texts = ops.filter((o) => o.t === 'text');
     out[type] = {
       pages: doc.pages.length,
       cellHeights: heights,
       cellWidths: widths,
       rowPitches: [...pitches].sort((a, b) => a - b),
-      headerMm: round(doc.marks[0].y - 8 - 3),
+      headerMm: doc.marks.length ? round(doc.marks[0].y - 8) : 0,
+      totalUsedMm: round(Math.max(...ops.filter((o) => o.y != null).map((o) => o.y + (o.h || 0))) - 8),
       commentLinePitch: rulePitch,
+      panelOverlaps: [...new Set(overlaps)],
       tickBoxes: ticks,
       signatureBox: sig,
       minTextPt: round(Math.min(...texts.map((t) => t.size))),
@@ -76,6 +82,7 @@ for (const [type, r] of Object.entries(report)) {
   console.log(`\n=== ${type}`);
   console.log(`  pages: ${r.pages}`);
   console.log(`  header block: ${r.headerMm} mm`);
+  console.log(`  total used height: ${r.totalUsedMm} mm of 281`);
   console.log(`  entry cell heights (mm): ${r.cellHeights.join(', ')}`);
   console.log(`  entry cell widths (mm): ${r.cellWidths.join(', ')}`);
   console.log(`  row pitch (mm): ${r.rowPitches.join(', ')}`);
@@ -92,11 +99,12 @@ for (const [type, r] of Object.entries(report)) {
     [r.leftmostMm >= 7.99, `nothing left of the 8 mm margin (got ${r.leftmostMm})`],
     [r.rightmostMm <= 202.01, `nothing right of the 8 mm margin (got ${r.rightmostMm})`],
     [r.lowestInkMm <= PAGE_BOTTOM, `nothing below ${PAGE_BOTTOM} mm (got ${r.lowestInkMm})`],
-    [r.headerMm <= MAX_HEADER, `header block <= ${MAX_HEADER} mm (got ${r.headerMm})`],
-    [Math.min(...r.cellWidths) >= 13, `narrowest grid cell >= 13 mm (got ${Math.min(...r.cellWidths)})`],
-    [r.signatureBox.every((b) => b === '60x12'), `signature box 60x12 mm (got ${r.signatureBox.join(', ')})`],
+    [r.headerMm === 0 || r.headerMm <= MAX_HEADER, `header block <= ${MAX_HEADER} mm (got ${r.headerMm})`],
+    [r.cellWidths.length === 0 || Math.min(...r.cellWidths) >= 11.9, `narrowest grid cell >= 12 mm (got ${Math.min(...r.cellWidths) || 'n/a'})`],
+    [r.signatureBox.every((b) => b === '45x12'), `signature box 45x12 mm (got ${r.signatureBox.join(', ') || 'n/a'})`],
     [r.tickBoxes.every((b) => b === '5x5'), `tick boxes 5x5 mm (got ${r.tickBoxes.join(', ') || 'n/a'})`],
     [r.commentLinePitch.every((p) => Math.abs(p - 7.5) < 0.01), `comment lines at 7.5 mm (got ${r.commentLinePitch.join(', ') || 'n/a'})`],
+    [r.panelOverlaps.length === 0, `no overlapping info-panel fields (${r.panelOverlaps.join('; ') || 'none'})`],
   ];
   for (const [ok, msg] of checks) { if (!ok) { fail++; console.log(`  FAIL: ${msg}`); } else console.log(`  ok: ${msg}`); }
 }

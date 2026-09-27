@@ -13,23 +13,29 @@
   <nav aria-label="Forms"><a href="./register-class.html">Register Class</a><a href="./subject-class.html">Subject Class</a></nav>
 </header>
 <main>
-  <h1>Weekly attendance &amp; observation forms</h1>
+  <h1>Weekly attendance and observation forms</h1>
   <p class="page-intro">Complete a form online, then generate it as an official PDF and a high-resolution image for submission.</p>
   <div class="cards">
     <div class="card">
       <h2>Register Class</h2>
-      <p>SA-01 · Register Class Weekly Attendance &amp; Observation. Attendance (absent / late), notable learner observations and additional comments for your register class.</p>
+      <p>SA-01 · Register class weekly attendance and observation. Attendance (absent or late) and notable learner observations for your register class.</p>
       <a class="btn btn-primary" href="./register-class.html">Start Register Class form</a>
     </div>
     <div class="card">
       <h2>Subject Class</h2>
-      <p>SA-01 · Subject Weekly Attendance &amp; Observation. Attendance, observations per day, ATP reference and completion for a subject class.</p>
+      <p>SA-02 · Subject class weekly attendance and observation. Attendance, observations per day, and ATP reference and completion for a subject class.</p>
       <a class="btn btn-primary" href="./subject-class.html">Start Subject Class form</a>
+    </div>
+    <div class="card">
+      <h2>Observation codes</h2>
+      <p>SA-OC · The observation codes used in Section B of SA-01 and SA-02, with room for the school to add its own. A printed reference sheet, not a form.</p>
+      <button type="button" id="btn-codes" class="btn btn-secondary">Download SA-OC (PDF)</button>
     </div>
   </div>
   <h2>Recently generated on this device</h2>
   <ul id="recent" class="recent"><li class="muted">Loading…</li></ul>
 </main>
+<script src="./vendor/jspdf.umd.min.js"></script>
 <script type="module" src="./js/index.js"></script>
 </body>
 </html>
