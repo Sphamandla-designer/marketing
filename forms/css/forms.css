@@ -261,3 +261,9 @@ main { max-width: 1040px; margin: 0 auto; padding: 16px; }
 .signoff-bare { border: 0; border-radius: 0; overflow: visible; margin-bottom: 16px; }
 .signoff-bare .signoff-body { display: flex; justify-content: flex-end; padding: 0; }
 .signoff-bare .signoff-sign { flex-direction: column; align-items: flex-end; gap: 6px; }
+
+/* masthead term box, mirroring the printed form */
+.term-line { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.term-line .char-group input { width: 28px; height: 28px; }
+/* the date format is a hint beside the label, never inside the field */
+.meta-hint { font-weight: 400; font-size: 11px; color: var(--band); margin-left: 4px; }

@@ -21,6 +21,7 @@ export function createEmptyData(type) {
   const form = getForm(type);
   const meta = {};
   for (const row of form.meta.rows) for (const f of row) meta[f.key] = '';
+  if (form.headerTerm) meta[form.headerTerm.key] = '';
   // attendance slots span Section A (page 1) and the Section A2 continuation
   const slots = form.attendance.defaultRows + (form.attendance.overflowRows || 0);
   const data = {
@@ -49,8 +50,10 @@ export function validate(data) {
   const errors = [];
   const push = (path, message) => errors.push({ path, message });
 
-  for (const row of form.meta.rows) {
-    for (const f of row) {
+  const metaFields = [...form.meta.rows.flat()];
+  if (form.headerTerm) metaFields.push(form.headerTerm);
+  {
+    for (const f of metaFields) {
       const v = (data.meta[f.key] || '').trim();
       if (!v) {
         if (f.required) push(`meta.${f.key}`, `${f.label.replace(/:$/, '')} is required.`);
@@ -170,6 +173,7 @@ export function buildIdentifier(data, docNumber) {
   const sign = data.signOff || {};
   const parts = [
     ...form.identifierKeys.map((k) => String(data.meta[k] || '').trim()),
+    data.meta.term ? `T${String(data.meta.term).trim()}` : '',
     data.meta.week ? `W${String(data.meta.week).trim()}` : '',
   ];
   if (parts.some((p) => !p)) return docNumber;

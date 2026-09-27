@@ -15,13 +15,10 @@ import { SCHOOL, DAYS, OBSERVATION_CODES, CODE_LIST, ATP_STATUS, PERIOD_SLOTS, g
 import { encodeCode128B } from './barcode.js';
 import { formatDisplayDate } from './model.js';
 
-export const PAGE = { w: 210, h: 297, ml: 10, mr: 10, mt: 7, mb: 8, footerH: 8 };
+export const PAGE = { w: 210, h: 297, ml: 8, mr: 8, mt: 8, mb: 8, footerH: 7 };
 export const COLORS = {
-  // The forms are printed and filed in black and white, so the document is
-  // drawn in greyscale rather than in the school red: colour on a mono printer
-  // only turns into an unpredictable grey. Structure still follows the First
-  // Home Finance reference — one dark tone for every rule, heading and header
-  // bar, a mid grey for instruction bands, pale grey for label cells.
+  // Printed and photocopied in black and white. `rule` is the mid grey used for
+  // every handwriting cell border, dark enough to survive a school copier.
   brand: '#141414',
   brandDeep: '#000000',
   band: '#6B6B6B',
@@ -29,13 +26,14 @@ export const COLORS = {
   pale: '#E8E8E8',
   paleAlt: '#F4F4F4',
   border: '#141414',
+  rule: '#555555',
   hair: '#C4C4C4',
   text: '#1B1B1B',
   muted: '#5E5E5E',
   placeholder: '#A3A3A3',
   white: '#FFFFFF',
   boxFill: '#FFFFFF',
-  boxBorder: '#141414',
+  boxBorder: '#555555',
 };
 
 /**
@@ -44,29 +42,35 @@ export const COLORS = {
  */
 export const RADIUS = { card: 2.4, bar: 1.6, band: 1.2, box: 1.0, chip: 1.4, sig: 1.8 };
 
-/** Inset of a section card's contents from its outline. */
-const CARD_PAD = 1.4;
-/** Vertical gap between stacked bands inside a card. */
-const BAND_GAP = 1.2;
-/** Gap around each field box inside a table row. */
-const CELL_INSET = 0.55;
 /**
- * Heights inside the sign-off card. The HOD column carries an extra name row,
- * so it is the taller of the two and sets the card height.
+ * Geometry, in printed millimetres at 100% scale. Every handwriting cell is at
+ * least CELL_H tall on a ROW_PITCH grid, which is what the rest of the budget
+ * is built around.
  */
-const SIGN_FIELD_ROW_H = 6.8;  // term / start / end band
-const SIGN_PAD_H = 8.5;        // signature pad
-const SIGN_PAD_LABEL_H = 3.2;  // caption under the pad
-/** Gap left below a closed card before the next one. */
-const CARD_GAP = 1.6;
-/** Height of a card's header bar. */
-const CARD_HEADER_H = 6.8;
-/** Height of a table data row. */
-const ROW_H = 4.8;
-/** Height of the per-day period row above the day header. */
-const PERIOD_ROW_H = 5.0;
-/** Height consumed by the page-2+ header: crest row, identity strip and gap. */
-const CONTINUATION_HEADER_H = 23;
+const CARD_PAD = 1.5;          // card outline to contents
+const BAND_GAP = 0;            // bands butt against each other on the budget
+const CARD_GAP = 3;            // between blocks
+const ROW_PITCH = 7;           // row to row
+const CELL_H = 6.5;            // handwriting cell height
+const CELL_INSET = (ROW_PITCH - CELL_H) / 2;
+const FIELD_H = 7;             // header entry fields
+const BOX_7 = 7;               // week / term character boxes
+const TICK = 5;                // completion tick boxes
+const PERIOD_ROW_H = 7;
+const TITLE_BAR_H = 6;         // section title bar
+const INSTRUCTION_H = 5;       // instruction bar
+const DAY_HEADER_H = 5;
+const SUB_HEADER_H = 4;
+const NO_COL_W = 8;            // row-number column
+const SIGN_PAD_W = 60;
+const SIGN_PAD_H = 12;
+const SIGN_BLOCK_H = 15;       // pad plus its label
+const HEADER_H = 22.5;         // crest, titles, form-code box and barcode (spec max 24)
+const COMMENT_LINE_H = 7.5;    // ruled writing lines in section C
+const RULE_LW = 0.18;          // 0.5 pt cell borders
+
+const CARD_HEADER_H = TITLE_BAR_H;
+const ROW_H = ROW_PITCH;
 
 const PT = 0.352778; // 1pt in mm
 const CAP = 0.711;   // Roboto cap height / em
@@ -91,6 +95,8 @@ class Builder {
     this.crest = opts.crest;
     this.measureFn = opts.measure;
     this.blank = !!opts.blank;
+    /** Cumulative y after each block, for the print-geometry measurement. */
+    this.marks = [];
     this.pages = [];
     this.ops = null;
     this.card = null;
@@ -110,7 +116,7 @@ class Builder {
   rect(x, y, w, h, o = {}) {
     const want = o.r === undefined ? RADIUS.box : o.r;
     const r = Math.min(want, w / 2, h / 2);
-    this.ops.push({ t: 'rect', x, y, w, h, fill: o.fill || null, stroke: o.stroke || null, lw: o.lw || 0.25, r });
+    this.ops.push({ t: 'rect', x, y, w, h, fill: o.fill || null, stroke: o.stroke || null, lw: o.lw || 0.25, r, tag: o.tag || null });
   }
   line(x1, y1, x2, y2, color = COLORS.brand, lw = 0.25) { this.ops.push({ t: 'line', x1, y1, x2, y2, color, lw }); }
   image(src, x, y, w, h) { this.ops.push({ t: 'image', src, x, y, w, h }); }
@@ -177,7 +183,7 @@ class Builder {
     const bw = o.bw || 5.4, bh = o.bh || 5.6, gap = o.gap ?? 0.9;
     for (let i = 0; i < n; i++) {
       const bx = x + i * (bw + gap);
-      this.rect(bx, y, bw, bh, { fill: COLORS.boxFill, stroke: COLORS.brand, lw: 0.3, r: RADIUS.box });
+      this.rect(bx, y, bw, bh, { fill: COLORS.boxFill, stroke: COLORS.rule, lw: RULE_LW, r: RADIUS.box, tag: o.tag || 'field' });
       const c = chars[i] || '';
       if (c) this.text(c, bx + bw / 2, centreBaseline(y, bh, o.size || 10), { size: o.size || 10, style: 'bold', align: 'center', color: COLORS.brand });
     }
@@ -188,9 +194,9 @@ class Builder {
    * in light grey, the way the reference prints "DD / MM / YYYY" and "R".
    */
   roundedField(x, y, w, h, value, o = {}) {
-    this.rect(x, y, w, h, { fill: COLORS.boxFill, stroke: COLORS.brand, lw: 0.3, r: RADIUS.box });
+    this.rect(x, y, w, h, { fill: COLORS.boxFill, stroke: COLORS.rule, lw: RULE_LW, r: RADIUS.box, tag: o.tag || 'field' });
     const size = o.size || 9;
-    const shown = value ? String(value) : (o.placeholder || '');
+    const shown = value ? String(value) : '';
     if (!shown) return;
     const maxW = w - 4;
     let str = shown;
@@ -252,68 +258,85 @@ class Builder {
   }
   /** Navy header bar inside the top of the open card. */
   cardHeader(letter, title, subtitle) {
-    const h = CARD_HEADER_H;
+    const h = TITLE_BAR_H;
     const x = this.x0 + CARD_PAD, w = this.cw - CARD_PAD * 2;
     this.y += CARD_PAD;
     this.rect(x, this.y, w, h, { fill: COLORS.brand, r: RADIUS.bar });
-    const by = centreBaseline(this.y, h, 10.5);
+    const by = centreBaseline(this.y, h, 11);
     let tx = x + 3;
-    if (letter) tx += this.runs([{ s: `${letter}.`, size: 10.5, style: 'bold', color: COLORS.white }], tx, by) + 2.6;
-    tx += this.runs([{ s: title, size: 10.5, style: 'bold', color: COLORS.white }], tx, by);
-    if (subtitle) this.runs([{ s: subtitle, size: 8.2, style: 'italic', color: COLORS.white }], tx + 2.4, by);
+    if (letter) tx += this.runs([{ s: `${letter}.`, size: 11, style: 'bold', color: COLORS.white }], tx, by) + 2.6;
+    tx += this.runs([{ s: title, size: 11, style: 'bold', color: COLORS.white }], tx, by);
+    if (subtitle) this.runs([{ s: subtitle, size: 8, style: 'italic', color: COLORS.white }], tx + 2.4, by);
     this.y += h;
   }
   /** Slate instruction band with white text, as under SECTION A of the reference. */
+  /** One instruction bar, INSTRUCTION_H tall, 8 pt italic on the band grey. */
   instructionBand(notes) {
-    const size = 8, lh = 3.7, pad = 1.4;
+    const size = 8;
     const x = this.x0 + CARD_PAD, w = this.cw - CARD_PAD * 2;
-    const lines = notes.flatMap((n) => this.wrap(n, w - 5, size, 'italic'));
-    const h = lines.length * lh + pad * 2;
-    this.y += BAND_GAP;
-    this.rect(x, this.y, w, h, { fill: COLORS.band, r: RADIUS.band });
-    lines.forEach((l, i) => this.text(l, x + 2.6, this.y + pad + lh * (i + 1) - 1.1, { size, style: 'italic', color: COLORS.white }));
-    this.y += h;
+    const line = notes.join(' ');
+    this.rect(x, this.y, w, INSTRUCTION_H, { fill: COLORS.band, r: RADIUS.band });
+    this.text(line, x + 2.6, centreBaseline(this.y, INSTRUCTION_H, size), { size, style: 'italic', color: COLORS.white });
+    this.y += INSTRUCTION_H;
   }
+  bandHeight() { return INSTRUCTION_H; }
 
+  /**
+   * Masthead: crest, school name, form title, the year and a term box on the
+   * left two thirds; form-code panel over the barcode on the right. The whole
+   * block is HEADER_H tall and nothing in it is set below 7 pt.
+   */
   fullHeader() {
     const y = this.y;
-    if (this.crest) this.image(this.crest.dataUrl, this.x0, y, 21, 21);
-    const panelW = 44, panelX = this.x0 + this.cw - panelW;
-    const cx = (this.x0 + 23 + panelX - 3) / 2;
-    this.text(SCHOOL.name, cx, y + 8, { size: 17, style: 'bold', color: COLORS.brand, align: 'center' });
-    this.spacedText(this.form.headerTitle, cx, y + 13.6, { size: 8.8, spacing: 0.9, style: 'bold', align: 'center', color: COLORS.band });
-    this.text(this.form.headerPeriod, cx, y + 18.6, { size: 8.6, style: 'italic', align: 'center', color: COLORS.brand });
-    // form code panel: brand cap bar over a white body, both rounded
-    const capH = 4.2, panelH = 15.6;
+    const right = this.x0 + this.cw;
+    // the panel is sized from its widest title line so the 7 pt text can never
+    // overflow the box it sits in
+    const panelW = Math.max(52, ...this.form.codeBoxLines.map((l) => this.measure(l, 7, 'bold'))) + 7;
+    const panelX = right - panelW;
+    if (this.crest) this.image(this.crest.dataUrl, this.x0, y + 1, 20, 20);
+    const cx = (this.x0 + 22 + panelX - 3) / 2;
+    this.text(SCHOOL.name, cx, y + 6.6, { size: 13.5, style: 'bold', color: COLORS.brand, align: 'center' });
+    this.spacedText(this.form.headerTitle, cx, y + 12, { size: 9, spacing: 0.8, style: 'bold', align: 'center', color: COLORS.band });
+
+    // year and a 7 x 7 box for the term
+    const t = this.form.headerTerm;
+    const termLabel = `${this.form.headerYear}  ·  ${t.label}`;
+    const labelW = this.measure(termLabel, 9, 'bold');
+    const groupW = labelW + 2.5 + BOX_7;
+    const gx = cx - groupW / 2;
+    const boxY = y + HEADER_H - BOX_7 - 1.2;
+    this.text(termLabel, gx, centreBaseline(boxY, BOX_7, 9), { size: 9, style: 'bold', color: COLORS.brand });
+    this.charBoxes(gx + labelW + 2.5, boxY, String(this.data.meta[t.key] || '').split(''), t.length, { bw: BOX_7, bh: BOX_7, gap: 0, size: 11 });
+
+    // form-code panel
+    const panelH = 15.4, capH = 4.2;
     this.rect(panelX, y, panelW, panelH, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.4, r: RADIUS.chip });
     this.rect(panelX + 0.8, y + 0.8, panelW - 1.6, capH, { fill: COLORS.brand, r: 0.8 });
-    this.text('FORM CODE', panelX + panelW / 2, centreBaseline(y + 0.8, capH, 6.2), { size: 6.2, style: 'bold', align: 'center', color: COLORS.white });
-    this.text(this.form.formCode, panelX + panelW / 2, y + 10.2, { size: 11, style: 'bold', align: 'center', color: COLORS.brand });
-    this.text(this.form.codeBoxLines[0], panelX + panelW / 2, y + 12.3, { size: 4.6, style: 'bold', align: 'center', color: COLORS.band });
-    this.text(this.form.codeBoxLines[1], panelX + panelW / 2, y + 14.4, { size: 4.6, style: 'bold', align: 'center', color: COLORS.band });
-    // barcode sits in its own rounded white plate; the plate is tall enough
-    // that the code text clears the bars rather than printing over them
-    const bcY = y + panelH + 1.2, bcH = 8.8;
+    this.text('FORM CODE', panelX + panelW / 2, centreBaseline(y + 0.8, capH, 7), { size: 7, style: 'bold', align: 'center', color: COLORS.white });
+    this.text(this.form.formCode, panelX + panelW / 2, y + 9.2, { size: 10.5, style: 'bold', align: 'center', color: COLORS.brand });
+    this.text(this.form.codeBoxLines[0], panelX + panelW / 2, y + 11.8, { size: 7, style: 'bold', align: 'center', color: COLORS.band });
+    this.text(this.form.codeBoxLines[1], panelX + panelW / 2, y + 14.3, { size: 7, style: 'bold', align: 'center', color: COLORS.band });
+
+    // barcode plate, sized so the printed code clears the bars
+    const bcY = y + panelH + 0.6, bcH = HEADER_H - panelH - 0.6;
     this.rect(panelX, bcY, panelW, bcH, { fill: COLORS.white, stroke: COLORS.hair, lw: 0.3, r: RADIUS.box });
     const pageCode = this.pageCode();
-    this.barcode(panelX + 1.2, bcY + 1, panelW - 2.4, 4.4, pageCode);
-    this.text(pageCode, panelX + panelW / 2, bcY + bcH - 1.1, { size: 5.6, align: 'center', color: COLORS.band });
-    this.y = Math.max(y + 22.5, bcY + bcH) + 2.2;
+    const codeW = this.measure(pageCode, 7) + 2.4;
+    this.barcode(panelX + 1.2, bcY + 0.8, panelW - 2.4 - codeW, bcH - 1.6, pageCode);
+    this.text(pageCode, panelX + panelW - 1.2, centreBaseline(bcY, bcH, 7), { size: 7, align: 'right', color: COLORS.band });
+    this.y = y + HEADER_H + CARD_GAP;
   }
-  /**
-   * Page 2 onwards. Carries a barcode of its own and a strip of the identifying
-   * meta fields, so a page separated from the set still makes sense.
-   */
+
   compactHeader() {
     const y = this.y;
     if (this.crest) this.image(this.crest.dataUrl, this.x0, y, 11, 11);
     this.text(SCHOOL.name, this.x0 + 13.5, y + 4.6, { size: 11, style: 'bold', color: COLORS.brand });
-    this.text(`${this.form.formCode}  ·  ${this.form.title}  ·  continued`, this.x0 + 13.5, y + 9.2, { size: 7.6, color: COLORS.band });
+    this.text(`${this.form.formCode}  ·  ${this.form.title}  ·  continued`, this.x0 + 13.5, y + 9.2, { size: 7, color: COLORS.band });
     const right = this.x0 + this.cw;
     const bcW = 34, bcH = 7.6;
     const pageCode = this.pageCode();
     this.barcode(right - bcW, y + 0.4, bcW, 4.6, pageCode);
-    this.text(pageCode, right, y + 8.6, { size: 6.4, style: 'bold', align: 'right', color: COLORS.band });
+    this.text(pageCode, right, y + 8.6, { size: 7, style: 'bold', align: 'right', color: COLORS.band });
     this.y = y + 13;
     this.identityStrip();
   }
@@ -360,19 +383,17 @@ class Builder {
     this.pages.forEach((p, i) => {
       const saved = this.ops; this.ops = p.ops;
       const y = PAGE.h - PAGE.mb - PAGE.footerH;
-      this.rect(this.x0, y + 1.5, this.cw, 0.35, { fill: COLORS.hair, r: 0.17 });
-      const by = y + 6.2;
+      this.rect(this.x0, y + 1, this.cw, 0.3, { fill: COLORS.hair, r: 0.15 });
+      const by = y + 5.4;
       this.runs([
-        { s: this.form.formCode, size: 7.2, style: 'bold', color: COLORS.brand },
-        { s: '   |   ', size: 7.2, color: COLORS.hair },
-        { s: this.form.title, size: 7.2, color: COLORS.band },
+        { s: this.form.formCode, size: 7, style: 'bold', color: COLORS.brand },
+        { s: '   |   ', size: 7, color: COLORS.hair },
+        { s: this.form.title, size: 7, color: COLORS.band },
       ], this.x0, by);
-      this.text(SCHOOL.name.replace(/\b(\w)(\w*)/g, (_, a, r) => a + r.toLowerCase()), this.x0 + this.cw / 2 - 10, by, { size: 7.2, color: COLORS.band, align: 'center' });
-      // page chip, matching the numbered chip in the reference header
-      const chipW = 20, chipH = 5.2, chipX = this.x0 + this.cw - chipW, chipY = by - 3.9;
+      this.text(SCHOOL.name.replace(/\b(\w)(\w*)/g, (_, a, r) => a + r.toLowerCase()), this.x0 + this.cw / 2 + 8, by, { size: 7, color: COLORS.band, align: 'center' });
+      const chipW = 20, chipH = 4.6, chipX = this.x0 + this.cw - chipW, chipY = by - 3.4;
       this.rect(chipX, chipY, chipW, chipH, { fill: COLORS.pale, r: RADIUS.chip });
       this.text(`Page ${i + 1} of ${n}`, chipX + chipW / 2, centreBaseline(chipY, chipH, 7), { size: 7, style: 'bold', color: COLORS.brand, align: 'center' });
-      this.text(SCHOOL.mottoWords.join('  ·  '), chipX - 4, by, { size: 7.2, color: COLORS.band, align: 'right' });
       this.ops = saved;
     });
   }
@@ -384,34 +405,42 @@ class Builder {
    */
   metaTable() {
     const rows = this.form.meta.rows;
-    const rowH = 6.6;
-    this.ensure(rowH * rows.length + CARD_PAD * 2 + 4);
+    this.ensure(CARD_PAD * 2 + FIELD_H * rows.length + CARD_GAP);
     this.beginCard();
     this.y += CARD_PAD;
     const x0 = this.x0 + CARD_PAD, cw = this.cw - CARD_PAD * 2;
-    const leadLabelW = Math.max(...rows.map((row) => this.measure(row[0].label, 8.6, 'bold'))) + 4.6;
+    // one label width for the first field of every row, so the boxes line up
+    const leadLabelW = Math.max(...rows.map((r) => this.labelWidth(r[0]))) + 4;
     rows.forEach((row, ri) => {
-      const y = this.y + ri * rowH;
+      const y = this.y + ri * FIELD_H;
       const spanTotal = row.reduce((a, f) => a + f.span, 0);
       let x = x0;
       row.forEach((f, fi) => {
         const w = (cw * f.span) / spanTotal;
-        const labelW = fi === 0 ? leadLabelW : this.measure(f.label, 8.6, 'bold') + 4.6;
-        this.rect(x + 0.4, y + 0.4, labelW, rowH - 0.8, { fill: COLORS.pale, r: RADIUS.band });
-        this.text(f.label, x + 3, centreBaseline(y, rowH, 9), { size: 8.6, style: 'bold', color: COLORS.brand });
+        const labelW = fi === 0 ? leadLabelW : this.labelWidth(f) + 4;
+        this.rect(x + 0.3, y + 0.3, labelW, FIELD_H - 0.6, { fill: COLORS.pale, r: RADIUS.band });
+        const by = centreBaseline(y, FIELD_H, 9);
+        let lx = x + 2.5;
+        lx += this.text(f.label, lx, by, { size: 9, style: 'bold', color: COLORS.brand });
+        // the date format is a small label beside the field, never inside it
+        if (f.hint) this.text(` ${f.hint}`, lx, by, { size: 7, color: COLORS.band });
         const value = String(this.data.meta[f.key] ?? '');
         if (f.kind === 'chars') {
-          const chars = value.split('');
-          if (f.key === 'week' && chars.length === 1) chars.unshift(''); // right-align single digit week in 2 boxes
-          this.charBoxes(x + labelW + 2.4, y + (rowH - 5.6) / 2, chars, f.length);
+          const chars = f.alignRight ? value.padStart(f.length, ' ').split('').map((c) => c.trim()) : value.split('');
+          this.charBoxes(x + labelW + 2, y + (FIELD_H - BOX_7) / 2, chars, f.length, { bw: BOX_7, bh: BOX_7, gap: 0.8, size: 11, tag: 'field' });
         } else {
-          this.roundedField(x + labelW + 2.4, y + 1.2, w - labelW - 4.4, rowH - 2.4, value, { placeholder: this.blank ? f.placeholder : '' });
+          this.roundedField(x + labelW + 2, y, w - labelW - 2.4, FIELD_H, value, { size: 10, tag: 'field' });
         }
         x += w;
       });
     });
-    this.y += rowH * rows.length;
+    this.y += FIELD_H * rows.length;
     this.endCard();
+  }
+
+  /** Width of a field's label, including its hint where it has one. */
+  labelWidth(f) {
+    return this.measure(f.label, 9, 'bold') + (f.hint ? this.measure(` ${f.hint}`, 7) : 0);
   }
 
   /**
@@ -431,7 +460,7 @@ class Builder {
           const rowSpanH = cell.rowSpan ? headerRows.slice(headerRows.indexOf(hr), headerRows.indexOf(hr) + cell.rowSpan).reduce((a, r) => a + r.h, 0) : hr.h;
           // each header group is its own rounded chip with a hairline gap
           this.rect(x + 0.3, y + 0.3, w - 0.6, rowSpanH - 0.6, { fill: cell.tone === 'pale' ? COLORS.pale : COLORS.band, r: RADIUS.band });
-          if (cell.text) this.text(cell.text, x + w / 2, centreBaseline(y, rowSpanH, cell.size || 8.6), { size: cell.size || 8.6, style: 'bold', align: 'center', color: cell.tone === 'pale' ? COLORS.brand : COLORS.white });
+          if (cell.text) this.text(cell.text, x + w / 2, centreBaseline(y, rowSpanH, cell.size || 9), { size: cell.size || 9, style: 'bold', align: 'center', color: cell.tone === 'pale' ? COLORS.brand : COLORS.white });
           x += w; ci += cell.span;
         }
         y += hr.h;
@@ -466,14 +495,14 @@ class Builder {
 
   /** One inset rounded field inside a table row. */
   cell(x, y, w, h, value, o = {}) {
-    const ix = x + CELL_INSET, iy = y + CELL_INSET;
-    const iw = w - CELL_INSET * 2, ih = h - CELL_INSET * 2;
-    this.rect(ix, iy, iw, ih, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.25, r: RADIUS.box });
-    if (value !== '' && value != null) this.text(value, ix + iw / 2, centreBaseline(iy, ih, o.size || 9), { size: o.size || 9, style: o.style || 'normal', align: 'center', color: o.color || COLORS.text });
+    const ix = x + 0.4, iy = y + CELL_INSET;
+    const iw = w - 0.8, ih = CELL_H;
+    this.rect(ix, iy, iw, ih, { fill: COLORS.white, stroke: COLORS.rule, lw: RULE_LW, r: RADIUS.box, tag: 'cell' });
+    if (value !== '' && value != null) this.text(value, ix + iw / 2, centreBaseline(iy, ih, o.size || 10), { size: o.size || 10, style: o.style || 'normal', align: 'center', color: o.color || COLORS.text });
   }
   /** Row-number gutter: plain brand-coloured figure on the band, no box (as the reference). */
   rowNumber(x, y, w, h, n) {
-    this.text(String(n), x + w / 2, centreBaseline(y, h, 8.6), { size: 8.6, style: 'bold', align: 'center', color: COLORS.brand });
+    this.text(String(n), x + w / 2, centreBaseline(y, h, 9), { size: 9, style: 'bold', align: 'center', color: COLORS.brand });
   }
 
   /**
@@ -482,11 +511,11 @@ class Builder {
    */
   attendanceGrid({ sec, rows, firstSlot, letter, title, subtitle, notes, footerText }) {
     const cw = this.cw - CARD_PAD * 2;
-    const noW = 9; const dayW = (cw - noW) / DAYS.length; const subW = dayW / 2;
+    const noW = NO_COL_W; const dayW = (cw - noW) / DAYS.length; const subW = dayW / 2;
     const cols = [{ w: noW }, ...DAYS.flatMap(() => [{ w: subW }, { w: subW }])];
     const headerRows = [
-      { h: 5.0, cells: [{ span: 1, text: '#', rowSpan: 2, tone: 'pale' }, ...DAYS.map((d) => ({ span: 2, text: d.label }))] },
-      { h: 4.0, cells: [{ span: 1, text: '', skip: true }, ...DAYS.flatMap(() => [{ span: 1, text: 'A', tone: 'pale' }, { span: 1, text: 'L', tone: 'pale' }])] },
+      { h: DAY_HEADER_H, cells: [{ span: 1, text: 'No.', rowSpan: 2, tone: 'pale', size: 7 }, ...DAYS.map((d) => ({ span: 2, text: d.label, size: 9 }))] },
+      { h: SUB_HEADER_H, cells: [{ span: 1, text: '', skip: true }, ...DAYS.flatMap(() => [{ span: 1, text: 'A', tone: 'pale', size: 7 }, { span: 1, text: 'L', tone: 'pale', size: 7 }])] },
     ];
     const rowH = ROW_H;
     const open = () => {
@@ -496,7 +525,7 @@ class Builder {
     };
     const headerH = headerRows.reduce((a, r) => a + r.h, 0);
     const periodH = sec.periodRow ? PERIOD_ROW_H + BAND_GAP : 0;
-    const frame = CARD_PAD + CARD_HEADER_H + (notes ? this.bandHeight(notes) : 0) + periodH + BAND_GAP + headerH;
+    const frame = CARD_PAD + CARD_HEADER_H + (notes ? this.bandHeight() : 0) + periodH + BAND_GAP + headerH;
     // the form is a single page by design, so the whole grid is kept together
     this.ensure(frame + rowH * rows.length + (footerText ? 6 : 0) + CARD_PAD + CARD_GAP);
     open();
@@ -516,28 +545,21 @@ class Builder {
     this.endCard();
   }
 
-  /** Height an instruction band will take, so callers can reserve space for it. */
-  bandHeight(notes) {
-    const w = this.cw - CARD_PAD * 2 - 5;
-    const lines = notes.flatMap((n) => this.wrap(n, w, 8, 'italic'));
-    return BAND_GAP + lines.length * 3.7 + 2.8;
-  }
-
   /** A row of per-day period boxes sitting above the day header. */
   periodRow(cfg, noW, dayW) {
     const x0 = this.x0 + CARD_PAD;
-    const y = this.y + BAND_GAP;
+    const y = this.y;
     const h = PERIOD_ROW_H;
     const slots = cfg.slots || PERIOD_SLOTS;
     this.rect(x0, y, noW, h, { fill: COLORS.pale, r: RADIUS.box });
-    this.text(cfg.label, x0 + noW / 2, centreBaseline(y, h, 6.4), { size: 6.4, style: 'bold', align: 'center', color: COLORS.brand });
+    this.text(cfg.label, x0 + noW / 2, centreBaseline(y, h, 7), { size: 7, style: 'bold', align: 'center', color: COLORS.brand });
     DAYS.forEach((d, i) => {
       const x = x0 + noW + i * dayW;
       // one box per period slot, sharing the day's column
       const gap = 1.2;
       const bw = (dayW - 3 - gap * (slots - 1)) / slots;
       for (let k = 0; k < slots; k++) {
-        this.roundedField(x + 1.5 + k * (bw + gap), y + 0.3, bw, h - 0.6, this.data.periods?.[d.key]?.[k] || '', { size: 7.6, style: 'bold', align: 'center' });
+        this.roundedField(x + 1.5 + k * (bw + gap), y + 0.25, bw, h - 0.5, this.data.periods?.[d.key]?.[k] || '', { size: 9, style: 'bold', align: 'center' });
       }
     });
     this.y = y + h;
@@ -561,14 +583,14 @@ class Builder {
     const sec = this.form.observations;
     const rows = this.data.observations;
     const cw = this.cw - CARD_PAD * 2;
-    const noW = 9; const dayW = (cw - noW) / DAYS.length;
+    const noW = NO_COL_W; const dayW = (cw - noW) / DAYS.length;
     const rowH = ROW_H;
     const headerRows = [
-      { h: 5.0, cells: [{ span: 1, text: 'No.', rowSpan: 2, tone: 'pale' }, ...DAYS.map((d) => ({ span: 2, text: d.label }))] },
-      { h: 4.0, cells: [{ span: 1, text: '', skip: true }, ...DAYS.flatMap(() => [{ span: 1, text: 'Learner No.', size: 6.2, tone: 'pale' }, { span: 1, text: 'Code', size: 6.2, tone: 'pale' }])] },
+      { h: DAY_HEADER_H, cells: [{ span: 1, text: 'No.', rowSpan: 2, tone: 'pale', size: 7 }, ...DAYS.map((d) => ({ span: 2, text: d.label, size: 9 }))] },
+      { h: SUB_HEADER_H, cells: [{ span: 1, text: '', skip: true }, ...DAYS.flatMap(() => [{ span: 1, text: 'Learner no.', size: 7, tone: 'pale' }, { span: 1, text: 'Code', size: 7, tone: 'pale' }])] },
     ];
     const headerH = headerRows.reduce((a, r) => a + r.h, 0);
-    const frame = CARD_PAD + CARD_HEADER_H + this.bandHeight(sec.notes) + BAND_GAP + headerH;
+    const frame = CARD_PAD + CARD_HEADER_H + this.bandHeight() + BAND_GAP + headerH;
     this.ensure(frame + rowH * rows.length + (sec.showCodeList ? this.codeListHeight() : 0) + CARD_PAD + CARD_GAP);
     this.beginCard();
     this.cardHeader(sec.letter, sec.title, sec.subtitle);
@@ -634,15 +656,15 @@ class Builder {
       const remainingText = textCount - i;
       // avoid orphaning a single last text line on the next page
       if (remainingText > take && remainingText - take === 1 && take > 2) take -= 1;
-      const y0 = this.y + BAND_GAP;
-      this.rect(x0, y0, cw, take * lh + 2, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.3, r: RADIUS.box });
+      const y0 = this.y;
+      this.rect(x0, y0, cw, take * lh + 1.5, { fill: COLORS.white, stroke: COLORS.rule, lw: RULE_LW, r: RADIUS.box, tag: 'writing-box' });
       for (let k = 0; k < take; k++) {
-        const ly = y0 + 1 + lh * k;
-        if (ruled && k < take - 1) this.rect(x0 + 3, ly + lh, cw - 6, 0.25, { fill: COLORS.hair, r: 0.12 });
+        const ly = y0 + 0.75 + lh * k;
+        if (ruled && k < take - 1) this.rect(x0 + 3, ly + lh, cw - 6, 0.2, { fill: COLORS.hair, r: 0.1 });
         const s = lines[i + k];
-        if (s) this.text(s, x0 + 3, ly + lh - 1.6, { size, style });
+        if (s) this.text(s, x0 + 3, ly + lh - 1.8, { size, style });
       }
-      this.y = y0 + take * lh + 2;
+      this.y = y0 + take * lh + 1.5;
       i += take;
       if (i < textCount) { this.newPage(); if (continuedBanner) continuedBanner(); }
     }
@@ -683,7 +705,7 @@ class Builder {
 
   /** The signature pad itself, drawn at (x, y). */
   signaturePad(x, y, w) {
-    this.rect(x, y, w, SIGN_PAD_H, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.35, r: RADIUS.sig });
+    this.rect(x, y, w, SIGN_PAD_H, { fill: COLORS.white, stroke: COLORS.rule, lw: RULE_LW, r: RADIUS.sig, tag: 'signature' });
     const sig = this.data.signOff?.signature;
     if (sig && sig.dataUrl) {
       const pad = 1.2;
@@ -749,16 +771,17 @@ class Builder {
   /** Signature box alone, right-aligned, with no surrounding section. */
   bareSignature() {
     const so = this.form.signOff;
-    const w = 62;
-    const h = CARD_PAD + SIGN_PAD_H + SIGN_PAD_LABEL_H;
-    this.ensure(h + CARD_GAP);
-    const y = this.y + CARD_PAD;
+    const w = SIGN_PAD_W;
+    // the footer follows, so the block needs its own height only — reserving a
+    // trailing gap here was pushing the subject form onto a second page
+    this.ensure(SIGN_BLOCK_H);
+    const y = this.y;
     const x = this.x0 + this.cw - w;
     this.signaturePad(x, y, w);
-    const capBy = y + SIGN_PAD_H + 3;
+    const capBy = y + SIGN_PAD_H + 2.6;
     this.text(`${so.educatorLabel} signature`, x, capBy, { size: 7, color: COLORS.band });
-    if (!this.blank) this.text(this.stampLine(), this.x0, capBy, { size: 6.6, color: COLORS.band });
-    this.y = y + SIGN_PAD_H + SIGN_PAD_LABEL_H + CARD_GAP;
+    if (!this.blank) this.text(this.stampLine(), this.x0, capBy, { size: 7, color: COLORS.band });
+    this.y = y + SIGN_BLOCK_H + CARD_GAP;
   }
 
   /** Document number, reference and generation time, for submitted forms. */
@@ -784,54 +807,67 @@ class Builder {
   atpSection() {
     const sec = this.form.atp;
     const atp = this.data.atp || { code: '', status: '' };
-    const size = 8.6, lh = 4.9;
+    const size = 9, lh = COMMENT_LINE_H;
     const lines = this.wrap(this.data.comments, this.cw - CARD_PAD * 2 - 6, size);
-    const rowH = 8.2, labH = 5.2;
-    this.ensure(CARD_PAD + CARD_HEADER_H + BAND_GAP + rowH + BAND_GAP + labH + lh * this.form.comments.minLines + 2 + CARD_PAD + CARD_GAP);
+    const rowH = 9, labH = INSTRUCTION_H;
+    const minLines = this.form.comments.minLines;
+    this.ensure(CARD_PAD * 2 + TITLE_BAR_H + labH + rowH + labH + lh * minLines + 1.5 + CARD_GAP);
     this.beginCard();
     this.cardHeader(sec.letter, sec.title, '');
     const x0 = this.x0 + CARD_PAD, cw = this.cw - CARD_PAD * 2;
-    const y = this.y + BAND_GAP;
+    // the ATP label is 86 mm at 9 pt, so it takes its own bar rather than
+    // squeezing the 60 mm field and the tick boxes off the page
+    this.rect(x0, this.y, cw, labH, { fill: COLORS.pale, r: RADIUS.band });
+    this.text(sec.codeLabel, x0 + 3, centreBaseline(this.y, labH, 9), { size: 9, style: 'bold', color: COLORS.brand });
+    this.y += labH;
+    const y = this.y;
     this.rect(x0, y, cw, rowH, { fill: COLORS.paleAlt, r: RADIUS.band });
-    const by = centreBaseline(y, rowH, 8.6);
+    const by = centreBaseline(y, rowH, 9);
     let x = x0 + 3;
-    x += this.text(sec.codeLabel, x, by, { size: 8.6, style: 'bold', color: COLORS.brand }) + 3;
-    const fieldW = 48;
-    this.roundedField(x, y + 2, fieldW, rowH - 4, atp.code, { size: 9, style: 'bold' });
+    const fieldW = 60;
+    this.roundedField(x, y + (rowH - FIELD_H) / 2, fieldW, FIELD_H, atp.code, { size: 10, style: 'bold' });
     x += fieldW + 8;
+    x += this.text(sec.tickLabel, x, by, { size: 9, style: 'bold', color: COLORS.brand }) + 3;
     for (const st of ATP_STATUS) {
-      const bs = 4.8; const cy = y + (rowH - bs) / 2;
-      this.rect(x, cy, bs, bs, { fill: COLORS.white, stroke: COLORS.brand, lw: 0.3, r: RADIUS.box });
+      const cy = y + (rowH - TICK) / 2;
+      this.rect(x, cy, TICK, TICK, { fill: COLORS.white, stroke: COLORS.rule, lw: RULE_LW, r: RADIUS.box, tag: 'tick' });
       if (atp.status === st.value) {
-        this.line(x + 1, cy + 2.5, x + 2, cy + 3.8, COLORS.brand, 0.6);
-        this.line(x + 2, cy + 3.8, x + 3.9, cy + 1.1, COLORS.brand, 0.6);
+        this.line(x + 1, cy + 2.6, x + 2.1, cy + 4, COLORS.brand, 0.6);
+        this.line(x + 2.1, cy + 4, x + 4.1, cy + 1.1, COLORS.brand, 0.6);
       }
-      x += bs + 2;
-      x += this.text(st.label, x, by, { size: 8.6 }) + 6;
+      x += TICK + 2;
+      x += this.text(st.label, x, by, { size: 9 }) + 5;
     }
-    this.y = y + rowH + BAND_GAP;
+    this.y = y + rowH;
     this.rect(x0, this.y, cw, labH, { fill: COLORS.pale, r: RADIUS.band });
     this.runs([
-      { s: sec.commentsLabel, size: 8.4, style: 'bold', color: COLORS.brand },
-      { s: ` ${sec.commentsHint}`, size: 7.6, style: 'italic', color: COLORS.band },
-    ], x0 + 3, centreBaseline(this.y, labH, 8.4));
+      { s: sec.commentsLabel, size: 8, style: 'bold', color: COLORS.brand },
+      { s: ` ${sec.commentsHint}`, size: 8, style: 'italic', color: COLORS.band },
+    ], x0 + 3, centreBaseline(this.y, labH, 8));
     this.y += labH;
-    this.flowLines(lines, { lh, minLines: this.form.comments.minLines, size, ruled: true });
+    this.flowLines(lines, { lh, minLines, size, ruled: true });
     this.endCard();
   }
 
   build() {
+    const mark = (name) => this.marks.push({ name, y: Math.round(this.y * 100) / 100, page: this.pages.length });
     this.newPage();
+    mark('header');
     this.metaTable();
+    mark('info panel');
     this.attendanceSection();
+    mark('section A');
     this.observationsSection();
-    if (this.form.atp) this.atpSection();
-    else if (this.form.comments) this.commentsSection();
+    mark('section B');
+    if (this.form.atp) { this.atpSection(); mark('section C'); }
+    else if (this.form.comments) { this.commentsSection(); mark('comments'); }
     this.signOffSection();
+    mark('signature');
     this.footers();
     return {
       width: PAGE.w, height: PAGE.h, pages: this.pages,
       docNumber: this.docNumber, identifier: this.identifier, title: `${this.form.formCode} ${this.form.title}`,
+      marks: this.marks,
     };
   }
 }

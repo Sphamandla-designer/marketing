@@ -165,7 +165,10 @@ export function renderForm(root, data, { onChange } = {}) {
     el('div', { class: 'brand' }, [
       el('h1', { class: 'school-name', text: SCHOOL.name }),
       el('div', { class: 'motto', text: form.headerTitle }),
-      el('div', { class: 'tagline', text: form.headerPeriod }),
+      el('div', { class: 'tagline term-line' }, [
+        el('span', { text: `${form.headerYear}  ·  ${form.headerTerm.label}` }),
+        charGroup({ data, path: `meta.${form.headerTerm.key}`, length: form.headerTerm.length, charset: form.headerTerm.charset, label: 'Term', onChange: change }),
+      ]),
     ]),
     el('div', { class: 'form-code-box', 'aria-label': 'Form code' }, [
       el('div', { class: 'fc-label', text: 'FORM CODE' }),
@@ -184,7 +187,9 @@ export function renderForm(root, data, { onChange } = {}) {
     for (const f of row) {
       const cell = el('div', { class: 'meta-cell' });
       const id = `meta-${f.key}`;
-      cell.appendChild(el('label', { class: 'meta-label', for: f.kind === 'text' ? id : null, text: f.label }));
+      const lab = el('label', { class: 'meta-label', for: f.kind === 'text' ? id : null }, [el('span', { text: f.label })]);
+      if (f.hint) lab.appendChild(el('span', { class: 'meta-hint', text: f.hint }));
+      cell.appendChild(lab);
       const valueWrap = el('div', { class: 'meta-value' });
       if (f.kind === 'chars') {
         valueWrap.appendChild(charGroup({ data, path: `meta.${f.key}`, length: f.length, charset: f.charset, label: f.label.replace(/:$/, ''), onChange: change }));
@@ -229,7 +234,7 @@ export function renderForm(root, data, { onChange } = {}) {
           })))),
       ),
     ]) : null,
-    el('tr', {}, [el('th', { rowspan: 2, class: 'col-no', text: '#' }), ...DAYS.map((d) => el('th', { colspan: 2, text: d.label }))]),
+    el('tr', {}, [el('th', { rowspan: 2, class: 'col-no', text: 'No.' }), ...DAYS.map((d) => el('th', { colspan: 2, text: d.label }))]),
     el('tr', {}, DAYS.flatMap((d) => [el('th', { class: 'sub', text: 'A', 'aria-label': `${d.label} absent` }), el('th', { class: 'sub', text: 'L', 'aria-label': `${d.label} late` })])),
   ]);
   /** Builds one attendance grid over data.attendance[from..to). */
@@ -273,7 +278,7 @@ export function renderForm(root, data, { onChange } = {}) {
   const tableB = el('table', { class: `grid-table obs-table obs-${form.observations.mode}` });
   tableB.appendChild(el('thead', {}, [
     el('tr', {}, [el('th', { rowspan: 2, class: 'col-no', text: 'No.' }), ...DAYS.map((d) => el('th', { colspan: 2, text: d.label }))]),
-    el('tr', {}, DAYS.flatMap(() => [el('th', { class: 'sub', text: 'Learner No.' }), el('th', { class: 'sub', text: 'Code' })])),
+    el('tr', {}, DAYS.flatMap(() => [el('th', { class: 'sub', text: 'Learner no.' }), el('th', { class: 'sub', text: 'Code' })])),
   ]));
   const tbodyB = el('tbody');
   tableB.appendChild(tbodyB);
@@ -305,7 +310,7 @@ export function renderForm(root, data, { onChange } = {}) {
     const bannerC = banner(form.atp.letter, form.atp.title, ''); bannerC.id = 'sec-c';
     secC.appendChild(bannerC);
     const atpRow = el('div', { class: 'atp-row' });
-    atpRow.appendChild(el('label', { class: 'atp-label', for: 'atp-code', text: form.atp.codeLabel }));
+    secC.appendChild(el('div', { class: 'comments-label' }, [el('strong', { text: form.atp.codeLabel })]));
     const codeInp = textInput('atp.code', { maxLength: form.atp.codeMaxLength, placeholder: 'e.g. MATH-9-T3-W5', ariaLabel: 'ATP code' });
     codeInp.id = 'atp-code'; codeInp.required = true;
     atpRow.appendChild(el('div', { class: 'rounded-field atp-code-field' }, codeInp));

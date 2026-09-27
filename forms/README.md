@@ -97,6 +97,31 @@ placeholders print as grey hints and the generation stamp is omitted.
 Run `npm run blanks` to regenerate them into `qa/output/blank/`; the committed
 copies are in `samples/`.
 
+## Print geometry
+
+The forms are printed at 100% scale on A4 and filled in by hand, so the layout
+is specified in real printed millimetres and `npm run measure` asserts it:
+
+| | Value |
+| --- | --- |
+| Page margins | 8 mm, content width 194 mm |
+| Header block | 22.5 mm (spec maximum 24) |
+| Handwriting cell height | 6.5 mm on a 7 mm row pitch |
+| Header entry fields | 7 mm tall |
+| Week and term boxes | 7 × 7 mm |
+| Tick boxes | 5 × 5 mm |
+| Signature box | 60 × 12 mm |
+| Grid cell widths | A/L 17.5 mm, Learner no. 21.2 mm, Code 13.8 mm |
+| Row-number column | 8 mm |
+| Comment lines (SA-02) | 5 lines at 7.5 mm |
+| Cell borders | 0.5 pt, `#555555`, white fill |
+| Smallest type anywhere | 7 pt |
+
+`npm run measure` fails the build if any entry cell drops below 6.5 mm, any row
+pitch below 7 mm, any type below 7 pt, or if either form spills onto a second
+page. Rect primitives carry a `tag` (`cell`, `field`, `tick`, `signature`,
+`writing-box`) so the harness can tell a handwriting cell from a tick box.
+
 ## One page
 
 Both forms are designed to be a single A4 page, however full the grid. The

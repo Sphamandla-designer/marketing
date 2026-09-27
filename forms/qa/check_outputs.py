@@ -57,7 +57,7 @@ for scen in sorted(os.listdir(OUT)):
     prefix = form_code.replace('-', '')
     must_have = [
         info['docNumber'], info['identifier'],
-        'FISANTEKRAAL HIGH SCHOOL', 'FORM CODE', form_code,
+        'FISANTEKRAAL HIGH SCHOOL', 'FORM CODE', form_code, 'Term:', 'Period',
         'ATTENDANCE', 'Period',                         # section A and its period row
         'Week:',
         'Educator signature',

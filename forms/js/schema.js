@@ -36,10 +36,10 @@ const ATTENDANCE_NOTES = [
   'Write the learner’s position number in the A (absent) or L (late) column. Leave unused slots blank.',
 ];
 const OBSERVATION_NOTES = [
-  'Use the learner’s position number and one observation code per day. Leave blank if there is nothing to record.',
+  'Use the learner’s position number and one observation code per learner per day. Leave blank if there is nothing to record.',
 ];
-/** Printed under the masthead in place of the motto and tagline. */
-const HEADER_PERIOD = '2026 · Term 2';
+/** Printed under the masthead: the year, then a box for the term. */
+const HEADER_YEAR = '2026';
 
 export const ATP_STATUS = [
   { value: 'completed', label: 'Completed' },
@@ -48,8 +48,13 @@ export const ATP_STATUS = [
 
 /** Meta (header) fields shared by both forms. */
 const META_DATE = {
-  key: 'date', label: 'Date:', kind: 'text',
-  required: false, maxLength: 20, placeholder: 'DD / MM / YYYY', span: 3,
+  key: 'date', label: 'Date:', hint: '(DD/MM/YYYY)', kind: 'text',
+  required: false, maxLength: 20, span: 3,
+};
+/** Printed in the masthead as "2026 · Term: [ ]", not in the info panel. */
+const META_TERM = {
+  key: 'term', label: 'Term:', kind: 'chars', length: 1, charset: 'digit', required: true,
+  validate: (v) => (/^[1-4]$/.test(v) ? null : 'Term must be 1, 2, 3 or 4.'),
 };
 const META_WEEK = {
   key: 'week', label: 'Week:', kind: 'chars', length: 2, charset: 'digit',
@@ -58,7 +63,7 @@ const META_WEEK = {
 };
 const META_EDUCATOR = {
   key: 'educator', label: 'Educator:', kind: 'text',
-  required: true, maxLength: 60, placeholder: 'Educator full name', span: 4,
+  required: true, maxLength: 60, span: 4,
 };
 
 /**
@@ -87,18 +92,19 @@ export const FORMS = {
     type: 'register',
     formCode: 'SA-01',
     docPrefix: 'SA01',
-    title: 'Register Class Weekly Attendance & Observation',
+    title: 'Register Class Weekly Attendance and Observation',
     shortTitle: 'Register Class',
     fileStem: 'Register-Class',
-    codeBoxLines: ['REGISTER CLASS WEEKLY', 'ATTENDANCE & OBSERVATION'],
+    codeBoxLines: ['REGISTER CLASS WEEKLY', 'ATTENDANCE AND OBSERVATION'],
     headerTitle: 'REGISTER CLASS ATTENDANCE',
-    headerPeriod: HEADER_PERIOD,
+    headerYear: HEADER_YEAR,
+    headerTerm: META_TERM,
     /** Term and week now live in the sign-off, so the identifier reads from there. */
     identifierKeys: ['registerClass'],
     meta: {
       rows: [
         [
-          { key: 'registerClass', label: 'Register Class:', kind: 'text', required: true, maxLength: 20, span: 8, placeholder: 'e.g. 9A' },
+          { key: 'registerClass', label: 'Register class:', kind: 'text', required: true, maxLength: 20, span: 8 },
           { ...META_WEEK, span: 4 },
         ],
         [
@@ -121,7 +127,7 @@ export const FORMS = {
     observations: {
       letter: 'B',
       title: 'NOTABLE LEARNER OBSERVATIONS',
-      subtitle: '(Positive or concerning behaviour / performance)',
+      subtitle: '(Positive or concerning behaviour or performance)',
       notes: OBSERVATION_NOTES,
       /** 'split' = separate Learner No. and Code sub-columns per day. */
       mode: 'split',
@@ -139,20 +145,21 @@ export const FORMS = {
     type: 'subject',
     formCode: 'SA-02',
     docPrefix: 'SA02',
-    title: 'Subject Weekly Attendance & Observation',
+    title: 'Subject Class Weekly Attendance and Observation',
     shortTitle: 'Subject Class',
     fileStem: 'Subject-Class',
-    codeBoxLines: ['SUBJECT WEEKLY', 'ATTENDANCE & OBSERVATION'],
+    codeBoxLines: ['SUBJECT CLASS WEEKLY', 'ATTENDANCE AND OBSERVATION'],
     headerTitle: 'SUBJECT CLASS ATTENDANCE',
-    headerPeriod: HEADER_PERIOD,
+    headerYear: HEADER_YEAR,
+    headerTerm: META_TERM,
     identifierKeys: ['subjectClass'],
     meta: {
       rows: [
         // Day / Period(s) used to live here; the per-day Period row above the
         // attendance grid records it more precisely, so it is not repeated.
         [
-          { key: 'subject', label: 'Subject:', kind: 'text', required: true, maxLength: 40, span: 5, placeholder: 'e.g. Mathematics' },
-          { key: 'subjectClass', label: 'Subject Class Code:', kind: 'text', required: true, maxLength: 20, span: 4, placeholder: 'e.g. 9A G1' },
+          { key: 'subject', label: 'Subject:', kind: 'text', required: true, maxLength: 40, span: 5 },
+          { key: 'subjectClass', label: 'Subject class code:', kind: 'text', required: true, maxLength: 20, span: 4 },
           { ...META_WEEK, span: 3 },
         ],
         [
@@ -173,7 +180,7 @@ export const FORMS = {
     observations: {
       letter: 'B',
       title: 'NOTABLE LEARNER OBSERVATIONS',
-      subtitle: '(Use one code per day where applicable)',
+      subtitle: '(Positive or concerning behaviour or performance)',
       notes: OBSERVATION_NOTES,
       /** 'split' = separate Learner No. and Code sub-columns per day. */
       mode: 'split',
@@ -185,16 +192,17 @@ export const FORMS = {
     atp: {
       letter: 'C',
       title: 'ATP REFERENCE AND COMPLETION',
-      codeLabel: 'ATP Code (from term master sheet):',
+      codeLabel: 'Annual Teaching Plan (ATP) code (from term master sheet):',
+      tickLabel: 'Tick one',
       codeMaxLength: 24,
-      commentsLabel: 'Educator comments / explanation',
+      commentsLabel: 'Educator comments or explanation',
       commentsHint: '(e.g. deviation, focus for next week, additional notes):',
     },
     comments: {
       key: 'comments',
       title: null, // rendered inside section C
       required: false,
-      minLines: 12,
+      minLines: 5,
       maxLength: 600,
       style: 'lines',
     },
