@@ -10,7 +10,10 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = 8161;
-const MIN_CELL_H = 6.5, ROW_PITCH = 7, MIN_PT = 7, MAX_HEADER = 24, PAGE_BOTTOM = 289;
+// the restored design's figures: the header block plus its trailing gap,
+// and a 60 x 12 mm signature box
+const MIN_CELL_H = 6.5, ROW_PITCH = 7, MIN_PT = 7, MAX_HEADER = 26, PAGE_BOTTOM = 289;
+const SIG_BOX = '60x12';
 
 const server = spawn(process.execPath, [path.join(root, 'server.js')], { env: { ...process.env, PORT: String(PORT) }, stdio: 'ignore' });
 await new Promise((r) => setTimeout(r, 600));
@@ -99,9 +102,9 @@ for (const [type, r] of Object.entries(report)) {
     [r.leftmostMm >= 7.99, `nothing left of the 8 mm margin (got ${r.leftmostMm})`],
     [r.rightmostMm <= 202.01, `nothing right of the 8 mm margin (got ${r.rightmostMm})`],
     [r.lowestInkMm <= PAGE_BOTTOM, `nothing below ${PAGE_BOTTOM} mm (got ${r.lowestInkMm})`],
-    [r.headerMm === 0 || r.headerMm <= MAX_HEADER, `header block <= ${MAX_HEADER} mm (got ${r.headerMm})`],
+    [r.headerMm === 0 || r.headerMm <= MAX_HEADER, `header block + gap <= ${MAX_HEADER} mm (got ${r.headerMm})`],
     [r.cellWidths.length === 0 || Math.min(...r.cellWidths) >= 11.9, `narrowest grid cell >= 12 mm (got ${Math.min(...r.cellWidths) || 'n/a'})`],
-    [r.signatureBox.every((b) => b === '45x12'), `signature box 45x12 mm (got ${r.signatureBox.join(', ') || 'n/a'})`],
+    [r.signatureBox.every((b) => b === SIG_BOX), `signature box ${SIG_BOX} mm (got ${r.signatureBox.join(', ') || 'n/a'})`],
     [r.tickBoxes.every((b) => b === '5x5'), `tick boxes 5x5 mm (got ${r.tickBoxes.join(', ') || 'n/a'})`],
     [r.commentLinePitch.every((p) => Math.abs(p - 7.5) < 0.01), `comment lines at 7.5 mm (got ${r.commentLinePitch.join(', ') || 'n/a'})`],
     [r.panelOverlaps.length === 0, `no overlapping info-panel fields (${r.panelOverlaps.join('; ') || 'none'})`],

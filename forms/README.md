@@ -104,30 +104,22 @@ in real printed millimetres and `npm run measure` asserts it:
 
 | | Value |
 | --- | --- |
-| Page margins | 8 mm, usable 194 × 281 mm |
-| Header block | 20 mm (crest 18, form-code box 12, barcode 7) |
-| Gap between blocks | 4 mm |
-| Section box padding | 4 mm left/right, 3 mm bottom |
-| Title bar / instruction bar | 7 mm and 5 mm, full-width bands |
+| Page margins | 8 mm, content width 194 mm |
+| Header block | 22.5 mm, plus its gap |
 | Handwriting cell height | 6.5 mm on a 7 mm row pitch |
-| Cell gaps | 1.5 mm within a day, 3 mm gutter between days |
-| Grid cell widths | A/L 15.6 mm, Learner no. 19.0 mm, Code 12.1 mm |
-| Row-number column | 8 mm, then a 3 mm gap |
-| Header entry fields | 7 mm tall, 2 mm from their inline label |
-| Week boxes | 7 × 7 mm, 1.5 mm apart |
+| Header entry fields | 7 mm tall |
+| Week boxes | 7 × 7 mm |
 | Tick boxes | 5 × 5 mm |
-| Signature box | 45 × 12 mm, labelled inside its top-left corner |
-| Comment lines (SA-02) | 5 lines at 7.5 mm |
+| Signature box | 60 × 12 mm, labelled beneath |
+| Grid cell widths | A/L 17.5 mm, Learner no. 21.2 mm, Code 13.8 mm |
 | Cell borders | 0.5 pt `#555555`, white fill, no placeholder text |
 | Smallest type anywhere | 7 pt |
 
-Used height: SA-01 279 mm, SA-02 277.7 mm, SA-OC 279.5 mm — all of 281.
+Used height: 280.6 mm of the 281 available, on all three sheets.
 
 `npm run measure` fails the build if any entry cell drops below 6.5 mm, any row
 pitch below 7 mm, any type below 7 pt, if info-panel fields overlap, or if any
-sheet spills onto a second page. Rect primitives carry a `tag` (`cell`,
-`field`, `tick`, `signature`, `rule-line`) so the harness can tell a
-handwriting cell from a tick box.
+sheet spills onto a second page.
 
 ## The three sheets
 
@@ -136,6 +128,10 @@ handwriting cell from a tick box.
 | SA-01 | Register class weekly attendance and observation — 10 rows in sections A and B |
 | SA-02 | Subject class weekly attendance and observation — 6 rows, plus section C (ATP) |
 | SA-OC | Observation codes: a printed reference sheet, no fields. Downloaded from the landing page |
+
+The masthead prints `2026 · Term 2` as fixed text, so a new blank is generated
+each term. Section B on both forms points at SA-OC rather than carrying its own
+code list.
 
 ## One page
 

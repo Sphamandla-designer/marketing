@@ -170,7 +170,7 @@ export function renderForm(root, data, { onChange } = {}) {
     el('div', { class: 'form-code-box', 'aria-label': 'Form code' }, [
       el('div', { class: 'fc-label', text: 'FORM CODE' }),
       el('div', { class: 'fc-code', text: form.formCode }),
-      el('div', { class: 'fc-title', text: form.codeBoxText }),
+      el('div', { class: 'fc-title', html: form.codeBoxLines.join('<br>') }),
     ]),
   ]));
 

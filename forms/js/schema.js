@@ -48,7 +48,7 @@ export const ATP_STATUS = [
 
 /** Meta (header) fields shared by both forms. */
 const META_DATE = {
-  key: 'date', label: 'Date', hint: '(DD/MM/YYYY):', kind: 'text',
+  key: 'date', label: 'Date:', hint: '(DD/MM/YYYY)', kind: 'text',
   required: false, maxLength: 20, span: 3,
 };
 const META_WEEK = {
@@ -87,22 +87,14 @@ export const FORMS = {
     type: 'register',
     formCode: 'SA-01',
     docPrefix: 'SA01',
-    title: 'Register class weekly attendance and observation',
+    title: 'Register Class Weekly Attendance and Observation',
     shortTitle: 'Register Class',
     fileStem: 'Register-Class',
-    codeBoxText: 'SA-01 · Register class weekly attendance and observation',
+    codeBoxLines: ['REGISTER CLASS WEEKLY', 'ATTENDANCE AND OBSERVATION'],
     headerTitle: 'REGISTER CLASS ATTENDANCE',
     headerPeriod: HEADER_PERIOD,
+    /** Term and week now live in the sign-off, so the identifier reads from there. */
     identifierKeys: ['registerClass'],
-    /** Info panel: padding, row gap, lead-field width and the rows themselves. */
-    panel: {
-      padY: 3, rowGap: 2, leadW: 84, colGap: 3,
-      rows: [
-        [{ key: 'registerClass', label: 'Register class:' }, { ...META_WEEK }],
-        [{ key: 'educator', label: 'Educator:' }, { ...META_DATE, width: 45 }],
-      ],
-    },
-
     meta: {
       rows: [
         [
@@ -147,25 +139,13 @@ export const FORMS = {
     type: 'subject',
     formCode: 'SA-02',
     docPrefix: 'SA02',
-    title: 'Subject class weekly attendance and observation',
+    title: 'Subject Class Weekly Attendance and Observation',
     shortTitle: 'Subject Class',
     fileStem: 'Subject-Class',
-    codeBoxText: 'SA-02 · Subject class weekly attendance and observation',
+    codeBoxLines: ['SUBJECT CLASS WEEKLY', 'ATTENDANCE AND OBSERVATION'],
     headerTitle: 'SUBJECT CLASS ATTENDANCE',
     headerPeriod: HEADER_PERIOD,
     identifierKeys: ['subjectClass'],
-    panel: {
-      padY: 2.5, rowGap: 1, leadW: 70, colGap: 3,
-      rows: [
-        [
-          { key: 'subject', label: 'Subject:' },
-          { key: 'subjectClass', label: 'Subject class code:', width: 22 },
-          { ...META_WEEK },
-        ],
-        [{ key: 'educator', label: 'Educator:' }, { ...META_DATE, width: 45 }],
-      ],
-    },
-
     meta: {
       rows: [
         // Day / Period(s) used to live here; the per-day Period row above the
@@ -205,8 +185,8 @@ export const FORMS = {
     atp: {
       letter: 'C',
       title: 'ATP REFERENCE AND COMPLETION',
-      codeLabel: 'ATP code (from term master sheet):',
-      tickLabel: 'Tick one:',
+      codeLabel: 'Annual Teaching Plan (ATP) code (from term master sheet):',
+      tickLabel: 'Tick one',
       codeMaxLength: 24,
       commentsLabel: 'Educator comments or explanation',
       commentsHint: '(e.g. deviation, focus for next week, additional notes):',
@@ -232,13 +212,12 @@ FORMS.codes = {
   title: 'Observation codes',
   shortTitle: 'Observation codes',
   fileStem: 'Observation-Codes',
-  codeBoxText: 'SA-OC · Observation codes for SA-01 and SA-02',
+  codeBoxLines: ['OBSERVATION CODES', 'FOR SA-01 AND SA-02'],
   headerTitle: 'OBSERVATION CODES',
   headerPeriod: HEADER_PERIOD,
   identifierKeys: [],
   intro: 'Write one code in the Code column of Section B on SA-01 or SA-02, next to the learner’s position number. One code per learner per day.',
-  columns: { code: 24, observation: 55 },
-  rowH: 11,
+  table: { title: 'OBSERVATION CODES', codeW: 24, obsW: 55, rowH: 11 },
   rows: [
     ['DIS', 'Disruptive behaviour', 'Disrupts the class or lesson so that teaching or learning is interrupted.'],
     ['NW', 'Not working in class', 'Present, but does not complete classwork.'],
@@ -251,7 +230,8 @@ FORMS.codes = {
     ['OC', 'Outside class without permission', 'Seen outside the classroom instead of attending class.'],
     ['FGT', 'Fighting or aggressive conduct', 'Physical fighting, or aggressive or threatening behaviour towards others.'],
   ],
-  blankHeading: 'Additional codes (school to complete)',
+  blankHeading: 'ADDITIONAL CODES',
+  blankSubtitle: '(school to complete)',
   blankRows: 6,
   note: 'Late arrival is recorded in the L column of Section A, not as an observation code.',
 };
