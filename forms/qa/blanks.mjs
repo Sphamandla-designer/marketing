@@ -59,8 +59,6 @@ async function run() {
       // a blank must not be padded out with extra pages
       if (info.pageCount > 2) { failures++; console.log(`  FAIL: blank form should not need ${info.pageCount} pages`); }
 
-      // the design brief is that nothing on the form has a square corner;
-      // the barcode modules are the one deliberate exception
       // save the blank PNGs too, so the image output is reviewable alongside the PDF
       const pngs = await page.evaluate(async (type) => {
         const { generateBlank } = await import('./js/export.js');
@@ -75,18 +73,26 @@ async function run() {
       for (const im of pngs) fs.writeFileSync(path.join(outDir, im.filename), Buffer.from(im.b64, 'base64'));
       console.log(`  saved ${pngs.length} PNG page(s): ${pngs.map((i) => i.filename).join(', ')}`);
 
+      // corners: rounded on the section containers, square on everything a
+      // pen goes into, which is what the grid spec asks for
       const corners = await page.evaluate(async (type) => {
         const { buildFormDocument } = await import('./js/export.js');
         const { createEmptyData } = await import('./js/model.js');
         const { doc } = await buildFormDocument(createEmptyData(type), { blank: true, docNumber: 'SA01BLANK', identifier: 'BLANK' });
-        const square = [];
+        const CELL = ['cell', 'field', 'tick', 'signature', 'writing-box'];
+        const rounded = [], containers = [];
         doc.pages.forEach((p, pi) => p.ops.forEach((op) => {
-          if (op.t === 'rect' && !op.r && op.fill !== '#000000') square.push({ page: pi + 1, x: op.x, y: op.y, w: op.w, h: op.h });
+          if (op.t !== 'rect') return;
+          if (CELL.includes(op.tag) && op.r > 0) rounded.push({ page: pi + 1, tag: op.tag, x: op.x, y: op.y });
+          // a section container is the full-width card outline
+          if (!op.tag && op.stroke && op.w > 150 && op.h > 12) containers.push({ page: pi + 1, r: op.r });
         }));
-        return { total: doc.pages.reduce((a, p) => a + p.ops.filter((o) => o.t === 'rect').length, 0), square };
+        return { rounded, containers };
       }, target.type);
-      console.log(`  rounded: ${corners.total - corners.square.length}/${corners.total} rectangles; square corners outside the barcode: ${corners.square.length}`);
-      if (corners.square.length) { failures++; console.log('  FAIL: square corners at', JSON.stringify(corners.square.slice(0, 5))); }
+      const squareContainers = corners.containers.filter((c) => !c.r);
+      console.log(`  corners: ${corners.rounded.length} rounded cell(s)/input(s), ${corners.containers.length} section container(s) of which ${squareContainers.length} square`);
+      if (corners.rounded.length) { failures++; console.log('  FAIL: rounded cells at', JSON.stringify(corners.rounded.slice(0, 5))); }
+      if (squareContainers.length) { failures++; console.log('  FAIL: section container without rounded corners'); }
 
       if (errors.length) { failures++; console.log('  FAIL: browser errors:', errors); }
       await ctx.close();

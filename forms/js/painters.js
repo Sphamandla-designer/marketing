@@ -29,6 +29,9 @@ export function renderPdf(doc, fonts, meta = {}) {
     for (const op of page.ops) {
       switch (op.t) {
         case 'rect': {
+          // a rect with neither fill nor stroke is geometry only (a grid cell,
+          // whose borders are drawn once as shared rules), so it paints nothing
+          if (!op.fill && !op.stroke) break;
           if (op.fill) pdf.setFillColor(...hexToRgb(op.fill));
           if (op.stroke) { pdf.setDrawColor(...hexToRgb(op.stroke)); pdf.setLineWidth(op.lw); }
           const style = op.fill && op.stroke ? 'FD' : op.fill ? 'F' : 'S';
