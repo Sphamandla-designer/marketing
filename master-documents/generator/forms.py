@@ -230,7 +230,8 @@ class Doc:
 
     def info_panel(self, y, rows):
         """rows: list of rows; each row is a list of (label, value, weight, font)."""
-        row_h, row_gap = 8, 2
+        # SA-01 header panel geometry: 7 mm rows, 5.34 mm label chips, 5.94 mm value boxes
+        row_h, row_gap, chip_h, val_h = 7, 0, 5.34, 5.94
         h = 2 * PAD + len(rows) * row_h + (len(rows) - 1) * row_gap
         self.box(y, h)
         ry = y + PAD
@@ -239,17 +240,19 @@ class Doc:
             chips = [sw(lab, 'B', MIN_LABEL) + 2 * CPAD for lab, *_ in row]
             # optional 5th item: minimum value-box width (mm), e.g. writing space on blank forms
             mins = [max(sw(f[1], f[3], MIN_TABLE) + 2 * CPAD + 1, f[4] if len(f) > 4 else 0) for f in row]
-            spare = inner - sum(chips) - sum(mins) - len(row) * 2 - (len(row) - 1) * 4
+            spare = inner - sum(chips) - sum(mins) - len(row) * 1.7 - (len(row) - 1) * 4
             assert spare >= 0, f'info panel row does not fit: {row}'
             total_w = sum(r[2] for r in row)
             x = LEFT + PAD
             for (lab, val, wt, font, *_), cw, mn in zip(row, chips, mins):
-                self.rrect(x, ry + 0.4, cw, row_h - 0.8, R_CELL, CHIP)
-                self.cell_text(x, ry + 0.4, cw, row_h - 0.8, lab, 'B', MIN_LABEL, color=DARK)
-                x += cw + 2
+                cy_ = ry + (row_h - chip_h) / 2
+                self.rrect(x, cy_, cw, chip_h, R_CELL, CHIP)
+                self.cell_text(x, cy_, cw, chip_h, lab, 'B', MIN_LABEL, color=DARK)
+                x += cw + 1.7
                 vw = mn + spare * wt / total_w
-                self.rrect(x, ry, vw, row_h, R_CELL, WHITE, CELL, LW_CELL)
-                self.cell_text(x, ry, vw, row_h, val, font, MIN_TABLE)
+                vy = ry + (row_h - val_h) / 2
+                self.rrect(x, vy, vw, val_h, R_CELL, WHITE, CELL, LW_CELL)
+                self.cell_text(x, vy, vw, val_h, val, font, MIN_TABLE)
                 x += vw + 4
             ry += row_h + row_gap
         return y + h
