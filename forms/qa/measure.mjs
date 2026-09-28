@@ -16,7 +16,7 @@ const PORT = 8161;
 // the hard floors of the grid spec: no writable box below 7 mm, no rounded
 // corner on a cell or an input box, and every border a 0.5 pt mid grey
 const MIN_CELL_H = 7, ROW_PITCH = 7, MIN_PT = 7, MAX_HEADER = 32, MIN_LINE = 7, GRID = '#9A9A9A';
-const SIG_BOX = '60x12';
+const SIG_BOX = '60x10';
 
 const server = spawn(process.execPath, [path.join(root, 'server.js')], { env: { ...process.env, PORT: String(PORT) }, stdio: 'ignore' });
 await new Promise((r) => setTimeout(r, 600));
@@ -64,6 +64,7 @@ const report = await page.evaluate(async () => {
     out[type] = {
       pages: doc.pages.length,
       metrics: doc.metrics,
+      blocks: doc.marks.map((m, i) => `${m.name} ${round(m.y - (i ? doc.marks[i - 1].y : 0))}`),
       cellHeights: heights,
       cellWidths: widths,
       rowPitches: [...pitches].sort((a, b) => a - b),
@@ -91,6 +92,7 @@ for (const [type, r] of Object.entries(report)) {
   console.log(`\n=== ${type}`);
   console.log(`  pages: ${r.pages}`);
   const m = r.metrics || {};
+  console.log(`  blocks (mm): ${(r.blocks || []).join(' | ')}`);
   console.log(`  metrics: margin ${m.margin} · container padding ${m.pad} · section gap ${m.gapUsed ?? m.gap} (base ${m.gap}) · header field ${m.field} + ${m.fieldGap} · cell ${m.cell} · comment line ${m.line} · ladder step ${m.step}`);
   console.log(`  header block: ${r.headerMm} mm`);
   console.log(`  total used height: ${r.totalUsedMm} mm of 281`);

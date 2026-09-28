@@ -84,8 +84,8 @@ const DAY_HEADER_H = 5;
 const SUB_HEADER_H = 4;
 const NO_COL_W = 8;            // row-number column
 const SIGN_PAD_W = 60;
-const SIGN_PAD_H = 12;
-const SIGN_BLOCK_H = 15;       // pad plus its label
+const SIGN_PAD_H = 10;
+const SIGN_BLOCK_H = 13;       // pad plus its label
 const SIGN_FIELD_ROW_H = 9;    // sign-off field band, where a form has one
 const SIGN_PAD_LABEL_H = 3;
 const HEADER_H = 22.5;         // crest, titles, form-code box and barcode
@@ -114,22 +114,24 @@ function centreBaseline(top, h, sizePt) {
  */
 const FIT_LADDER = [
   {},                // the spec's own values
-  { gap: 4 },
-  { gap: 3 },        // spec floor: section spacing
-  { pad: 3 },        // spec floor: container padding
-  { fieldGap: 3 },
-  { fieldGap: 2 },
-  { field: 8 },      // spec floor: header field height
-  { margin: 10 },    // past the spec's ladder: trade the margin request
+  { margin: 10 },    // the page margin goes before any space between boxes
   { margin: 8 },
+  { gap: 4.5 },      // the working floor for the space between boxes
+  { fieldGap: 3 },
+  { field: 8 },      // spec floor: header field height
   { line: 7.5 },
   { cell: 7 },       // the hard floor: never below 7 mm
-  { fieldGap: 1 },
-  { pad: 2.5 },
-  { pad: 2 },
+  { pad: 3 },        // spec floor: container padding
+  { fieldGap: 2 },
   { line: 7 },
+  { pad: 2.5 },
   { field: 7 },
+  { fieldGap: 1 },
+  { pad: 2 },
   { pad: 1.5 },
+  { gap: 4 },        // only once everything else has been spent
+  { gap: 3.5 },
+  { gap: 3 },
 ];
 
 export function buildDocument(opts) {
@@ -147,7 +149,7 @@ export function buildDocument(opts) {
   // at the foot. Measure the slack and give it back to the block gaps, then
   // rebuild. Forms with no slack are left exactly as they are.
   if (doc.pages.length !== 1 || !doc.marks?.length) return doc;
-  const gaps = doc.marks.length - 1;
+  const gaps = doc.gapSlots || doc.marks.length - 1;
   const slack = bottomY() - doc.marks[doc.marks.length - 1].y - GAP_SAFETY;
   if (gaps < 1 || slack < 1) return doc;
   const respaced = new Builder({ ...opts, extraGap: slack / gaps }).build();
@@ -158,7 +160,7 @@ export function buildDocument(opts) {
 
 /** Content limit and the margin kept below the last block. */
 function bottomY() { return PAGE.h - PAGE.mb - PAGE.footerH; }
-const GAP_SAFETY = 1.5;
+const GAP_SAFETY = 0.5;
 
 class Builder {
   constructor(opts) {
@@ -174,6 +176,8 @@ class Builder {
     this.extraGap = opts.extraGap || 0;
     /** Cumulative y after each block, for the print-geometry measurement. */
     this.marks = [];
+    /** Block gaps that grow with extraGap, so slack is shared out correctly. */
+    this.gapSlots = 0;
     this.pages = [];
     this.ops = null;
     this.card = null;
@@ -331,6 +335,7 @@ class Builder {
   endCard(gap = M.gap + this.extraGap) {
     this.sealCard(this.y + M.pad);
     this.card = null;
+    this.gapSlots++;
     this.y += M.pad + gap;
   }
   /** Navy header bar inside the top of the open card. */
@@ -394,6 +399,7 @@ class Builder {
     const codeW = this.measure(pageCode, 7) + 2.4;
     this.barcode(panelX + 1.2, bcY + 0.8, panelW - 2.4 - codeW, bcH - 1.6, pageCode);
     this.text(pageCode, panelX + panelW - 1.2, centreBaseline(bcY, bcH, 7), { size: 7, align: 'right', color: COLORS.band });
+    this.gapSlots++;
     this.y = y + HEADER_H + M.gap + this.extraGap;
   }
 
@@ -886,7 +892,8 @@ class Builder {
     const capBy = y + SIGN_PAD_H + 2.6;
     this.text(`${so.educatorLabel} signature`, x, capBy, { size: 7, color: COLORS.band });
     if (!this.blank) this.text(this.stampLine(), this.x0, capBy, { size: 7, color: COLORS.band });
-    this.y = y + SIGN_BLOCK_H + M.gap;
+    // the footer follows directly, so no trailing gap is reserved here
+    this.y = y + SIGN_BLOCK_H;
   }
 
   /** Document number, reference and generation time, for submitted forms. */
@@ -1045,7 +1052,7 @@ class Builder {
     return {
       width: PAGE.w, height: PAGE.h, pages: this.pages,
       docNumber: this.docNumber, identifier: this.identifier,
-      title: `${f.formCode} ${f.title}`, marks: this.marks,
+      title: `${f.formCode} ${f.title}`, marks: this.marks, gapSlots: this.gapSlots,
     };
   }
 
@@ -1068,7 +1075,7 @@ class Builder {
     return {
       width: PAGE.w, height: PAGE.h, pages: this.pages,
       docNumber: this.docNumber, identifier: this.identifier, title: `${this.form.formCode} ${this.form.title}`,
-      marks: this.marks,
+      marks: this.marks, gapSlots: this.gapSlots,
     };
   }
 }
