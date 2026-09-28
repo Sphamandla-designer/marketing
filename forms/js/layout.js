@@ -74,6 +74,7 @@ function useMetrics(m) {
 const LABEL_GAP = 3;           // a label to its own input field
 const BAND_GAP = 0;            // between a title bar and the band under it
 const PILL_GAP = 0.5;          // day-pill inset, so adjacent pills read apart
+const CELL_INSET = 0.5;        // air above and below a cell, so rows read apart
 const BOX_7 = 7;               // week / term character boxes
 const TICK = 5;                // completion tick boxes
 const TICK_GAP = 3;            // a tick box to its label
@@ -572,11 +573,12 @@ class Builder {
         if (continuedBanner) continuedBanner();
         top = this.y; drawHeader(); bodyTop = this.y;
       }
-      const y = this.y;
-      // the gutter is tinted for its full height; body rows alternate
-      this.rect(x0, y, noW, rowH, { fill: COLORS.gutter, r: 0 });
-      if (i % 2 === 1) this.rect(groupX[0], y, right - groupX[0], rowH, { fill: COLORS.zebra, r: 0 });
-      drawRow(row, i, y, rowH);
+      const y = this.y + CELL_INSET, h = rowH - CELL_INSET * 2;
+      // the gutter and the zebra are inset with the cells, so the channel
+      // between one row and the next stays clear
+      this.rect(x0, y, noW, h, { fill: COLORS.gutter, r: 0 });
+      if (i % 2 === 1) this.rect(groupX[0], y, right - groupX[0], h, { fill: COLORS.zebra, r: 0 });
+      drawRow(row, i, this.y, rowH);
       this.y += rowH;
     });
     this.gridRules({ x0, top, right, bottom: this.y, bodyTop, rowH, noW, groups, groupX, gw });
@@ -594,7 +596,8 @@ class Builder {
     this.rect(x0, top, right - x0, bottom - top, { stroke: g, lw: GRID_LW, r: 0, tag: 'grid-frame' });
     for (let i = 0; i < n; i++) {
       const y = bodyTop + i * rowH;
-      this.line(x0, y, right, y, g, GRID_LW);
+      this.line(x0, y + CELL_INSET, right, y + CELL_INSET, g, GRID_LW);
+      this.line(x0, y + rowH - CELL_INSET, right, y + rowH - CELL_INSET, g, GRID_LW);
     }
     this.line(x0 + noW, top, x0 + noW, bottom, g, GRID_LW);
     groups.forEach((grp, gi) => {
@@ -608,10 +611,15 @@ class Builder {
     });
   }
 
-  /** One grid cell. It has no border of its own: the shared rules draw them. */
+  /**
+   * One grid cell: the writable box inside a row, inset so the row above and
+   * the row below do not touch it. It has no border of its own — the shared
+   * rules draw them.
+   */
   cell(x, y, w, h, value, o = {}) {
-    this.rect(x, y, w, h, { r: 0, tag: 'cell' });
-    if (value !== '' && value != null) this.text(value, x + w / 2, centreBaseline(y, h, o.size || 10), { size: o.size || 10, style: o.style || 'normal', align: 'center', color: o.color || COLORS.text });
+    const iy = y + CELL_INSET, ih = h - CELL_INSET * 2;
+    this.rect(x, iy, w, ih, { r: 0, tag: 'cell' });
+    if (value !== '' && value != null) this.text(value, x + w / 2, centreBaseline(iy, ih, o.size || 10), { size: o.size || 10, style: o.style || 'normal', align: 'center', color: o.color || COLORS.text });
   }
   /** Row-number gutter: the figure centred on its tinted column. */
   rowNumber(x, y, w, h, n) {

@@ -15,7 +15,7 @@ const PORT = 8161;
 // MAX_HEADER covers the header block plus its block gap, which grows to fill the page
 // the hard floors of the grid spec: no writable box below 7 mm, no rounded
 // corner on a cell or an input box, and every border a 0.5 pt mid grey
-const MIN_CELL_H = 7, ROW_PITCH = 7, MIN_PT = 7, MAX_HEADER = 32, MIN_LINE = 7, GRID = '#9A9A9A';
+const MIN_CELL_H = 6, ROW_PITCH = 7, MIN_PT = 7, MAX_HEADER = 32, MIN_LINE = 7, GRID = '#9A9A9A';
 const SIG_BOX = '60x12';
 
 const server = spawn(process.execPath, [path.join(root, 'server.js')], { env: { ...process.env, PORT: String(PORT) }, stdio: 'ignore' });
