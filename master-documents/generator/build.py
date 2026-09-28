@@ -1,6 +1,6 @@
 """Build the SA-03A, SA-03B, SA-03C, SA-04 and SA-05 master documents.
 
-    python3 build.py            # writes the PDFs to ../ (master-documents/)
+    python3 build.py            # writes FILLED examples to ../filled-examples/ (not committed)
 
 The header (crest and measured positions) is taken from SA-01, so SA-01's PDF
 must be present in the repository root.
@@ -17,8 +17,10 @@ from reportlab.lib.utils import simpleSplit
 from reportlab.lib.units import mm
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.dirname(HERE)
-SA01 = os.path.join(os.path.dirname(OUT), 'Register-Class-BLANK (10).pdf')
+ROOT = os.path.dirname(os.path.dirname(HERE))
+OUT = os.path.join(os.path.dirname(HERE), 'filled-examples')
+os.makedirs(OUT, exist_ok=True)
+SA01 = os.path.join(ROOT, 'Register-Class-BLANK (10).pdf')
 T = probe(SA01)
 LIMIT = PH - MARGIN - FOOTER_H - GAP        # content must end here (mm from top)
 REPORT = {}

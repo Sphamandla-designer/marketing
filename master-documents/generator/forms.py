@@ -237,12 +237,13 @@ class Doc:
         for row in rows:
             inner = USABLE_W - 2 * PAD
             chips = [sw(lab, 'B', MIN_LABEL) + 2 * CPAD for lab, *_ in row]
-            mins = [sw(val, font, MIN_TABLE) + 2 * CPAD + 1 for _, val, _, font in row]
+            # optional 5th item: minimum value-box width (mm), e.g. writing space on blank forms
+            mins = [max(sw(f[1], f[3], MIN_TABLE) + 2 * CPAD + 1, f[4] if len(f) > 4 else 0) for f in row]
             spare = inner - sum(chips) - sum(mins) - len(row) * 2 - (len(row) - 1) * 4
             assert spare >= 0, f'info panel row does not fit: {row}'
             total_w = sum(r[2] for r in row)
             x = LEFT + PAD
-            for (lab, val, wt, font), cw, mn in zip(row, chips, mins):
+            for (lab, val, wt, font, *_), cw, mn in zip(row, chips, mins):
                 self.rrect(x, ry + 0.4, cw, row_h - 0.8, R_CELL, CHIP)
                 self.cell_text(x, ry + 0.4, cw, row_h - 0.8, lab, 'B', MIN_LABEL, color=DARK)
                 x += cw + 2

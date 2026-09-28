@@ -1,4 +1,4 @@
-"""Pre-delivery checks for the five master documents (run after build.py)."""
+"""Checks for the FILLED example documents (run after build.py). blank.py checks the blank forms itself."""
 import glob
 import os
 import re
@@ -7,7 +7,7 @@ import pymupdf
 
 import data as D
 
-OUT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'filled-examples')
 MM = 72 / 25.4
 ok = True
 
