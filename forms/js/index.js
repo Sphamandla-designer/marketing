@@ -21,20 +21,3 @@ async function render() {
   }
 }
 render();
-
-// SA-OC is a printed reference sheet with no fields, so it downloads directly
-const codesBtn = document.querySelector('#btn-codes');
-if (codesBtn) {
-  codesBtn.addEventListener('click', async () => {
-    codesBtn.disabled = true;
-    try {
-      const sheet = await generateBlank('codes');
-      downloadBlob(sheet.pdf.blob, sheet.pdf.filename);
-    } catch (e) {
-      console.error(e);
-      alert(`Could not produce the observation codes sheet: ${e.message}`);
-    } finally {
-      codesBtn.disabled = false;
-    }
-  });
-}

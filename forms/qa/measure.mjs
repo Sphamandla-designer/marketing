@@ -30,7 +30,7 @@ const report = await page.evaluate(async () => {
   const { buildFormDocument } = await import('./js/export.js');
   const { createEmptyData } = await import('./js/model.js');
   const out = {};
-  for (const type of ['register', 'subject', 'codes']) {
+  for (const type of ['register', 'subject']) {
     const { doc } = await buildFormDocument(createEmptyData(type), { blank: true, docNumber: 'X', identifier: 'BLANK' });
     const ops = doc.pages.flatMap((p) => p.ops);
     const round = (n) => Math.round(n * 100) / 100;

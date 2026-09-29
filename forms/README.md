@@ -134,17 +134,17 @@ spreads out instead of being cramped at the top and empty at the foot, while a
 form with none, like SA-02, is left exactly as it is. The respaced build is
 kept only if it is still one page.
 
-## The three sheets
+## The two forms
 
 | Code | What it is |
 | --- | --- |
 | SA-01 | Register class weekly attendance and observation — 10 rows in sections A and B |
 | SA-02 | Subject class weekly attendance and observation — 6 rows, plus section C (ATP) |
-| SA-OC | Observation codes: a printed reference sheet, no fields. Downloaded from the landing page |
 
 The masthead prints `2026 · Term 2` as fixed text, so a new blank is generated
-each term. Section B on both forms points at SA-OC rather than carrying its own
-code list.
+each term. Section B on both forms points at the Conduct Observation Code
+Reference (OC-01), a separate controlled document, rather than carrying its
+own code list.
 
 ## One page
 

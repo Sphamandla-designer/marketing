@@ -80,7 +80,8 @@ const TICK = 5;                // completion tick boxes
 const TICK_GAP = 3;            // a tick box to its label
 const PERIOD_ROW_H = 7;
 const TITLE_BAR_H = 6;         // section title bar
-const INSTRUCTION_H = 5;       // instruction bar
+const INSTRUCTION_H = 5;       // instruction bar, one line
+const BAND_LINE = 3.6;         // extra height per wrapped instruction line
 const DAY_HEADER_H = 5;
 const SUB_HEADER_H = 4;
 const NO_COL_W = 8;            // row-number column
@@ -94,7 +95,6 @@ const RULE_LW = 0.18;          // 0.5 pt input-box borders
 const GRID_LW = 0.18;          // 0.5 pt shared cell borders
 const DAY_LW = 0.53;           // 1.5 pt divider between day groups
 const TEXT_LINE = 4.4;         // one line of 10 pt body text in a code row
-const NOTE_H = 6;              // the closing note on the reference sheet
 
 const CARD_HEADER_H = TITLE_BAR_H;
 
@@ -348,16 +348,34 @@ class Builder {
     this.y += h;
   }
   /** Slate instruction band with white text, as under SECTION A of the reference. */
-  /** One instruction bar, INSTRUCTION_H tall, 8 pt italic on the band grey. */
-  instructionBand(notes) {
-    const size = 8;
-    const x = this.x0 + M.pad, w = this.cw - M.pad * 2;
-    const line = notes.join(' ');
-    this.rect(x, this.y, w, INSTRUCTION_H, { fill: COLORS.band, r: RADIUS.band });
-    this.text(line, x + 2.6, centreBaseline(this.y, INSTRUCTION_H, size), { size, style: 'italic', color: COLORS.white });
-    this.y += INSTRUCTION_H;
+  /**
+   * One instruction bar, 8 pt italic on the band grey, INSTRUCTION_H tall. An
+   * instruction too long for one line at 8 pt is set at 7 pt (the form's type
+   * floor); only if it still will not fit does it wrap and the band grow a
+   * line at a time. Nothing ever runs off the right edge.
+   */
+  bandFit(notes) {
+    // 8 pt on one line; else 7 pt, the form's type floor, on one line; else
+    // wrapped at 8 pt with the band growing a line at a time
+    const maxW = this.cw - M.pad * 2 - 5.2;
+    const text = notes.join(' ');
+    for (const size of [8, 7]) {
+      const lines = this.wrap(text, maxW, size, 'italic');
+      if (lines.length === 1) return { size, lines };
+    }
+    return { size: 8, lines: this.wrap(text, maxW, 8, 'italic') };
   }
-  bandHeight() { return INSTRUCTION_H; }
+  bandLines(notes) { return this.bandFit(notes).lines; }
+  instructionBand(notes) {
+    const x = this.x0 + M.pad, w = this.cw - M.pad * 2;
+    const { size, lines } = this.bandFit(notes);
+    const h = this.bandHeight(notes);
+    this.rect(x, this.y, w, h, { fill: COLORS.band, r: RADIUS.band });
+    const first = centreBaseline(this.y, h, size) - (lines.length - 1) * BAND_LINE / 2;
+    lines.forEach((l, i) => this.text(l, x + 2.6, first + i * BAND_LINE, { size, style: 'italic', color: COLORS.white }));
+    this.y += h;
+  }
+  bandHeight(notes) { return INSTRUCTION_H + (notes ? (this.bandLines(notes).length - 1) * BAND_LINE : 0); }
 
   /**
    * Masthead: crest, school name, form title, the year and a term box on the
@@ -642,7 +660,7 @@ class Builder {
     };
     const headerH = DAY_HEADER_H + SUB_HEADER_H;
     const periodH = sec.periodRow ? PERIOD_ROW_H + BAND_GAP : 0;
-    const frame = M.pad + CARD_HEADER_H + (notes ? this.bandHeight() : 0) + periodH + BAND_GAP + headerH;
+    const frame = M.pad + CARD_HEADER_H + (notes ? this.bandHeight(notes) : 0) + periodH + BAND_GAP + headerH;
     // the form is a single page by design, so the whole grid is kept together
     this.ensure(frame + rowH * rows.length + (footerText ? 6 : 0) + M.pad + M.gap);
     open();
@@ -703,7 +721,7 @@ class Builder {
     const noW = NO_COL_W; const dayW = (cw - noW) / DAYS.length;
     const rowH = M.cell;
     const headerH = DAY_HEADER_H + SUB_HEADER_H;
-    const frame = M.pad + CARD_HEADER_H + this.bandHeight() + BAND_GAP + headerH;
+    const frame = M.pad + CARD_HEADER_H + this.bandHeight(sec.notes) + BAND_GAP + headerH;
     this.ensure(frame + rowH * rows.length + (sec.showCodeList ? this.codeListHeight() : 0) + M.pad + M.gap);
     this.beginCard();
     this.cardHeader(sec.letter, sec.title, sec.subtitle);
@@ -962,103 +980,7 @@ class Builder {
     this.endCard();
   }
 
-  /**
-   * SA-OC: the observation-code reference sheet. Same grid, rules and spacing
-   * scale as sections A and B, so the three sheets read as one set. Each code
-   * row is as tall as its own text plus M.pad above and below; the blank rows
-   * for the school's own codes are three separate input boxes, LABEL_GAP apart.
-   */
-  codeTable(cfg, title, subtitle, rows, blank) {
-    const { codeW, obsW } = cfg;
-    const x0 = this.x0 + M.pad, cw = this.cw - M.pad * 2;
-    const descX = x0 + codeW + obsW, descW = cw - codeW - obsW;
-    const HEAD_H = 5;
-    const rowPad = Math.min(M.pad, 3);
-    const blankH = Math.max(9, M.field);
-    // measure each row before drawing any of it, so the grid rules are exact
-    const body = rows.map((r) => {
-      if (blank) return { h: blankH };
-      const obsL = this.wrap(r[1], obsW - rowPad * 2, 10, 'bold');
-      const descL = this.wrap(r[2], descW - rowPad * 2, 10);
-      return { h: rowPad * 2 + Math.max(obsL.length, descL.length, 1) * TEXT_LINE, code: r[0], obsL, descL };
-    });
-    const bodyH = body.reduce((a, b) => a + b.h, 0);
-    this.ensure(M.pad + CARD_HEADER_H + HEAD_H + bodyH + M.pad + M.gap);
-    this.beginCard();
-    this.cardHeader(null, title, subtitle);
-    const top = this.y;
-
-    // column headings, in the same pale band the grids use
-    this.rect(x0, this.y, cw, HEAD_H, { fill: COLORS.pale, r: 0 });
-    const hb = centreBaseline(this.y, HEAD_H, 7);
-    this.text('Code', x0 + rowPad, hb, { size: 7, style: 'bold', color: COLORS.brand });
-    this.text('Observation', x0 + codeW + rowPad, hb, { size: 7, style: 'bold', color: COLORS.brand });
-    this.text('Description', descX + rowPad, hb, { size: 7, style: 'bold', color: COLORS.brand });
-    this.y += HEAD_H;
-
-    const bodyTop = this.y;
-    const edges = [];
-    body.forEach((b, i) => {
-      const y = this.y;
-      if (i % 2 === 1) this.rect(x0, y, cw, b.h, { fill: COLORS.zebra, r: 0 });
-      if (blank) {
-        // three input boxes, LABEL_GAP apart, for the school's own codes
-        const cols = [[x0, codeW], [x0 + codeW, obsW], [descX, descW]];
-        cols.forEach(([cx, cwid], k) => {
-          const left = cx + (k ? LABEL_GAP / 2 : 0);
-          const width = cwid - (k ? LABEL_GAP / 2 : 0) - (k < 2 ? LABEL_GAP / 2 : 0);
-          this.rect(left, y, width, b.h, { fill: COLORS.white, stroke: COLORS.grid, lw: GRID_LW, r: 0, tag: 'field' });
-        });
-      } else {
-        this.text(b.code, x0 + rowPad, centreBaseline(y, b.h, 14), { size: 14, style: 'bold', color: COLORS.brand });
-        const centre = centreBaseline(y, b.h, 10);
-        b.obsL.forEach((l, k) => this.text(l, x0 + codeW + rowPad, centre - (b.obsL.length - 1) * (TEXT_LINE / 2) + k * TEXT_LINE, { size: 10, style: 'bold' }));
-        b.descL.forEach((l, k) => this.text(l, descX + rowPad, centre - (b.descL.length - 1) * (TEXT_LINE / 2) + k * TEXT_LINE, { size: 10 }));
-      }
-      this.y += b.h;
-      edges.push(this.y);
-    });
-
-    if (!blank) {
-      // the same shared borders as the weekly grids
-      this.rect(x0, top, cw, this.y - top, { stroke: COLORS.grid, lw: GRID_LW, r: 0, tag: 'grid-frame' });
-      this.line(x0, bodyTop, x0 + cw, bodyTop, COLORS.grid, GRID_LW);
-      edges.slice(0, -1).forEach((y) => this.line(x0, y, x0 + cw, y, COLORS.grid, GRID_LW));
-      this.line(x0 + codeW, top, x0 + codeW, this.y, COLORS.grid, GRID_LW);
-      this.line(descX, top, descX, this.y, COLORS.grid, DAY_LW);
-    }
-    this.endCard();
-  }
-
-  buildReference() {
-    const f = this.form;
-    const mark = (name) => this.marks.push({ name, y: Math.round(this.y * 100) / 100, page: this.pages.length });
-    this.newPage();
-    mark('header');
-    const intro = this.wrap(f.intro, this.cw - 6, 9);
-    intro.forEach((l, i) => this.text(l, this.x0 + 1, this.y + 4 + i * 4.4, { size: 9 }));
-    this.y += 4 + intro.length * 4.4 + 4;
-    mark('intro');
-    this.codeTable(f.table, f.table.title, '', f.rows, false);
-    mark('codes');
-    this.codeTable(f.table, f.blankHeading, f.blankSubtitle, Array.from({ length: f.blankRows }, () => null), true);
-    mark('additional codes');
-    // the closing note is part of the sheet's budget: if it will not fit, the
-    // sheet does not fit, and the fit ladder takes another step down
-    this.ensure(NOTE_H);
-    this.text(f.note, this.x0 + 1, this.y + 3.5, { size: 8, style: 'italic', color: COLORS.band });
-    this.y += NOTE_H;
-    mark('note');
-    this.footers();
-    return {
-      width: PAGE.w, height: PAGE.h, pages: this.pages,
-      docNumber: this.docNumber, identifier: this.identifier,
-      title: `${f.formCode} ${f.title}`, marks: this.marks,
-    };
-  }
-
   build() {
-    if (this.form.kind === 'reference') return this.buildReference();
     const mark = (name) => this.marks.push({ name, y: Math.round(this.y * 100) / 100, page: this.pages.length });
     this.newPage();
     mark('header');

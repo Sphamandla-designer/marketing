@@ -19,8 +19,6 @@ const PORT = 8124;
 const PAGES = [
   { name: 'Register Class', page: 'register-class.html', type: 'register' },
   { name: 'Subject Class', page: 'subject-class.html', type: 'subject' },
-  // SA-OC has no fields, so it is generated from the register page
-  { name: 'Observation Codes', page: 'register-class.html', type: 'codes', viaApi: true },
 ];
 
 async function run() {

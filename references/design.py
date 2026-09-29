@@ -84,14 +84,21 @@ class Sheet:
                             fitz.Point(x2 * MM, y2 * MM), color=color, width=lw)
 
     def text(self, s, x, y, size=9, font="r", color=INK, align="left"):
-        """`y` is the baseline. Returns the width drawn, in mm."""
+        """`y` is the baseline. Returns the width drawn, in mm. Font "i" is
+        italic: the regular face sheared, as no oblique DejaVu Sans is
+        installed."""
         s = str(s)
         if not s:
             return 0.0
+        italic = font == "i"
+        if italic:
+            font = "r"
         w = text_width(s, size, font)
         left = x - w if align == "right" else x - w / 2 if align == "center" else x
-        self.page.insert_text(fitz.Point(left * MM, y * MM), s, fontname=font,
-                              fontsize=size, color=color)
+        pt = fitz.Point(left * MM, y * MM)
+        morph = (pt, fitz.Matrix(1, 0, -0.22, 1, 0, 0)) if italic else None
+        self.page.insert_text(pt, s, fontname=font, fontsize=size, color=color,
+                              morph=morph)
         return w
 
     def tracked(self, s, x, y, size=9, font="r", color=INK, track=1.6,
@@ -139,7 +146,7 @@ class Sheet:
         pdf = fitz.open("pdf", src.convert_to_pdf())
         self.page.show_pdf_page(self._r(self.x0, y + 1.5, crest, crest), pdf, 0)
 
-        box_w = 58.0
+        box_w = 66.0   # wide enough for 'VERSION 0.1 · DRAFT FOR CONSULTATION' at 8 pt
         box_x = self.x0 + self.w - box_w
         cx = (self.x0 + crest + 4 + box_x) / 2
         self.text(settings.SCHOOL_NAME, cx, y + 7.6, 14, "b", RED, "center")
@@ -160,6 +167,20 @@ class Sheet:
         self.text(f"VERSION {settings.LIST_VERSION} \u00b7 {status}", cbx,
                   y + 17.8 + len(name_lines) * 3.6 + 1.0, 8, "r", MUTED, "center")
         self.y = y + h + settings.BLOCK_GAP
+
+    def status_line(self, text):
+        """A small red status line under the info bar."""
+        h = 4.2
+        self.text(text, self.x0 + settings.PANEL_PAD,
+                  centre_baseline(self.y, h, 8), 8, "b", RED)
+        self.y += h + 2.5
+
+    def note_line(self, text, font="i", size=8, color=MUTED):
+        """One line of small text below a block, e.g. the elective note."""
+        h = 4.0
+        self.text(text, self.x0 + 1.0, centre_baseline(self.y, h, size), size,
+                  font, color)
+        self.y += h + settings.BLOCK_GAP
 
     def title_bar(self, title, instruction):
         h = 8.0
@@ -234,8 +255,10 @@ class Sheet:
     HEAD_PT = 9.0     # the spec's 9 pt minimum applies to headings too
     HEAD_LINE = 3.9
 
+    LINE = 3.8
+
     def table(self, x, w, cols, rows, row_h, head_h=None, size=9, y=None,
-              zebra=True, bold_cols=(), red_cols=()):
+              zebra=True, bold_cols=(), red_cols=(), wrap_cols=()):
         """
         A table with a red header row. `cols` is a list of (heading, width_mm,
         align); a width of None shares out the remaining width. The heading row
@@ -262,16 +285,33 @@ class Sheet:
             cx += cw
         ty = top + head_h
         for ri, row in enumerate(rows):
+            # a value in a wrap column may take two or more lines; the row
+            # grows to hold it rather than shortening the value
+            wrapped = {}
+            for ci in wrap_cols:
+                font = "b" if ci in bold_cols else "r"
+                lines = self.wrap(row[ci], widths[ci] - settings.CELL_PAD * 2, size, font)
+                if len(lines) > 1:
+                    wrapped[ci] = lines
+            rh = max(row_h, 1.4 + 3.6 * max((len(v) for v in wrapped.values()), default=1)) \
+                if wrapped else row_h
             if zebra and ri % 2 == 1:
-                self.rect(x, ty, w, row_h, fill=TINT)
+                self.rect(x, ty, w, rh, fill=TINT)
             cx = x
             for ci, (value, cw) in enumerate(zip(row, widths)):
                 align = cols[ci][2]
                 font = "b" if ci in bold_cols else "r"
                 colour = RED if ci in red_cols else INK
-                self._cell(value, cx, ty, cw, row_h, size, font, colour, align)
+                if ci in wrapped:
+                    lines = wrapped[ci]
+                    first = centre_baseline(ty, rh, size) - (len(lines) - 1) * 3.6 / 2
+                    for k, line in enumerate(lines):
+                        self.text(line, cx + settings.CELL_PAD, first + k * 3.6,
+                                  size, font, colour)
+                else:
+                    self._cell(value, cx, ty, cw, rh, size, font, colour, align)
                 cx += cw
-            ty += row_h
+            ty += rh
         self.rect(x, top, w, ty - top, stroke=HAIR, lw=0.4)
         self.line(x, top + head_h, x + w, top + head_h, HAIR, 0.4)
         return ty

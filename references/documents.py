@@ -12,7 +12,8 @@ from design import (Sheet, RED, INK, MUTED, HAIR, WHITE, PINK, centre_baseline,
 
 YEAR = str(settings.ACADEMIC_YEAR)
 TERM = str(settings.TERM)
-VERSION = f"{settings.LIST_VERSION}, effective {settings.LIST_VERSION_EFFECTIVE}"
+VERSION = settings.LIST_VERSION_LABEL
+GRADE = str(data.GRADE)
 
 
 def _split(rows, cap):
@@ -42,43 +43,69 @@ def _two_up(sheet, cols, left, right, row_h, size=9, bold_cols=(0, 1),
     return sheet.y
 
 
+def _n_up(sheet, cols, groups, row_h, size=9, bold_cols=(0,), red_cols=(),
+          wrap_cols=()):
+    """`len(groups)` tables side by side with the standard gutter."""
+    n = len(groups)
+    w = (sheet.w - settings.TABLE_GUTTER * (n - 1)) / n
+    y = sheet.y
+    low = y
+    for i, rows in enumerate(groups):
+        x = sheet.x0 + i * (w + settings.TABLE_GUTTER)
+        low = max(low, sheet.table(x, w, cols, rows, row_h, size=size, y=y,
+                                   bold_cols=bold_cols, red_cols=red_cols,
+                                   wrap_cols=wrap_cols))
+    sheet.y = low + settings.BLOCK_GAP
+    return sheet.y
+
+
+def _start(code, name, title, instruction):
+    s = Sheet()
+    s.header(code, name, settings.LIST_STATUS)
+    s.title_bar(title, instruction)
+    return s
+
+
 # ------------------------------------------------------------------- RL-01
 def rl01():
     cls = data.REGISTER_CLASS
-    learners = data.numbered(data.CLASS_9B)
-    s = Sheet()
-    s.header("RL-01", "REGISTER CLASS LIST", settings.LIST_STATUS)
-    s.title_bar("REGISTER CLASS LIST", "Use these numbers on SA-01")
+    learners = data.numbered(data.CLASS_10B)
+    s = _start("RL-01", "REGISTER CLASS LIST", "REGISTER CLASS LIST",
+               "Use these numbers on SA-01")
     s.info_bar([
         [("Class", cls["class"]), ("Class teacher", cls["teacher"]),
          ("Room", cls["room"]), ("Total learners", str(len(learners)))],
         [("Academic year", YEAR), ("Term", TERM),
          ("Phase", settings.phase_label(cls["grade"])), ("List version", VERSION)],
     ], big_first=True)
+    s.status_line(settings.DRAFT_NOTICE)
 
     cols = [("No.", 10.0, "center"), ("SURNAME", None, "left"),
             ("First name", None, "left")]
     left, right = _split(learners, 30)
     _two_up(s, cols, left, right, 5.2)
 
-    # Subjects panel. The three groups keep their own headed tables, but the
-    # split and combined groups are stacked in the right-hand column: three
-    # equal side-by-side tables cannot hold a name like "Economic and
-    # Management Sciences" at 9 pt inside 190 mm without truncating it.
+    # Subjects panel: three blocks. Whole class and split side by side, the
+    # combined block full width beneath them so that "Civil Technology
+    # (Woodworking)" prints unshortened at 9 pt.
     top = s.panel_title("SUBJECTS FOR THIS CLASS")
-    half = (s.w - settings.TABLE_GUTTER) / 2
-    right_x = s.x0 + half + settings.TABLE_GUTTER
-    s.table(s.x0, half, [("Taken by the whole class", None, "left"),
-                         ("Code", 20.0, "center")],
-            data.WHOLE_CLASS_9B, 5.2, y=top, red_cols=(1,))
-    ry = s.table(right_x, half, [("Split subjects", None, "left"),
-                                 ("Code", 20.0, "center"), ("List", 16.0, "center")],
-                 data.SPLIT_9B, 5.2, y=top, red_cols=(1,))
-    s.table(right_x, half, [("Combined with other classes", None, "left"),
-                            ("With", 16.0, "center"), ("Code", 24.0, "center"),
-                            ("List", 16.0, "center")],
-            data.COMBINED_9B, 5.2, y=ry + settings.BLOCK_GAP, red_cols=(2,))
-    s.y = top + 6.2 + 7 * 5.2 + settings.BLOCK_GAP
+    left_w = 84.0
+    right_x = s.x0 + left_w + settings.TABLE_GUTTER
+    right_w = s.w - left_w - settings.TABLE_GUTTER
+    a = s.table(s.x0, left_w, [("Taken by the whole class", None, "left"),
+                               ("Code", 20.0, "center")],
+                data.WHOLE_CLASS_10B, 5.2, y=top, red_cols=(1,))
+    b = s.table(right_x, right_w, [("Split within this class", None, "left"),
+                                   ("Code", 20.0, "center"),
+                                   ("Learners", 18.0, "center"),
+                                   ("List", 16.0, "center")],
+                data.SPLIT_10B, 5.2, y=top, red_cols=(1,), bold_cols=(2,))
+    y = max(a, b) + settings.BLOCK_GAP
+    s.y = s.table(s.x0, s.w, [("Combined with other classes", None, "left"),
+                              ("With", 22.0, "center"), ("Code", 24.0, "center"),
+                              ("Learners", 26.0, "center"), ("List", 16.0, "center")],
+                  data.COMBINED_10B, 5.2, y=y, red_cols=(2,), bold_cols=(3,)) + 1.5
+    s.note_line(data.ELECTIVE_NOTE)
 
     s.footer("RL-01", "Register class list",
              "Official list for the year. Use the learner numbers on SA-01. "
@@ -88,44 +115,40 @@ def rl01():
 
 
 # ------------------------------------------------------------------- SL-01
-def sl01(subject, code, learners, other_label, other_subject, educator):
+def sl01(subject, code, learners, other_label, footer_note, educator):
     cls = data.REGISTER_CLASS
     rows = data.numbered(learners)
-    s = Sheet()
-    s.header("SL-01", "SPLIT SUBJECT CLASS LIST", settings.LIST_STATUS)
-    s.title_bar("SPLIT SUBJECT CLASS LIST", "Use these numbers on SA-02")
+    s = _start("SL-01", "SPLIT SUBJECT CLASS LIST", "SPLIT SUBJECT CLASS LIST",
+               "Use these numbers on SA-02")
     s.info_bar([
         [("Subject", subject), ("Subject class code", code),
-         ("Grade", str(cls["grade"])), ("Split from register class", cls["class"])],
+         ("Grade", GRADE), ("Split from register class", cls["class"])],
         [("Other group", other_label), ("Educator", educator),
          ("Total learners", str(len(rows))), ("Term", TERM)],
     ])
+    s.status_line(settings.DRAFT_NOTICE)
     cols = [("No.", 10.0, "center"), ("SURNAME", None, "left"),
             ("First name", None, "left")]
     left, right = _split(rows, 25)
     _two_up(s, cols, left, right, 6.2)
-    s.footer("SL-01", "Split subject class list",
-             f"This class splits for {subject}. Learners not on this list are "
-             f"on the {other_subject} list.")
+    s.footer("SL-01", "Split subject class list", footer_note)
     return s
 
 
 # ------------------------------------------------------------------- CL-01
 def cl01():
-    rows = [(n, s_, f) for n, s_, f in
-            [(i + 1, p[0], p[1]) for i, p in
-             enumerate(sorted(data.WOODWORK_COMBINED, key=lambda p: (p[0], p[1])))]]
-    ordered = sorted(data.WOODWORK_COMBINED, key=lambda p: (p[0], p[1]))
+    ordered = sorted(data.CIVIL_TECH_COMBINED, key=lambda p: (p[0], p[1]))
     rows = [(i + 1, s_, f, c) for i, (s_, f, c) in enumerate(ordered)]
-    s = Sheet()
-    s.header("CL-01", "COMBINED SUBJECT CLASS LIST", settings.LIST_STATUS)
-    s.title_bar("COMBINED SUBJECT CLASS LIST", "Use these numbers on SA-02")
+    s = _start("CL-01", "COMBINED SUBJECT CLASS LIST",
+               "COMBINED SUBJECT CLASS LIST", "Use these numbers on SA-02")
     s.info_bar([
-        [("Subject", "Woodworking"), ("Subject class code", "9ABC-WW"),
-         ("Grade", "9"), ("Combined from", "9A, 9B, 9C")],
-        [("Educator", data.EDUCATORS["9ABC-WW"]),
+        [("Subject", data.SUBJECT_BY_ABBR[data.COMBINED_ABBR]),
+         ("Subject class code", data.COMBINED_CODE),
+         ("Grade", GRADE), ("Combined from", ", ".join(data.CLASSES))],
+        [("Educator", data.EDUCATORS[data.COMBINED_CODE]),
          ("Total learners", str(len(rows))), ("Term", TERM)],
     ])
+    s.status_line(settings.DRAFT_NOTICE)
     cols = [("No.", 9.0, "center"), ("SURNAME", None, "left"),
             ("First name", None, "left"), ("Class", 12.0, "center")]
     left, right = _split(rows, 30)
@@ -137,28 +160,33 @@ def cl01():
 
 
 # ------------------------------------------------------------------- SC-01
+SC01_ROW_H = 5.5     # 9 pt; the brief allows 5.5 mm or more
+
+
 def sc01():
-    s = Sheet()
-    s.header("SC-01", "SUBJECT CODE KEY", settings.LIST_STATUS)
-    s.title_bar("SUBJECT CODE KEY", "Write the subject class code on SA-02")
+    s = _start("SC-01", "SUBJECT CODE KEY", "SUBJECT CODE KEY",
+               "Write the subject class code on SA-02")
     s.info_bar([[
-        ("Grade", "9"), ("Academic year", YEAR), ("Term", TERM),
+        ("Grade", GRADE), ("Academic year", YEAR), ("Term", TERM),
         ("Code format", settings.SUBJECT_CLASS_CODE_FORMAT + "  (provisional)"),
     ]])
+    s.status_line(settings.DRAFT_NOTICE)
 
+    # nine abbreviations in three side-by-side columns of three rows
     top = s.panel_title("SUBJECT ABBREVIATIONS")
     s.y = top
-    cols = [("Abbreviation", 26.0, "center"), ("Subject", None, "left")]
+    cols = [("Abbr.", 16.0, "center"), ("Subject", None, "left")]
     abbr = data.SUBJECT_ABBREVIATIONS
-    half = -(-len(abbr) // 2)
-    _two_up(s, cols, abbr[:half], abbr[half:], 5.2, bold_cols=(0,), red_cols=(0,))
+    per = -(-len(abbr) // 3)
+    _n_up(s, cols, [abbr[i:i + per] for i in range(0, len(abbr), per)], 5.2,
+          bold_cols=(0,), red_cols=(0,), wrap_cols=(1,))
 
     top = s.panel_title("SUBJECT CLASSES")
     s.y = s.table(s.x0, s.w, [
-        ("Code", 23.0, "center"), ("Subject", None, "left"),
-        ("Register class(es)", 24.0, "center"), ("Type", 27.0, "center"),
-        ("Educator", 34.0, "left"), ("Learner list", 18.0, "center"),
-    ], data.subject_classes(), 6.0, y=top, bold_cols=(0,), red_cols=(0,)) \
+        ("Code", 24.0, "center"), ("Subject", None, "left"),
+        ("Register class(es)", 28.0, "center"), ("Type", 23.0, "center"),
+        ("Educator", 34.0, "left"), ("Learner list", 20.0, "center"),
+    ], data.subject_classes(), SC01_ROW_H, y=top, bold_cols=(0,), red_cols=(0,)) \
         + settings.BLOCK_GAP
 
     s.footer("SC-01", "Subject code key",
@@ -171,24 +199,28 @@ def sc01():
 # ------------------------------------------------------------------- AT-01
 def at01(subject, subject_abbr, grade, term, weeks, source):
     """
-    `weeks` is a list of (week_number, narrative). The narratives come from the
-    official DBE ATP and are produced in STEP A; this function only lays them
-    out. It never invents curriculum content.
+    `weeks` is a list of (week_key, narrative). A key is a week number, or a
+    span such as "6-10" for an examination block that is shown once. The
+    narratives come from the official DBE ATP and are produced in STEP A; this
+    function only lays them out. It never invents curriculum content.
     """
-    s = Sheet()
-    s.header("AT-01", "ATP WEEKLY PLAN", settings.LIST_STATUS)
-    s.title_bar("ANNUAL TEACHING PLAN — WEEKLY COVERAGE",
-                "Copy the week's ATP code into Section C of SA-02")
+    s = _start("AT-01", "ATP WEEKLY PLAN", "ANNUAL TEACHING PLAN — WEEKLY COVERAGE",
+               "Copy the week's ATP code into Section C of SA-02")
     s.info_bar([[
         ("Subject", subject), ("Grade", str(grade)), ("Academic year", YEAR),
-        ("Term", str(term)), ("Weeks", str(len(weeks))), ("Source", source),
+        ("Term", str(term)), ("Rows", str(len(weeks))), ("Source", source),
     ]])
+    s.status_line(settings.DRAFT_NOTICE)
 
-    week_w, code_w = 18.0, 24.0
+    week_w, code_w = 24.0, 24.0   # 'Weeks 6–10' must fit the week column
     narrative_w = s.w - week_w - code_w
-    row_h = 17.0
     head_h = 6.2
     top = s.y
+    # about 17 mm per row; an eleven-week term takes what the page allows
+    footer_h = 5.6 + 3.8 + 0.8   # the footer block for a one-line note
+    avail = settings.PAGE_H - settings.MARGIN - footer_h - settings.BLOCK_GAP \
+        - top - head_h
+    row_h = min(17.0, avail / len(weeks))
     s.rect(s.x0, top, s.w, head_h, fill=RED)
     for label, x, w in (("Week", s.x0, week_w), ("ATP code", s.x0 + week_w, code_w),
                         ("What must be covered", s.x0 + week_w + code_w, narrative_w)):
@@ -198,7 +230,8 @@ def at01(subject, subject_abbr, grade, term, weeks, source):
     for i, (week, narrative) in enumerate(weeks):
         if i % 2 == 1:
             s.rect(s.x0, y, s.w, row_h, fill=(0xFD / 255, 0xF3 / 255, 0xF5 / 255))
-        s.text(f"Week {week}", s.x0 + settings.CELL_PAD,
+        label = f"Weeks {week}".replace("-", "–") if "-" in str(week) else f"Week {week}"
+        s.text(label, s.x0 + settings.CELL_PAD,
                centre_baseline(y, row_h, 9), 9, "b", INK)
         box_w, box_h = code_w - 4.0, 7.0
         bx, by = s.x0 + week_w + 2.0, y + (row_h - box_h) / 2

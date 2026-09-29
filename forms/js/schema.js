@@ -36,7 +36,7 @@ const ATTENDANCE_NOTES = [
   'Write the learner’s position number in the A (absent) or L (late) column. Leave unused slots blank.',
 ];
 const OBSERVATION_NOTES = [
-  'Use the learner’s position number and one code from the Observation Codes sheet (SA-OC) per learner per day. Leave blank if there is nothing to record.',
+  'Use the learner’s position number and one code from the Conduct Observation Code Reference (OC-01) per learner per day. Leave blank if there is nothing to record.',
 ];
 /** Printed under the masthead. Not a field. */
 const HEADER_PERIOD = '2026 · Term 2';
@@ -201,39 +201,6 @@ export const FORMS = {
     },
     signOff: { ...SIGN_OFF('I confirm that the attendance, observations and ATP information recorded on this form are accurate for the week indicated.'), letter: 'D', style: 'bare' },
   },
-};
-
-/** SA-OC: the observation-code reference sheet. No fields, printed and pinned up. */
-FORMS.codes = {
-  type: 'codes',
-  kind: 'reference',
-  formCode: 'SA-OC',
-  docPrefix: 'SAOC',
-  title: 'Observation codes',
-  shortTitle: 'Observation codes',
-  fileStem: 'Observation-Codes',
-  codeBoxLines: ['OBSERVATION CODES', 'FOR SA-01 AND SA-02'],
-  headerTitle: 'OBSERVATION CODES',
-  headerPeriod: HEADER_PERIOD,
-  identifierKeys: [],
-  intro: 'Write one code in the Code column of Section B on SA-01 or SA-02, next to the learner’s position number. One code per learner per day.',
-  table: { title: 'OBSERVATION CODES', codeW: 24, obsW: 55, rowH: 11 },
-  rows: [
-    ['DIS', 'Disruptive behaviour', 'Disrupts the class or lesson so that teaching or learning is interrupted.'],
-    ['NW', 'Not working in class', 'Present, but does not complete classwork.'],
-    ['NH', 'No homework', 'Homework not completed or not submitted.'],
-    ['SLP', 'Sleeping in class', 'Sleeps during the lesson.'],
-    ['DSP', 'Disengaged', 'Physically present but mentally disengaged, e.g. staring into space.'],
-    ['TB', 'Talking back', 'Disrespectful or defiant response to the educator.'],
-    ['XT', 'Excessive talking', 'Persistent talking that interferes with teaching or learning.'],
-    ['NP', 'Not participating', 'Does not take part in the lesson or a required activity.'],
-    ['OC', 'Outside class without permission', 'Seen outside the classroom instead of attending class.'],
-    ['FGT', 'Fighting or aggressive conduct', 'Physical fighting, or aggressive or threatening behaviour towards others.'],
-  ],
-  blankHeading: 'ADDITIONAL CODES',
-  blankSubtitle: '(school to complete)',
-  blankRows: 6,
-  note: 'Late arrival is recorded in the L column of Section A, not as an observation code.',
 };
 
 export function getForm(type) {

@@ -23,19 +23,29 @@ def phase_label(grade):
     return PHASES[int(grade)]
 
 
-# [Grade][Class]-[Subject abbreviation], e.g. 9B-MT. A combined class lists
-# every letter, e.g. 9ABC-WW. PROVISIONAL.
-SUBJECT_CLASS_CODE_FORMAT = "[Grade][Class]-[Subject abbreviation], e.g. 9B-MT"
+# [Grade][Class]-[Subject abbreviation], e.g. 10B-MT. A combined class lists
+# every letter, e.g. 10ABC-CW. PROVISIONAL.
+SUBJECT_CLASS_CODE_FORMAT = "[Grade][Class]-[Subject abbreviation], e.g. 10B-MT"
 
-# ATP codes: 4 characters, digits 2-9 and letters A-Z without I and O, so no
-# character can be misread as another. Exactly 32 symbols. PROVISIONAL.
-ATP_ALPHABET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
+# ATP codes: 4 characters from a handwriting-safe set only — digits 3 4 6 7 9
+# and letters A C D E F H J K L M N P Q R T W X Y. No I, O, 0, 1, Z, 2, S, 5,
+# U, V, B, 8 or G, so no character can be misread as another when copied by
+# hand. Unique across every subject, grade, term and week. PROVISIONAL.
+ATP_ALPHABET = "34679ACDEFHJKLMNPQRTWXY"
 ATP_CODE_LENGTH = 4
 ATP_WEEK_CHAR_LIMIT = 230
 
-LIST_VERSION = 1
-LIST_VERSION_EFFECTIVE = "[date to be confirmed]"
-LIST_STATUS = "ISSUED"
+# Status and version. Every reference document is a draft for consultation,
+# matching OC-01. The list effective date is set on approval.
+LIST_VERSION = "0.1"
+LIST_STATUS = "DRAFT FOR CONSULTATION"
+LIST_VERSION_LABEL = "0.1 (draft)"
+DRAFT_NOTICE = "Draft for consultation — placeholder data, not for use in class."
+
+# Words that must appear nowhere in any built document. "Woodworking" is
+# allowed only inside the subject name "Civil Technology (Woodworking)".
+FORBIDDEN_WORDS = ["Mnr.", "Grade 9", "9A", "9B", "9C", "Woodworking", "SA-OC", "ISSUED"]
+FORBIDDEN_ALLOWED_PHRASES = ["Civil Technology (Woodworking)"]
 
 SCHOOL_NAME = "FISANTEKRAAL HIGH SCHOOL"
 SCHOOL_MOTTO = "LEARN · GROW · CONTRIBUTE"
