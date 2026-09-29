@@ -31,7 +31,9 @@ subject data lives in `data.py`.
 
 ## AT-01
 
-AT-01 is only built from the official DBE ATP. Supply the weekly narratives as
+AT-01 is only built from the official DBE ATP. **Confirmed by the school: all
+four terms**, so the ATP file carries a `terms` array and the build writes one
+AT-01 page per term — four pages make the year. Supply the weekly narratives as
 JSON and pass the file:
 
 ```
@@ -74,9 +76,13 @@ limit.
 
 **AT-01 has not been built.** It needs two things that were not supplied:
 
-1. The official DBE ATP PDF for English First Additional Language, Grade 8
-   (the prompt refers to an attachment that did not arrive).
-2. Which term to produce, or "all terms", and optionally a single week.
+1. The official DBE ATP PDF for English First Additional Language, Grade 8.
+   The brief refers to an attachment that did not arrive; the session upload
+   folder, the container filesystem and the linked Google Drive were all
+   searched twice and hold no ATP document.
+
+Which term to produce is **answered: all four terms**, and the build and checks
+already handle a four-term file.
 
 The renderer, the ATP code generator and the checks are finished and tested; the
 narratives are the only missing input. They are not written from anything but

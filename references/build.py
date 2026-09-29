@@ -22,6 +22,13 @@ import documents
 OUT = pathlib.Path(__file__).resolve().parent / "output"
 
 
+def atp_terms(spec):
+    """The term blocks in an ATP file, whether it holds one term or all four."""
+    if "terms" in spec:
+        return spec["terms"]
+    return [{"term": spec["term"], "weeks": spec["weeks"]}]
+
+
 def build(atp_path=None):
     made = []
 
@@ -43,12 +50,14 @@ def build(atp_path=None):
 
     if atp_path:
         spec = json.loads(pathlib.Path(atp_path).read_text())
-        weeks = [(w["week"], w["narrative"]) for w in spec["weeks"]]
-        s = documents.at01(spec["subject"], spec["abbr"], spec["grade"],
-                           spec["term"], weeks, spec["source"])
-        name = (f"AT-01-ATP-Weekly-{spec['abbr']}-Gr{spec['grade']}-"
-                f"T{spec['term']}.pdf")
-        made.append(("AT-01", name, s))
+        # one AT-01 page per term; four terms make the year
+        for block in atp_terms(spec):
+            weeks = [(w["week"], w["narrative"]) for w in block["weeks"]]
+            s = documents.at01(spec["subject"], spec["abbr"], spec["grade"],
+                               block["term"], weeks, spec["source"])
+            name = (f"AT-01-ATP-Weekly-{spec['abbr']}-Gr{spec['grade']}-"
+                    f"T{block['term']}.pdf")
+            made.append(("AT-01", name, s))
 
     OUT.mkdir(parents=True, exist_ok=True)
     for code, name, sheet in made:

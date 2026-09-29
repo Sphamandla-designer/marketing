@@ -2,12 +2,23 @@
   "subject": "English First Additional Language",
   "abbr": "EF",
   "grade": 8,
-  "term": 1,
   "source": "DBE Annual Teaching Plan 2023/24",
-  "weeks": [
+  "terms": [
     {
-      "week": 1,
-      "narrative": "One paragraph per week, written from the official DBE ATP only: the topics and content, the key skills or concepts, and any formal assessment task due that week with its marks. 230 characters maximum."
-    }
+      "term": 1,
+      "weeks": [
+        {
+          "week": 1,
+          "narrative": "One paragraph per week, written from the official DBE ATP only: the topics and content, the key skills or concepts, and any formal assessment task due that week with its marks. 230 characters maximum."
+        },
+        {
+          "week": 2,
+          "narrative": "Where the ATP groups weeks or runs one topic across several, the content is divided across those weeks in the ATP's own order, so every week gets its own paragraph."
+        }
+      ]
+    },
+    { "term": 2, "weeks": [] },
+    { "term": 3, "weeks": [] },
+    { "term": 4, "weeks": [] }
   ]
 }

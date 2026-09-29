@@ -126,16 +126,22 @@ def check_atp(spec=None):
         out.append((True, "AT-01: not built (no DBE ATP supplied) — skipped"))
         return out
     seen = {}
-    for w in spec["weeks"]:
-        code = data.atp_code(spec["abbr"], spec["grade"], spec["term"], w["week"])
-        out.append((bool(pattern.match(code)),
-                    f"week {w['week']}: ATP code {code} uses 4 allowed characters"))
-        n = len(w["narrative"])
-        out.append((n <= settings.ATP_WEEK_CHAR_LIMIT,
-                    f"week {w['week']}: narrative {n} of "
-                    f"{settings.ATP_WEEK_CHAR_LIMIT} characters"))
-        out.append((code not in seen, f"week {w['week']}: ATP code is unique"))
-        seen[code] = w["week"]
+    blocks = spec["terms"] if "terms" in spec else [
+        {"term": spec["term"], "weeks": spec["weeks"]}]
+    for block in blocks:
+        for w in block["weeks"]:
+            where = f"T{block['term']} week {w['week']}"
+            code = data.atp_code(spec["abbr"], spec["grade"], block["term"],
+                                 w["week"])
+            out.append((bool(pattern.match(code)),
+                        f"{where}: ATP code {code} uses 4 allowed characters"))
+            n = len(w["narrative"])
+            out.append((n <= settings.ATP_WEEK_CHAR_LIMIT,
+                        f"{where}: narrative {n} of "
+                        f"{settings.ATP_WEEK_CHAR_LIMIT} characters"))
+            out.append((code not in seen,
+                        f"{where}: ATP code is unique (else {seen.get(code)})"))
+            seen[code] = where
     return out
 
 
