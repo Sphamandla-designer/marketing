@@ -12,46 +12,46 @@ import oc01_data as d
 from design import (Sheet, RED, INK, MUTED, HAIR, WHITE, TINT, BRAND, BAND, RADIUS,
                     centre_baseline, text_width)
 
-CODE_W, OBS_W, FLAG_W = 16.0, 52.0, 8.0
-ROW_H = 5.8            # brief: 6 mm; 5.8 mm is what lets page 1 hold its four categories
+CODE_W, OBS_W, FLAG_W = 18.0, 52.0, 8.0
+ROW_H = 5.3            # brief: 6 mm; 5.3 mm is what lets page 1 hold its four categories in cards
 BAR_H = 7.5            # brief: 8 mm; see ROW_H
 LABEL_PT, DESC_PT, CODE_PT = 9.5, 9.0, 11.0
-LABEL_LINE = 3.5       # a label wider than its column takes a second line (7.8 mm row)
-CAT_GAP = 0.8
+LABEL_LINE = 3.3       # a label wider than its column takes a second line (7.2 mm box)
+CAT_GAP = 1.2
 TITLE = "Conduct Observation Code Reference"
 
 
 def _category(s, title, tint, items):
-    """A red category bar and its rows. Returns the y below the block."""
-    x0, w = s.x0, s.w
+    """A black category bar and its boxed rows: code chip, label box,
+    description box and flag box, on alternating pale bands. Returns the y
+    below the block."""
+    x0, w = s._inner()
     desc_w = w - CODE_W - OBS_W - FLAG_W
+    s.bar(title, size=9.5, h=6.0)
+    s.y -= 0.5
     y = s.y
-    s.rect(x0, y, w, BAR_H, fill=BRAND, radius=RADIUS["bar"])
-    s.text(title, x0 + 3.0, centre_baseline(y, BAR_H, 9.5), 9.5, "b", WHITE)
-    y += BAR_H
+    box_h = ROW_H - s.BOX_GAP
     for i, (code, label, desc, flag) in enumerate(items):
-        lines = s.wrap(label, OBS_W - 3.0, LABEL_PT, "b")
-        rh = ROW_H if len(lines) == 1 else 0.8 + LABEL_LINE * len(lines)
+        lines = s.wrap(label, OBS_W - s.BOX_X - 3.0, LABEL_PT, "b")
+        bh = box_h if len(lines) == 1 else 0.6 + LABEL_LINE * len(lines)
         if i % 2 == 1:
-            s.rect(x0, y, w, rh, fill=TINT)
-        # code, centred in its column
-        s.text(code, x0 + CODE_W / 2, centre_baseline(y, rh, CODE_PT), CODE_PT,
-               "b", BRAND, "center")
-        # label, on one or two lines
-        first = centre_baseline(y, rh, LABEL_PT) - (len(lines) - 1) * LABEL_LINE / 2
+            s.rect(x0 - 0.6, y - s.BOX_GAP / 2, w + 1.2, bh + s.BOX_GAP, fill=TINT, radius=0.8)
+        s.box(x0, y, CODE_W - s.BOX_X, bh, code, CODE_PT, "b", "center", chip=True)
+        lx = x0 + CODE_W
+        s.box(lx, y, OBS_W - s.BOX_X, bh)
+        first = centre_baseline(y, bh, LABEL_PT) - (len(lines) - 1) * LABEL_LINE / 2
         for k, line in enumerate(lines):
-            s.text(line, x0 + CODE_W + 1.5, first + k * LABEL_LINE, LABEL_PT, "b", INK)
-        # description, always one line: the check fails if it would wrap
-        dx = x0 + CODE_W + OBS_W + settings.CELL_PAD
-        if text_width(desc, DESC_PT) > desc_w - settings.CELL_PAD * 2:
+            s.text(line, lx + 1.5, first + k * LABEL_LINE, LABEL_PT, "b", BRAND)
+        dx = x0 + CODE_W + OBS_W
+        if text_width(desc, DESC_PT) > desc_w - s.BOX_X - settings.CELL_PAD * 2:
             s.truncated.append(f"{code}: description needs more than one line")
-        s.text(desc, dx, centre_baseline(y, rh, DESC_PT), DESC_PT, "r", INK)
+        s.box(dx, y, desc_w - s.BOX_X, bh, desc, DESC_PT)
+        fx = x0 + w - FLAG_W
+        s.box(fx, y, FLAG_W, bh)
         if flag:
-            s.symbol("triangle" if flag == d.SERIOUS else "diamond",
-                     x0 + w - FLAG_W / 2, y + rh / 2, 2.6)
-        s.line(x0, y + rh, x0 + w, y + rh, HAIR, 0.25)
-        y += rh
-    s.rect(x0, s.y + BAR_H, w, y - s.y - BAR_H, stroke=HAIR, lw=0.4)
+            s.symbol("triangle" if flag == d.SERIOUS else "diamond", fx + FLAG_W / 2,
+                     y + bh / 2, 2.6)
+        y += bh + s.BOX_GAP
     s.y = y + CAT_GAP
     return y
 
@@ -71,42 +71,43 @@ def page1():
     s = Sheet()
     s.header("OC-01", "CONDUCT OBSERVATION CODE MASTER", d.STATUS, version=d.MASTER_VERSION,
              period=f"Academic year {settings.ACADEMIC_YEAR}", masthead="CONDUCT OBSERVATION CODES")
+    s.card_begin()
     s.title_bar("CONDUCT OBSERVATION CODE REFERENCE", "Copy the applicable code onto the daily form")
     s.info_bar([[
         ("Academic year", str(settings.ACADEMIC_YEAR)), ("Effective date", "__________"),
         ("Approved by", "SMT / SGB"), ("Master version", d.MASTER_VERSION),
         ("Status", d.STATUS, "red"),
     ]])
-    # flag legend, directly under the info bar
-    s.y -= settings.BLOCK_GAP - 1.5
-    # the legend, its flags drawn as shapes
-    lx, lh = s.x0 + settings.PANEL_PAD, 3.6
+    # the flag legend, its flags drawn as shapes
+    x0, _ = s._inner()
+    lx, lh = x0 + 1.0, 3.6
     base = centre_baseline(s.y, lh, 8.5)
     for kind, text in (("triangle", "Incident report follows  \u00b7  "),
                        ("diamond", "Safeguarding: protected process  \u00b7  Flags proposed, awaiting SMT approval")):
         s.symbol(kind, lx + 1.3, s.y + lh / 2, 2.4)
         lx += 3.6
         lx += s.text(text, lx, base, 8.5, "b", BRAND)
-    s.y += 3.6 + 1.5
+    s.y += lh + 1.5
+    s.status_line(settings.DRAFT_NOTICE)
+    s.y -= 1.5
+    s.card_end()
+    s.card_begin()
     for title, tint, items in d.PAGE_1:
         _category(s, title, tint, items)
-    s.y += settings.BLOCK_GAP - CAT_GAP
+    s.y -= CAT_GAP
+    s.card_end(gap=settings.BLOCK_GAP)
     _footer(s, 1)
     return s
 
 
 def page2():
     s = Sheet()
-    h = 8.0
-    s.rect(s.x0, s.y, s.w, h, fill=BRAND, radius=RADIUS["bar"])
-    s.text(f"OC-01 · {TITLE} (continued)", s.x0 + 3.5,
-           centre_baseline(s.y, h, 10), 10, "b", WHITE)
-    s.text(f"v{d.MASTER_VERSION} \u00b7 {d.STATUS}", s.x0 + s.w - 3.5,
-           centre_baseline(s.y, h, 8), 8, "i", WHITE, "right")
-    s.y += h + settings.BLOCK_GAP
+    s.card_begin()
+    s.bar(f"OC-01 \u00b7 {TITLE} (continued)", f"v{d.MASTER_VERSION} \u00b7 {d.STATUS}")
     for title, tint, items in d.PAGE_2:
         _category(s, title, tint, items)
-    s.y += settings.BLOCK_GAP - CAT_GAP
+    s.y -= CAT_GAP
+    s.card_end(gap=settings.BLOCK_GAP)
     _footer(s, 2)
     return s
 

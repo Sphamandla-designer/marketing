@@ -167,6 +167,20 @@ class Sheet:
         return out
 
     # ---------------------------------------------------------------- blocks
+    # The First Home Finance grammar, measured from the form: every block is a
+    # rounded card (0.5 pt rule, 2.4 mm radius) with air inside and between
+    # cards; a dark title bar; a slate heading band; rows on alternating pale
+    # bands; and every value in its own rounded white box, 4.8 mm tall with a
+    # 0.5 pt rule, at a 6 mm pitch.
+    PAD = 2.5          # card inner padding
+    CARD_GAP = 4.5     # air between cards
+    BOX_H = 4.8        # value box height
+    BOX_GAP = 1.2      # vertical air between boxes (row pitch = BOX_H + BOX_GAP)
+    BOX_X = 1.0        # horizontal air between boxes
+    BOX_R = 1.2        # value box corner radius
+    BAR_H = 6.5        # card title bar
+    BAND_H = 4.8       # heading band
+
     def header(self, code, name, status, version=None, period=None, masthead=None):
         """Crest, centred school block and the CONTROLLED REFERENCE panel, laid
         out as the forms' masthead: school name, the document title letter-
@@ -182,11 +196,9 @@ class Sheet:
         cx = (self.x0 + crest + 3 + panel_x - 3) / 2
         self.text(settings.SCHOOL_NAME, cx, y + 7.2, 13.5, "b", BRAND, "center")
         self.tracked(masthead or name, cx, y + 13.4, 8.5, "b", BAND, track=1.6, align="center")
-        self.text(period or f"{settings.ACADEMIC_YEAR} · Term {settings.TERM}",
+        self.text(period or f"{settings.ACADEMIC_YEAR} \u00b7 Term {settings.TERM}",
                   cx, y + 20.4, 9, "i", BRAND, "center")
 
-        # the panel: a black strip with the panel title, then the code, the
-        # document name and the version line. Nothing in it is below 8 pt.
         strip_h = 4.6
         name_lines = self.wrap(name, panel_w - 6, 8, "b")
         panel_h = strip_h + 6.0 + 3.6 * len(name_lines) + 4.6
@@ -201,182 +213,190 @@ class Sheet:
         ny = y + strip_h + 8.6
         for i, line in enumerate(name_lines):
             self.text(line, pcx, ny + i * 3.6, 8, "b", BRAND, "center")
-        self.text(f"VERSION {version or settings.LIST_VERSION} · {status}", pcx,
+        self.text(f"VERSION {version or settings.LIST_VERSION} \u00b7 {status}", pcx,
                   ny + len(name_lines) * 3.6 + 0.8, 8, "r", BAND, "center")
-        # the page code under the panel, as the forms print beside the barcode
         self.text(f"{code.replace('-', '')}-P1", self.x0 + self.w, y + h - 1.6, 8,
                   "r", BAND, "right")
         self.y = y + h + settings.BLOCK_GAP
 
+    # ---- cards
+    def card_begin(self):
+        """Open a rounded card; everything until card_end draws inside it."""
+        self._card_y0 = self.y
+        self.y += self.PAD
+        self.cx = self.x0 + self.PAD
+        self.cw = self.w - self.PAD * 2
+
+    def card_end(self, gap=None):
+        self.y += self.PAD
+        self.rect(self.x0, self._card_y0, self.w, self.y - self._card_y0,
+                  stroke=BRAND, lw=0.5, radius=RADIUS["card"])
+        self.y += self.CARD_GAP if gap is None else gap
+        self.cx, self.cw = self.x0, self.w
+
+    def _inner(self):
+        return getattr(self, "cx", self.x0), getattr(self, "cw", self.w)
+
+    def bar(self, title, instruction=None, size=10, h=None):
+        """The card's title bar: black, rounded, white bold caps, an italic
+        instruction on the right."""
+        x, w = self._inner()
+        h = h or self.BAR_H
+        self.rect(x, self.y, w, h, fill=BRAND, radius=RADIUS["bar"])
+        self.text(title, x + 3.0, centre_baseline(self.y, h, size), size, "b", WHITE)
+        if instruction:
+            self.text(instruction, x + w - 3.0, centre_baseline(self.y, h, 8), 8,
+                      "i", WHITE, "right")
+        self.y += h + 1.5
+
     def title_bar(self, title, instruction):
-        """The section bar: black, rounded, white bold caps, the instruction
-        in white italic on the right, as the forms' card headers."""
-        h = 8.0
-        self.rect(self.x0, self.y, self.w, h, fill=BRAND, radius=RADIUS["bar"])
-        self.text(title, self.x0 + 3.5, centre_baseline(self.y, h, 11), 11, "b",
-                  WHITE)
-        self.text(instruction, self.x0 + self.w - 3.5,
-                  centre_baseline(self.y, h, 8.5), 8.5, "i", WHITE, "right")
-        self.y += h + settings.BLOCK_GAP
+        self.bar(title, instruction, size=11)
+
+    def panel_title(self, title, y=None, w=None, x=None):
+        """A card title bar, returning the y below it (kept for callers)."""
+        if y is not None:
+            self.y = y
+        self.bar(title)
+        return self.y
 
     def status_line(self, text):
         """The forms' instruction band: band grey, white italic."""
+        x, w = self._inner()
         h = 5.0
-        self.rect(self.x0, self.y, self.w, h, fill=BAND, radius=RADIUS["band"])
-        self.text(text, self.x0 + 2.6, centre_baseline(self.y, h, 8), 8, "i", WHITE)
-        self.y += h + 2.5
+        self.rect(x, self.y, w, h, fill=BAND, radius=RADIUS["band"])
+        self.text(text, x + 2.6, centre_baseline(self.y, h, 8), 8, "i", WHITE)
+        self.y += h + 1.5
 
     def note_line(self, text, font="i", size=8, color=MUTED):
         """One line of small text below a block, e.g. the elective note."""
+        x, _ = self._inner()
         h = 4.0
-        self.text(text, self.x0 + 1.0, centre_baseline(self.y, h, size), size,
-                  font, color)
-        self.y += h + settings.BLOCK_GAP
+        self.text(text, x + 1.0, centre_baseline(self.y, h, size), size, font, color)
+        self.y += h
 
-    MIN_ITEM_GAP = 6.0
+    def box(self, x, y, w, h, text="", size=9, font="r", align="left", chip=False,
+            color=BRAND, lines=None):
+        """One rounded value box: white with a grey rule, or a pale label chip."""
+        self.rect(x, y, w, h, fill=PALE if chip else WHITE,
+                  stroke=None if chip else GRID, lw=0.5, radius=self.BOX_R)
+        if lines:
+            first = centre_baseline(y, h, size) - (len(lines) - 1) * self.LINE / 2
+            for k, line in enumerate(lines):
+                self.text(line, x + settings.CELL_PAD, first + k * self.LINE, size,
+                          font, color)
+            return
+        if not text:
+            return
+        text = self.clip(text, w - settings.CELL_PAD * 2, size, font)
+        base = centre_baseline(y, h, size)
+        if align == "center":
+            self.text(text, x + w / 2, base, size, font, color, "center")
+        elif align == "right":
+            self.text(text, x + w - settings.CELL_PAD, base, size, font, color, "right")
+        else:
+            self.text(text, x + settings.CELL_PAD, base, size, font, color)
 
     def info_bar(self, rows, big_first=False):
         """
-        The pale label panel: a rounded pale-grey card; `rows` is a list of
-        lists of (label, value) or (label, value, "red") for an emphasised
-        value. A row whose items cannot sit MIN_ITEM_GAP apart is broken over
-        more lines, so a long value can never run into the label beside it.
+        The forms' header block: each item a pale label chip beside a white
+        value box, spread across the line; a row that will not fit breaks over
+        more lines. (label, value) or (label, value, "red") for bold values.
         """
-        line_h = 6.2
-        rows = self._fit_info_rows(rows, big_first, line_h)
-        h = settings.PANEL_PAD * 2 + line_h * len(rows)
-        self.rect(self.x0, self.y, self.w, h, fill=PALE, radius=RADIUS["card"])
-        for ri, row in enumerate(rows):
-            top = self.y + settings.PANEL_PAD + ri * line_h
-            base = centre_baseline(top, line_h, 9)
+        x0, w = self._inner()
+        pitch = self.BOX_H + self.BOX_GAP
+        avail = w
+        GAP = 3.0
 
-            def spec(ci, pair):
-                label, value = pair[0], pair[1]
-                red = len(pair) > 2 and pair[2] == "red"
-                big = big_first and ri == 0 and ci == 0
-                lw = text_width(f"{label}:  ", 8.5, "b")
-                vw = text_width(value, 12 if big else 9, "b" if (big or red) else "r")
-                return label, value, big, lw, vw, red
-            items = [spec(ci, pair) for ci, pair in enumerate(row)]
-            natural = sum(i[3] + i[4] for i in items)
-            free = self.w - settings.PANEL_PAD * 2 - natural
-            spread = free / (len(items) - 1) if len(items) > 1 else 0
-            step = max(self.MIN_ITEM_GAP, min(spread, 26.0))
-            x = self.x0 + settings.PANEL_PAD
-            for label, value, big, lw, vw, red in items:
-                self.text(f"{label}:  ", x, base, 8.5, "b", BRAND)
-                self.text(value, x + lw,
-                          centre_baseline(top, line_h, 12) if big else base,
-                          12 if big else 9, "b" if (big or red) else "r", BRAND)
-                x += lw + vw + step
-        self.y += h + settings.BLOCK_GAP
-
-    def _fit_info_rows(self, rows, big_first, line_h):
-        """Break any row whose items will not fit on one line."""
-        out = []
-        avail = self.w - settings.PANEL_PAD * 2
+        def dims(pair, big):
+            label, value = pair[0], pair[1]
+            bold = big or (len(pair) > 2 and pair[2] == "red")
+            lw = text_width(f"{label}:", 8.5, "b") + 4.6
+            vw = max(14.0, text_width(value, 12 if big else 9, "b" if bold else "r") + 5.0)
+            return lw, vw, bold
+        lines, line, used = [], [], 0.0
         for ri, row in enumerate(rows):
-            def width(ci, pair):
-                big = big_first and ri == 0 and ci == 0
-                red = len(pair) > 2 and pair[2] == "red"
-                return (text_width(f"{pair[0]}:  ", 8.5, "b")
-                        + text_width(pair[1], 12 if big else 9, "b" if (big or red) else "r"))
             line, used = [], 0.0
             for ci, pair in enumerate(row):
-                pw = width(ci, pair)
-                gap = self.MIN_ITEM_GAP if line else 0
-                if line and used + gap + pw > avail:
-                    out.append(line)
-                    line, used = [pair], pw
-                else:
-                    line.append(pair)
-                    used += gap + pw
-            out.append(line)
-        return out
+                big = big_first and ri == 0 and ci == 0
+                lw, vw, bold = dims(pair, big)
+                need = lw + self.BOX_X + vw
+                if line and used + GAP + need > avail:
+                    lines.append(line)
+                    line, used = [], 0.0
+                line.append((pair, big, lw, vw, bold))
+                used += (GAP if len(line) > 1 else 0) + need
+            lines.append(line)
+        for items in lines:
+            natural = sum(lw + self.BOX_X + vw for _, _, lw, vw, _ in items)
+            spread = (avail - natural) / (len(items) - 1) if len(items) > 1 else 0
+            step = max(GAP, min(spread, 24.0))
+            x = x0
+            y = self.y
+            for pair, big, lw, vw, bold in items:
+                label, value = pair[0], pair[1]
+                self.box(x, y, lw, self.BOX_H, f"{label}:", 8.5, "b", chip=True)
+                x += lw + self.BOX_X
+                self.box(x, y, vw, self.BOX_H, value, 12 if big else 9,
+                         "b" if bold else "r", "center" if big else "left")
+                x += vw + step
+            self.y += pitch
+        self.y += 0.6
 
-    HEAD_PT = 9.0     # the spec's 9 pt minimum applies to headings too
-    HEAD_LINE = 3.9
+    def heading_band(self, x, w, cols, widths=None):
+        """Slate band with the column headings in white bold."""
+        widths = widths or _resolve(cols, w)
+        h = self.BAND_H
+        self.rect(x, self.y, w, h, fill=BAND, radius=RADIUS["band"])
+        cx = x
+        for (head, _, align), cw in zip(cols, widths):
+            hx = (cx + cw / 2 if align == "center" else cx + settings.CELL_PAD)
+            self.text(self.clip(head, cw - settings.CELL_PAD * 2, 8.5, "b"), hx,
+                      centre_baseline(self.y, h, 8.5), 8.5, "b", WHITE, align)
+            cx += cw
+        self.y += h + self.BOX_GAP
+        return widths
+
+    HEAD_PT = 9.0
     LINE = 3.6
 
     def table(self, x, w, cols, rows, row_h, head_h=None, size=9, y=None,
-              zebra=True, bold_cols=(), red_cols=(), wrap_cols=()):
+              zebra=True, bold_cols=(), red_cols=(), wrap_cols=(), chip_cols=(0,)):
         """
-        A table with a black header row, alternating pale rows and grid rules,
-        in a rounded hairline frame. `cols` is a list of (heading, width_mm,
-        align); a width of None shares out the remaining width. The heading
-        row grows to as many lines as the longest heading needs, so a heading
-        is never shortened. Returns the y below the table.
+        A heading band and boxed rows: each value in its own rounded box, the
+        first column a pale label chip, rows on alternating pale bands.
+        `row_h` is the pitch; the box is `row_h - BOX_GAP` tall. A value in a
+        wrap column takes as many lines as it needs and its row grows.
+        Returns the y below the table.
         """
-        top = self.y if y is None else y
-        widths = _resolve(cols, w)
-        heads = [self.wrap(c[0], cw - settings.CELL_PAD * 2, self.HEAD_PT, "b")
-                 for c, cw in zip(cols, widths)]
-        if head_h is None:
-            head_h = 2.4 + self.HEAD_LINE * max(len(h) for h in heads)
-        self.rect(x, top, w, head_h, fill=BRAND, radius=RADIUS["box"])
-        # square off the bottom of the header so it meets the rows cleanly
-        self.rect(x, top + head_h - 1.2, w, 1.2, fill=BRAND)
-        cx = x
-        for (head, _, align), cw, lines in zip(cols, widths, heads):
-            first = centre_baseline(top, head_h, self.HEAD_PT) \
-                - (len(lines) - 1) * self.HEAD_LINE / 2
-            for k, line in enumerate(lines):
-                hx = (cx + cw / 2 if align == "center"
-                      else cx + cw - settings.CELL_PAD if align == "right"
-                      else cx + settings.CELL_PAD)
-                self.text(line, hx, first + k * self.HEAD_LINE, self.HEAD_PT,
-                          "b", WHITE, align)
-            cx += cw
-        ty = top + head_h
+        if y is not None:
+            self.y = y
+        widths = self.heading_band(x, w, cols)
+        box_h = row_h - self.BOX_GAP
+        ty = self.y
         for ri, row in enumerate(rows):
             wrapped = {}
             for ci in wrap_cols:
                 font = "b" if ci in bold_cols else "r"
-                lines = self.wrap(row[ci], widths[ci] - settings.CELL_PAD * 2, size, font)
+                lines = self.wrap(row[ci], widths[ci] - self.BOX_X - settings.CELL_PAD * 2,
+                                  size, font)
                 if len(lines) > 1:
                     wrapped[ci] = lines
-            rh = max(row_h, 1.4 + self.LINE * max((len(v) for v in wrapped.values()), default=1)) \
-                if wrapped else row_h
+            bh = max(box_h, 1.2 + self.LINE * max((len(v) for v in wrapped.values()), default=1)) \
+                if wrapped else box_h
             if zebra and ri % 2 == 1:
-                self.rect(x, ty, w, rh, fill=TINT)
+                self.rect(x - 0.6, ty - self.BOX_GAP / 2, w + 1.2, bh + self.BOX_GAP,
+                          fill=TINT, radius=0.8)
             cx = x
             for ci, (value, cw) in enumerate(zip(row, widths)):
                 align = cols[ci][2]
                 font = "b" if ci in bold_cols else "r"
-                colour = INK
-                if ci in wrapped:
-                    lines = wrapped[ci]
-                    first = centre_baseline(ty, rh, size) - (len(lines) - 1) * self.LINE / 2
-                    for k, line in enumerate(lines):
-                        self.text(line, cx + settings.CELL_PAD, first + k * self.LINE,
-                                  size, font, colour)
-                else:
-                    self._cell(value, cx, ty, cw, rh, size, font, colour, align)
+                bw = cw - self.BOX_X
+                self.box(cx, ty, bw, bh, "" if ci in wrapped else value, size, font,
+                         align, chip=ci in chip_cols, lines=wrapped.get(ci))
                 cx += cw
-            ty += rh
-            self.line(x, ty, x + w, ty, GRID, 0.25)
-        self.rect(x, top, w, ty - top, stroke=GRID, lw=0.4, radius=RADIUS["box"])
+            ty += bh + self.BOX_GAP
+        self.y = ty
         return ty
-
-    def _cell(self, value, x, y, w, h, size, font, colour, align):
-        base = centre_baseline(y, h, size)
-        value = self.clip(value, w - settings.CELL_PAD * 2, size, font)
-        if align == "center":
-            self.text(value, x + w / 2, base, size, font, colour, "center")
-        elif align == "right":
-            self.text(value, x + w - settings.CELL_PAD, base, size, font, colour, "right")
-        else:
-            self.text(value, x + settings.CELL_PAD, base, size, font, colour)
-
-    def panel_title(self, title, y=None, w=None, x=None):
-        """A black rounded group bar with the heading in white caps."""
-        top = self.y if y is None else y
-        h = 6.0
-        self.rect(self.x0 if x is None else x, top, self.w if w is None else w,
-                  h, fill=BRAND, radius=RADIUS["bar"])
-        self.text(title, (self.x0 if x is None else x) + 3.0,
-                  centre_baseline(top, h, 9), 9, "b", WHITE)
-        return top + h + 1.2
 
     def footer(self, code, title, note, alert=None, subnote=None, page_label=None,
                page=(1, 1)):

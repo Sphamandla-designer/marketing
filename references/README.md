@@ -106,10 +106,10 @@ and "Page X of 2".
   immediately. The build fails if a flag appears on any code other than the
   proposed ones.
 - Layout notes: the brief's 6 mm row pitch and 8 mm category bars do not fit
-  page 1's four categories under the full header, so the pitch is 5.8 mm and
-  the bars 7.5 mm (constants at the top of `oc01.py`); the labels that are
-  wider than the 52 mm Observation column at 9.5 pt bold take two lines (a
-  7.8 mm row) rather than being shortened. Leon's footer lines print one per
+  page 1's four categories in cards under the full header, so the pitch is
+  5.3 mm (a constant at the top of `oc01.py`); the labels that are wider than
+  the 52 mm Observation column at 9.5 pt bold take two lines (a 7.2 mm box)
+  rather than being shortened. Leon's footer lines print one per
   line: at 8 pt on a portrait page the note and the red alert cannot share a
   line, and the controlled line cannot hold the school name as well, so
   "Fisantekraal High School · Page X of 2" sits at the right of the sub-note
@@ -150,16 +150,19 @@ and "Page X of 2".
 ## Design
 
 The whole set, forms and reference documents alike, is drawn in the
-black-and-white house style of the SA-01 and SA-02 forms, which follow the
-First Home Finance application form held at the repository root: Roboto
-throughout (Roboto Mono for the ATP codes), black rounded section bars with
-white caps and an italic instruction on the right, a band-grey instruction
-strip for the draft status, pale-grey label panels, tables with a black
-heading row, alternating pale rows and grid rules inside a rounded hairline
-frame, a "CONTROLLED REFERENCE" panel in the masthead where the forms carry
-"FORM CODE", the page code (RL01-P1) beneath it, and a page chip in the
-footer. The crest is desaturated on the way in, so nothing on any page is in
-colour and everything photocopies cleanly. Flags on OC-01 are drawn as shapes.
-The palette is the forms' own (`forms/js/layout.js` COLORS), so the set reads
-as one family. All of it lives in `design.py`; the documents only place
-blocks.
+black-and-white house style of the First Home Finance application form held
+at the repository root, measured from that form: every block is a rounded
+card (0.5 pt rule, 2.4 mm radius) with air inside and between cards; each
+card opens with a dark title bar and an italic instruction on the right; a
+slate heading band names the columns; rows sit on alternating pale bands at a
+6 mm pitch; and every value prints in its own rounded white box, 4.8 mm tall
+with a 0.5 pt rule, beside a pale label chip. Roboto throughout (Roboto Mono
+for the ATP codes); the draft status in the forms' band-grey instruction
+strip; a "CONTROLLED REFERENCE" panel in the masthead where the forms carry
+"FORM CODE", the page code (RL01-P1) beneath it; a page chip in the footer.
+The crest is desaturated on the way in, so nothing on any page is in colour
+and everything photocopies cleanly. OC-01's flags are drawn as shapes. The
+palette is the forms' own (`forms/js/layout.js` COLORS). All of it lives in
+`design.py`; the documents only place cards, bars and boxes. Two dense pages
+run tighter than the 6 mm pitch so that they stay one page: SC-01 at 5.4 mm
+and OC-01 at 5.3 mm.
