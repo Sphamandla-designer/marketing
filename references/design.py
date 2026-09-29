@@ -137,7 +137,7 @@ class Sheet:
         return out
 
     # ---------------------------------------------------------------- blocks
-    def header(self, code, name, status):
+    def header(self, code, name, status, version=None):
         """Crest, centred school block and the controlled-reference box."""
         y = self.y
         h = settings.HEADER_H
@@ -156,15 +156,15 @@ class Sheet:
 
         # controlled-reference box. Nothing in it is set below 8 pt; the
         # document name wraps rather than shrink to fit.
-        box_h = 25.0
+        name_lines = self.wrap(name, box_w - 4, 8, "b")
+        box_h = min(h, 21.4 + 3.6 * len(name_lines))   # 25 mm for a one-line name
         self.rect(box_x, y, box_w, box_h, fill=WHITE, stroke=BOX, lw=0.9)
         cbx = box_x + box_w / 2
         self.text("CONTROLLED REFERENCE", cbx, y + 5.0, 8, "b", INK, "center")
         self.text(code, cbx, y + 13.2, 15, "b", RED, "center")
-        name_lines = self.wrap(name, box_w - 4, 8, "b")
         for i, line in enumerate(name_lines):
             self.text(line, cbx, y + 17.8 + i * 3.6, 8, "b", INK, "center")
-        self.text(f"VERSION {settings.LIST_VERSION} \u00b7 {status}", cbx,
+        self.text(f"VERSION {version or settings.LIST_VERSION} \u00b7 {status}", cbx,
                   y + 17.8 + len(name_lines) * 3.6 + 1.0, 8, "r", MUTED, "center")
         self.y = y + h + settings.BLOCK_GAP
 
@@ -209,11 +209,12 @@ class Sheet:
             # each pair takes its natural width; what is left over is shared out
             # between them, so a long value can never run into the next label
             def spec(ci, pair):
-                label, value = pair
+                label, value = pair[0], pair[1]
+                red = len(pair) > 2 and pair[2] == "red"
                 big = big_first and ri == 0 and ci == 0
                 lw = text_width(f"{label}:  ", 8.5, "b")
-                vw = text_width(value, 12 if big else 9, "b" if big else "r")
-                return label, value, big, lw, vw
+                vw = text_width(value, 12 if big else 9, "b" if (big or red) else "r")
+                return label, value, big, lw, vw, red
             items = [spec(ci, pair) for ci, pair in enumerate(row)]
             natural = sum(i[3] + i[4] for i in items)
             free = self.w - settings.PANEL_PAD * 2 - natural
@@ -221,12 +222,12 @@ class Sheet:
             # a line that is not full keeps a steady gap rather than stretching
             step = max(self.MIN_ITEM_GAP, min(spread, 26.0))
             x = self.x0 + settings.PANEL_PAD
-            for label, value, big, lw, vw in items:
+            for label, value, big, lw, vw, red in items:
                 self.text(f"{label}:  ", x, base, 8.5, "b", INK)
                 self.text(value, x + lw,
                           centre_baseline(top, line_h, 12) if big else base,
-                          12 if big else 9, "b" if big else "r",
-                          RED if big else INK)
+                          12 if big else 9, "b" if (big or red) else "r",
+                          RED if (big or red) else INK)
                 x += lw + vw + step
         self.y += h + settings.BLOCK_GAP
 
@@ -237,8 +238,9 @@ class Sheet:
         for ri, row in enumerate(rows):
             def width(ci, pair):
                 big = big_first and ri == 0 and ci == 0
+                red = len(pair) > 2 and pair[2] == "red"
                 return (text_width(f"{pair[0]}:  ", 8.5, "b")
-                        + text_width(pair[1], 12 if big else 9, "b" if big else "r"))
+                        + text_width(pair[1], 12 if big else 9, "b" if (big or red) else "r"))
             line, used = [], 0.0
             for ci, pair in enumerate(row):
                 pw = width(ci, pair)
@@ -336,7 +338,7 @@ class Sheet:
                   centre_baseline(top, h, 9), 9, "b", WHITE)
         return top + h + 1.2
 
-    def footer(self, code, title, note, alert=None, subnote=None):
+    def footer(self, code, title, note, alert=None, subnote=None, page_label=None):
         """Hairline, the bold 8 pt note, an optional red note on the right and
         an optional grey sub-note, then the three-part controlled line."""
         bottom = settings.PAGE_H - settings.MARGIN
@@ -352,6 +354,9 @@ class Sheet:
             self.text(alert, self.x0 + self.w, top + 3.6, 8, "b", RED, "right")
         if subnote:
             self.text(subnote, self.x0, top + 3.6 + 3.8 * len(lines), 8, "r", MUTED)
+        if page_label:
+            self.text(page_label, self.x0 + self.w, top + 3.6 + 3.8 * len(lines), 8,
+                      "b", INK, "right")
         base = bottom - 0.8
         left = f"{code}  |  {title}"
         lw = self.text(left, self.x0, base, 8, "r", MUTED)

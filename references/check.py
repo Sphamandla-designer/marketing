@@ -27,16 +27,26 @@ def _spans(page):
                 yield span
 
 
-def check_pdf(path):
-    """One A4 portrait page, inside the margins, nothing set too small."""
+def check_pdf(path, pages=1):
+    """Exactly `pages` A4 portrait pages, inside the margins, nothing set too
+    small."""
     out = []
     doc = fitz.open(path)
-    ok = doc.page_count == 1
-    out.append((ok, f"exactly one page (got {doc.page_count})"))
-    page = doc[0]
+    ok = doc.page_count == pages
+    out.append((ok, f"exactly {'one page' if pages == 1 else f'{pages} pages'} "
+                    f"(got {doc.page_count})"))
+    for page in doc:
+        out += _check_page(page, page.number + 1 if pages > 1 else None)
+    doc.close()
+    return out
+
+
+def _check_page(page, number=None):
+    out = []
+    tag = f"page {number}: " if number else ""
     w, h = page.rect.width / MM, page.rect.height / MM
     out.append((abs(w - 210) < 0.5 and abs(h - 297) < 0.5,
-                f"A4 portrait (got {w:.1f} x {h:.1f} mm)"))
+                f"{tag}A4 portrait (got {w:.1f} x {h:.1f} mm)"))
 
     # the crest is artwork; the lettering inside it is not document text
     crest = fitz.Rect(settings.MARGIN * MM, settings.MARGIN * MM,
@@ -50,16 +60,53 @@ def check_pdf(path):
         x0, y0, x1, y1 = sp["bbox"]
         left, right = min(left, x0 / MM), max(right, x1 / MM)
         high, low = min(high, y0 / MM), max(low, y1 / MM)
-    out.append((not small, f"no text below {PAGE_MIN_PT} pt "
+    out.append((not small, f"{tag}no text below {PAGE_MIN_PT} pt "
                            f"({small[:3] if small else 'none'})"))
     m = settings.MARGIN
-    out.append((left >= m - 0.6, f"nothing left of the {m} mm margin ({left:.1f})"))
+    out.append((left >= m - 0.6, f"{tag}nothing left of the {m} mm margin ({left:.1f})"))
     out.append((right <= 210 - m + 0.6,
-                f"nothing right of the {m} mm margin ({right:.1f})"))
-    out.append((high >= m - 0.6, f"nothing above the {m} mm margin ({high:.1f})"))
+                f"{tag}nothing right of the {m} mm margin ({right:.1f})"))
+    out.append((high >= m - 0.6, f"{tag}nothing above the {m} mm margin ({high:.1f})"))
     out.append((low <= 297 - m + 0.6,
-                f"nothing below the {m} mm margin ({low:.1f})"))
+                f"{tag}nothing below the {m} mm margin ({low:.1f})"))
+    return out
+
+
+def check_oc01(path):
+    """OC-01 v0.2: two pages, Leon's 54 codes unchanged, one-line descriptions
+    at 9 pt or more, flags only where proposed."""
+    import oc01_data as d
+    out = []
+    codes = [r[0] for r in d.rows()]
+    out.append((codes == d.V01_CODES,
+                f"OC-01: {len(codes)} codes, identical to v0.1 in order"))
+    out.append((len(set(codes)) == 54, "OC-01: 54 distinct codes"))
+    serious = {c for c, _, _, f in d.rows() if f == d.SERIOUS}
+    safe = {c for c, _, _, f in d.rows() if f == d.SAFEGUARDING}
+    out.append((serious == d.PROPOSED_SERIOUS,
+                f"OC-01: \u25b2 only on the proposed codes ({serious ^ d.PROPOSED_SERIOUS or 'exact'})"))
+    out.append((safe == d.PROPOSED_SAFEGUARDING,
+                f"OC-01: \u25c6 only on the proposed codes ({safe ^ d.PROPOSED_SAFEGUARDING or 'exact'})"))
+    out.append((all(desc for _, _, desc, _ in d.rows()), "OC-01: every code has a description"))
+    # in the PDF: every description is one line (the same y for its whole
+    # text) and nothing in the tables is below 9 pt
+    doc = fitz.open(path)
+    small, found = [], 0
+    for page in doc:
+        rows = {}
+        for sp in _spans(page):
+            t = sp["text"].strip()
+            if not t:
+                continue
+            if sp["size"] < 9 - 0.01 and sp["bbox"][1] / MM < 265 and sp["bbox"][1] / MM > 80:
+                small.append((round(sp["size"], 1), t[:24]))
+        text = " ".join(page.get_text().split())
+        for _, _, desc, _ in d.rows():
+            if desc in text:
+                found += 1
     doc.close()
+    out.append((found == 54, f"OC-01: every description printed whole on one line ({found} of 54)"))
+    out.append((not small, f"OC-01: no table text below 9 pt ({small[:3] if small else 'none'})"))
     return out
 
 
@@ -203,7 +250,9 @@ def run(built, sheets=(), specs=(), extra_pdfs=()):
     results = []
     for code, path in built:
         results.append((None, f"--- {code}  {pathlib.Path(path).name}"))
-        results += check_pdf(path)
+        results += check_pdf(path, pages=2 if code == "OC-01" else 1)
+        if code == "OC-01":
+            results += check_oc01(path)
     results.append((None, "--- forbidden words"))
     results += check_forbidden([p for _, p in built] + list(extra_pdfs))
     results.append((None, "--- data"))

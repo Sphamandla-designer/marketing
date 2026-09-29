@@ -21,6 +21,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import settings
 import data
 import documents
+import oc01
 
 HERE = pathlib.Path(__file__).resolve().parent
 OUT = HERE / "output"
@@ -71,6 +72,8 @@ def build(specs):
     made.append(("SC-01", f"SC-01-Subject-Code-Key-Grade-{data.GRADE}.pdf",
                  documents.sc01()))
 
+    made.append(("OC-01", "OC-01-Conduct-Observation-Code-Reference.pdf", oc01.build()))
+
     for spec in specs:
         # one AT-01 page per term; four terms make the year
         for block in atp_terms(spec):
@@ -100,7 +103,7 @@ def deliver(built):
     keep = {p.name for _, p in built}
     for old in DELIVERABLES.glob("*.pdf"):
         if old.name.startswith(("RL-01", "SL-01", "CL-01", "SC-01", "AT-01",
-                                "SA-OC")) and old.name not in keep:
+                                "OC-01", "SA-OC")) and old.name not in keep:
             old.unlink()
             print(f"  removed stale {old.name}")
     for _, p in built:
