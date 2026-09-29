@@ -106,9 +106,9 @@ and "Page X of 2".
   immediately. The build fails if a flag appears on any code other than the
   proposed ones.
 - Layout notes: the brief's 6 mm row pitch and 8 mm category bars do not fit
-  page 1's four categories under the full header, so the pitch is 5.5 mm and
-  the bars 7.5 mm (constants at the top of `oc01.py`); 22 labels are wider
-  than the 52 mm Observation column at 9.5 pt bold and take two lines (a
+  page 1's four categories under the full header, so the pitch is 5.8 mm and
+  the bars 7.5 mm (constants at the top of `oc01.py`); the labels that are
+  wider than the 52 mm Observation column at 9.5 pt bold take two lines (a
   7.8 mm row) rather than being shortened. Leon's footer lines print one per
   line: at 8 pt on a portrait page the note and the red alert cannot share a
   line, and the controlled line cannot hold the school name as well, so
@@ -149,13 +149,17 @@ and "Page X of 2".
 
 ## Design
 
-Matched against the real OC-01 (`Fisantekraal_Conduct_Observation_Code_Reference_Demo`):
-the thin rounded frame just inside the page edge, square-cornered title bars and
-info panels, the controlled-reference box outlined in dark rather than red,
-`Label:` styling in the info bar, and red group bars with white caps for section
-headings. OC-01 itself is A4 landscape; these are A4 portrait because the brief
-sets that explicitly. SC-01 prints its nine abbreviations in three side-by-side
-columns and its 25 subject classes at a 5.5 mm row pitch (9 pt), which is what
-lets the whole grade fit one page. RL-01's combined-subject block prints full
-width below the whole-class and split blocks so that "Civil Technology
-(Woodworking)" is never shortened.
+The whole set, forms and reference documents alike, is drawn in the
+black-and-white house style of the SA-01 and SA-02 forms, which follow the
+First Home Finance application form held at the repository root: Roboto
+throughout (Roboto Mono for the ATP codes), black rounded section bars with
+white caps and an italic instruction on the right, a band-grey instruction
+strip for the draft status, pale-grey label panels, tables with a black
+heading row, alternating pale rows and grid rules inside a rounded hairline
+frame, a "CONTROLLED REFERENCE" panel in the masthead where the forms carry
+"FORM CODE", the page code (RL01-P1) beneath it, and a page chip in the
+footer. The crest is desaturated on the way in, so nothing on any page is in
+colour and everything photocopies cleanly. Flags on OC-01 are drawn as shapes.
+The palette is the forms' own (`forms/js/layout.js` COLORS), so the set reads
+as one family. All of it lives in `design.py`; the documents only place
+blocks.

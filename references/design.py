@@ -1,8 +1,11 @@
 """
-The shared design language for every Fisantekraal reference document, built to
-the written OC-01 specification: red masthead block, outlined controlled-
-reference box, full-width red title bar, light pink info panel, red-headed
-tables and a three-part footer.
+The shared design language for every Fisantekraal reference document, in the
+black-and-white house style of the SA-01 and SA-02 forms, which themselves
+follow the First Home Finance application form: Roboto, black rounded section
+bars with white caps, a band-grey instruction strip, pale-grey label panels,
+hairline rounded cards, a "CONTROLLED REFERENCE" panel in the masthead where
+the forms carry "FORM CODE", and a page chip in the footer. Everything prints
+in greyscale so it photocopies cleanly. The crest is desaturated on the way in.
 
 Everything is placed in millimetres; `Sheet` converts to PDF points once.
 """
@@ -15,25 +18,53 @@ import settings
 MM = 72.0 / 25.4
 ROOT = pathlib.Path(__file__).resolve().parent
 CREST = ROOT.parent / "forms" / "assets" / "crest.svg"
-FONT_DIR = pathlib.Path("/usr/share/fonts/truetype/dejavu")
+FORM_FONTS = ROOT.parent / "forms" / "assets" / "fonts"
 FONT_FILES = {
-    "r": FONT_DIR / "DejaVuSans.ttf",
-    "b": FONT_DIR / "DejaVuSans-Bold.ttf",
-    "m": FONT_DIR / "DejaVuSansMono-Bold.ttf",
+    "r": FORM_FONTS / "Roboto-Regular.ttf",
+    "b": FORM_FONTS / "Roboto-Bold.ttf",
+    "i": FORM_FONTS / "Roboto-Italic.ttf",
+    "m": ROOT / "fonts" / "RobotoMono-Bold.ttf",
 }
 _FONTS = {k: fitz.Font(fontfile=str(v)) for k, v in FONT_FILES.items()}
 
-RED = (0xC8 / 255, 0x10 / 255, 0x2E / 255)
-INK = (0x1A / 255, 0x1A / 255, 0x1A / 255)
-PINK = (0xFB / 255, 0xE3 / 255, 0xE6 / 255)
-TINT = (0xFD / 255, 0xF3 / 255, 0xF5 / 255)     # alternating row tint
-WHITE = (1.0, 1.0, 1.0)
-HAIR = (0xC9 / 255, 0xC9 / 255, 0xC9 / 255)
-MUTED = (0x5E / 255, 0x5E / 255, 0x5E / 255)
-FRAME = (0xD4 / 255, 0xD4 / 255, 0xD4 / 255)   # the thin border around the page
-BOX = (0x1A / 255, 0x1A / 255, 0x1A / 255)     # controlled-reference box border
 
-CAP = 0.729   # DejaVu Sans cap height, as a fraction of the em
+def _hex(h):
+    return tuple(int(h[i:i + 2], 16) / 255 for i in (1, 3, 5))
+
+
+# The forms' palette (forms/js/layout.js COLORS), so the whole set reads as one
+# family. The names RED and PINK are kept for the callers: in this house style
+# RED is the brand black and PINK the pale label grey.
+BRAND = _hex("#141414")     # every rule, heading and header bar
+BAND = _hex("#6B6B6B")      # instruction bands, secondary text
+PALE = _hex("#E8E8E8")      # label cells
+PALE_ALT = _hex("#F4F4F4")  # alternating rows
+GRID = _hex("#9A9A9A")      # table rules
+HAIRLINE = _hex("#C4C4C4")
+WHITE = (1.0, 1.0, 1.0)
+RED = BRAND
+INK = BRAND
+PINK = PALE
+TINT = PALE_ALT
+HAIR = GRID
+MUTED = BAND
+BOX = BRAND
+RADIUS = {"card": 2.4, "bar": 1.6, "band": 1.2, "box": 1.0, "chip": 1.4}
+
+CAP = 0.711   # Roboto cap height, as a fraction of the em
+
+_CREST_PIX = None
+
+
+def crest_pixmap():
+    """The crest, rasterised once and converted to greyscale (luma), as the
+    forms do, so it is never the one colour element on the page."""
+    global _CREST_PIX
+    if _CREST_PIX is None:
+        src = fitz.open(str(CREST))
+        pix = src[0].get_pixmap(dpi=300, alpha=True)
+        _CREST_PIX = fitz.Pixmap(fitz.csGRAY, pix)
+    return _CREST_PIX
 
 
 def text_width(s, size, font="r"):
@@ -54,12 +85,6 @@ class Sheet:
                                       height=settings.PAGE_H * MM)
         for name, path in FONT_FILES.items():
             self.page.insert_font(fontname=name, fontfile=str(path))
-        # OC-01 carries a thin rounded frame just inside the page edge
-        inset = 4.0
-        self.page.draw_rect(
-            fitz.Rect(inset * MM, inset * MM,
-                      (settings.PAGE_W - inset) * MM, (settings.PAGE_H - inset) * MM),
-            color=FRAME, width=0.6, radius=0.012)
         self.x0 = settings.MARGIN
         self.w = settings.PAGE_W - 2 * settings.MARGIN
         self.y = settings.MARGIN
@@ -75,7 +100,7 @@ class Sheet:
     def rect(self, x, y, w, h, fill=None, stroke=None, lw=0.4, radius=None):
         kw = {}
         if radius:
-            kw["radius"] = radius / min(w, h) / 2
+            kw["radius"] = min(0.5, radius / min(w, h))
         self.page.draw_rect(self._r(x, y, w, h), color=stroke, fill=fill,
                             width=lw if stroke else 0, **kw)
 
@@ -84,26 +109,31 @@ class Sheet:
                             fitz.Point(x2 * MM, y2 * MM), color=color, width=lw)
 
     def text(self, s, x, y, size=9, font="r", color=INK, align="left"):
-        """`y` is the baseline. Returns the width drawn, in mm. Font "i" is
-        italic: the regular face sheared, as no oblique DejaVu Sans is
-        installed."""
+        """`y` is the baseline. Returns the width drawn, in mm."""
         s = str(s)
         if not s:
             return 0.0
-        italic = font == "i"
-        if italic:
-            font = "r"
         w = text_width(s, size, font)
         left = x - w if align == "right" else x - w / 2 if align == "center" else x
-        pt = fitz.Point(left * MM, y * MM)
-        morph = (pt, fitz.Matrix(1, 0, -0.22, 1, 0, 0)) if italic else None
-        self.page.insert_text(pt, s, fontname=font, fontsize=size, color=color,
-                              morph=morph)
+        self.page.insert_text(fitz.Point(left * MM, y * MM), s, fontname=font,
+                              fontsize=size, color=color)
         return w
+
+    def symbol(self, kind, cx, cy, size=2.6, color=BRAND):
+        """A filled flag glyph drawn as a shape, so it needs no symbol font:
+        "triangle" (serious) or "diamond" (safeguarding), `size` mm tall,
+        centred on (cx, cy)."""
+        h = size / 2
+        if kind == "triangle":
+            pts = [(cx - h, cy + h), (cx + h, cy + h), (cx, cy - h)]
+        else:
+            pts = [(cx, cy - h), (cx + h, cy), (cx, cy + h), (cx - h, cy)]
+        pts = [fitz.Point(px * MM, py * MM) for px, py in pts]
+        self.page.draw_polyline(pts + [pts[0]], color=color, fill=color, width=0.2)
 
     def tracked(self, s, x, y, size=9, font="r", color=INK, track=1.6,
                 align="left"):
-        """Letter-spaced text, for the motto line."""
+        """Letter-spaced text, for the document title line under the school."""
         chars = list(str(s))
         total = sum(text_width(c, size, font) for c in chars) + track * (len(chars) - 1)
         cx = x - total / 2 if align == "center" else x
@@ -119,9 +149,9 @@ class Sheet:
         if text_width(s, size, font) <= max_w:
             return s
         self.truncated.append(s)
-        while len(s) > 1 and text_width(s + "\u2026", size, font) > max_w:
+        while len(s) > 1 and text_width(s + "…", size, font) > max_w:
             s = s[:-1]
-        return s + "\u2026"
+        return s + "…"
 
     def wrap(self, s, max_w, size, font="r"):
         """Greedy word wrap, returning a list of lines."""
@@ -137,42 +167,63 @@ class Sheet:
         return out
 
     # ---------------------------------------------------------------- blocks
-    def header(self, code, name, status, version=None):
-        """Crest, centred school block and the controlled-reference box."""
+    def header(self, code, name, status, version=None, period=None, masthead=None):
+        """Crest, centred school block and the CONTROLLED REFERENCE panel, laid
+        out as the forms' masthead: school name, the document title letter-
+        spaced beneath it, and the period line."""
         y = self.y
         h = settings.HEADER_H
-        crest = 18.0
-        src = fitz.open(str(CREST))
-        pdf = fitz.open("pdf", src.convert_to_pdf())
-        self.page.show_pdf_page(self._r(self.x0, y + 1.5, crest, crest), pdf, 0)
+        crest = 20.0
+        self.page.insert_image(self._r(self.x0, y + 1.0, crest, crest),
+                               pixmap=crest_pixmap())
 
-        box_w = 66.0   # wide enough for 'VERSION 0.1 · DRAFT FOR CONSULTATION' at 8 pt
-        box_x = self.x0 + self.w - box_w
-        cx = (self.x0 + crest + 4 + box_x) / 2
-        self.text(settings.SCHOOL_NAME, cx, y + 7.6, 14, "b", RED, "center")
-        self.tracked(settings.SCHOOL_MOTTO, cx, y + 13.6, 8, "b", MUTED,
-                     track=1.4, align="center")
-        self.text(settings.SCHOOL_TAGLINE, cx, y + 19.4, 8.5, "r", MUTED, "center")
+        panel_w = 60.0
+        panel_x = self.x0 + self.w - panel_w
+        cx = (self.x0 + crest + 3 + panel_x - 3) / 2
+        self.text(settings.SCHOOL_NAME, cx, y + 7.2, 13.5, "b", BRAND, "center")
+        self.tracked(masthead or name, cx, y + 13.4, 8.5, "b", BAND, track=1.6, align="center")
+        self.text(period or f"{settings.ACADEMIC_YEAR} · Term {settings.TERM}",
+                  cx, y + 20.4, 9, "i", BRAND, "center")
 
-        # controlled-reference box. Nothing in it is set below 8 pt; the
-        # document name wraps rather than shrink to fit.
-        name_lines = self.wrap(name, box_w - 4, 8, "b")
-        box_h = min(h, 21.4 + 3.6 * len(name_lines))   # 25 mm for a one-line name
-        self.rect(box_x, y, box_w, box_h, fill=WHITE, stroke=BOX, lw=0.9)
-        cbx = box_x + box_w / 2
-        self.text("CONTROLLED REFERENCE", cbx, y + 5.0, 8, "b", INK, "center")
-        self.text(code, cbx, y + 13.2, 15, "b", RED, "center")
+        # the panel: a black strip with the panel title, then the code, the
+        # document name and the version line. Nothing in it is below 8 pt.
+        strip_h = 4.6
+        name_lines = self.wrap(name, panel_w - 6, 8, "b")
+        panel_h = strip_h + 6.0 + 3.6 * len(name_lines) + 4.6
+        self.rect(panel_x, y, panel_w, panel_h, fill=WHITE, stroke=BRAND, lw=0.6,
+                  radius=RADIUS["box"])
+        self.rect(panel_x + 0.6, y + 0.6, panel_w - 1.2, strip_h, fill=BRAND,
+                  radius=RADIUS["box"])
+        pcx = panel_x + panel_w / 2
+        self.text("CONTROLLED REFERENCE", pcx, centre_baseline(y + 0.6, strip_h, 8),
+                  8, "b", WHITE, "center")
+        self.text(code, pcx, y + strip_h + 5.4, 12, "b", BRAND, "center")
+        ny = y + strip_h + 8.6
         for i, line in enumerate(name_lines):
-            self.text(line, cbx, y + 17.8 + i * 3.6, 8, "b", INK, "center")
-        self.text(f"VERSION {version or settings.LIST_VERSION} \u00b7 {status}", cbx,
-                  y + 17.8 + len(name_lines) * 3.6 + 1.0, 8, "r", MUTED, "center")
+            self.text(line, pcx, ny + i * 3.6, 8, "b", BRAND, "center")
+        self.text(f"VERSION {version or settings.LIST_VERSION} · {status}", pcx,
+                  ny + len(name_lines) * 3.6 + 0.8, 8, "r", BAND, "center")
+        # the page code under the panel, as the forms print beside the barcode
+        self.text(f"{code.replace('-', '')}-P1", self.x0 + self.w, y + h - 1.6, 8,
+                  "r", BAND, "right")
         self.y = y + h + settings.BLOCK_GAP
 
+    def title_bar(self, title, instruction):
+        """The section bar: black, rounded, white bold caps, the instruction
+        in white italic on the right, as the forms' card headers."""
+        h = 8.0
+        self.rect(self.x0, self.y, self.w, h, fill=BRAND, radius=RADIUS["bar"])
+        self.text(title, self.x0 + 3.5, centre_baseline(self.y, h, 11), 11, "b",
+                  WHITE)
+        self.text(instruction, self.x0 + self.w - 3.5,
+                  centre_baseline(self.y, h, 8.5), 8.5, "i", WHITE, "right")
+        self.y += h + settings.BLOCK_GAP
+
     def status_line(self, text):
-        """A small red status line under the info bar."""
-        h = 4.2
-        self.text(text, self.x0 + settings.PANEL_PAD,
-                  centre_baseline(self.y, h, 8), 8, "b", RED)
+        """The forms' instruction band: band grey, white italic."""
+        h = 5.0
+        self.rect(self.x0, self.y, self.w, h, fill=BAND, radius=RADIUS["band"])
+        self.text(text, self.x0 + 2.6, centre_baseline(self.y, h, 8), 8, "i", WHITE)
         self.y += h + 2.5
 
     def note_line(self, text, font="i", size=8, color=MUTED):
@@ -182,32 +233,23 @@ class Sheet:
                   font, color)
         self.y += h + settings.BLOCK_GAP
 
-    def title_bar(self, title, instruction):
-        h = 8.0
-        self.rect(self.x0, self.y, self.w, h, fill=RED)
-        self.text(title, self.x0 + 3.5, centre_baseline(self.y, h, 11), 11, "b",
-                  WHITE)
-        self.text(instruction, self.x0 + self.w - 3.5,
-                  centre_baseline(self.y, h, 8.5), 8.5, "r", WHITE, "right")
-        self.y += h + settings.BLOCK_GAP
-
     MIN_ITEM_GAP = 6.0
 
     def info_bar(self, rows, big_first=False):
         """
-        Light pink panel; `rows` is a list of lists of (label, value). A row
-        whose items cannot sit MIN_ITEM_GAP apart is broken over more lines, so
-        a long value can never run into the label beside it.
+        The pale label panel: a rounded pale-grey card; `rows` is a list of
+        lists of (label, value) or (label, value, "red") for an emphasised
+        value. A row whose items cannot sit MIN_ITEM_GAP apart is broken over
+        more lines, so a long value can never run into the label beside it.
         """
         line_h = 6.2
         rows = self._fit_info_rows(rows, big_first, line_h)
         h = settings.PANEL_PAD * 2 + line_h * len(rows)
-        self.rect(self.x0, self.y, self.w, h, fill=PINK)
+        self.rect(self.x0, self.y, self.w, h, fill=PALE, radius=RADIUS["card"])
         for ri, row in enumerate(rows):
             top = self.y + settings.PANEL_PAD + ri * line_h
             base = centre_baseline(top, line_h, 9)
-            # each pair takes its natural width; what is left over is shared out
-            # between them, so a long value can never run into the next label
+
             def spec(ci, pair):
                 label, value = pair[0], pair[1]
                 red = len(pair) > 2 and pair[2] == "red"
@@ -219,15 +261,13 @@ class Sheet:
             natural = sum(i[3] + i[4] for i in items)
             free = self.w - settings.PANEL_PAD * 2 - natural
             spread = free / (len(items) - 1) if len(items) > 1 else 0
-            # a line that is not full keeps a steady gap rather than stretching
             step = max(self.MIN_ITEM_GAP, min(spread, 26.0))
             x = self.x0 + settings.PANEL_PAD
             for label, value, big, lw, vw, red in items:
-                self.text(f"{label}:  ", x, base, 8.5, "b", INK)
+                self.text(f"{label}:  ", x, base, 8.5, "b", BRAND)
                 self.text(value, x + lw,
                           centre_baseline(top, line_h, 12) if big else base,
-                          12 if big else 9, "b" if (big or red) else "r",
-                          RED if (big or red) else INK)
+                          12 if big else 9, "b" if (big or red) else "r", BRAND)
                 x += lw + vw + step
         self.y += h + settings.BLOCK_GAP
 
@@ -256,16 +296,16 @@ class Sheet:
 
     HEAD_PT = 9.0     # the spec's 9 pt minimum applies to headings too
     HEAD_LINE = 3.9
-
-    LINE = 3.8
+    LINE = 3.6
 
     def table(self, x, w, cols, rows, row_h, head_h=None, size=9, y=None,
               zebra=True, bold_cols=(), red_cols=(), wrap_cols=()):
         """
-        A table with a red header row. `cols` is a list of (heading, width_mm,
-        align); a width of None shares out the remaining width. The heading row
-        grows to as many lines as the longest heading needs, so a heading is
-        never shortened. Returns the y below the table.
+        A table with a black header row, alternating pale rows and grid rules,
+        in a rounded hairline frame. `cols` is a list of (heading, width_mm,
+        align); a width of None shares out the remaining width. The heading
+        row grows to as many lines as the longest heading needs, so a heading
+        is never shortened. Returns the y below the table.
         """
         top = self.y if y is None else y
         widths = _resolve(cols, w)
@@ -273,7 +313,9 @@ class Sheet:
                  for c, cw in zip(cols, widths)]
         if head_h is None:
             head_h = 2.4 + self.HEAD_LINE * max(len(h) for h in heads)
-        self.rect(x, top, w, head_h, fill=RED)
+        self.rect(x, top, w, head_h, fill=BRAND, radius=RADIUS["box"])
+        # square off the bottom of the header so it meets the rows cleanly
+        self.rect(x, top + head_h - 1.2, w, 1.2, fill=BRAND)
         cx = x
         for (head, _, align), cw, lines in zip(cols, widths, heads):
             first = centre_baseline(top, head_h, self.HEAD_PT) \
@@ -287,15 +329,13 @@ class Sheet:
             cx += cw
         ty = top + head_h
         for ri, row in enumerate(rows):
-            # a value in a wrap column may take two or more lines; the row
-            # grows to hold it rather than shortening the value
             wrapped = {}
             for ci in wrap_cols:
                 font = "b" if ci in bold_cols else "r"
                 lines = self.wrap(row[ci], widths[ci] - settings.CELL_PAD * 2, size, font)
                 if len(lines) > 1:
                     wrapped[ci] = lines
-            rh = max(row_h, 1.4 + 3.6 * max((len(v) for v in wrapped.values()), default=1)) \
+            rh = max(row_h, 1.4 + self.LINE * max((len(v) for v in wrapped.values()), default=1)) \
                 if wrapped else row_h
             if zebra and ri % 2 == 1:
                 self.rect(x, ty, w, rh, fill=TINT)
@@ -303,19 +343,19 @@ class Sheet:
             for ci, (value, cw) in enumerate(zip(row, widths)):
                 align = cols[ci][2]
                 font = "b" if ci in bold_cols else "r"
-                colour = RED if ci in red_cols else INK
+                colour = INK
                 if ci in wrapped:
                     lines = wrapped[ci]
-                    first = centre_baseline(ty, rh, size) - (len(lines) - 1) * 3.6 / 2
+                    first = centre_baseline(ty, rh, size) - (len(lines) - 1) * self.LINE / 2
                     for k, line in enumerate(lines):
-                        self.text(line, cx + settings.CELL_PAD, first + k * 3.6,
+                        self.text(line, cx + settings.CELL_PAD, first + k * self.LINE,
                                   size, font, colour)
                 else:
                     self._cell(value, cx, ty, cw, rh, size, font, colour, align)
                 cx += cw
             ty += rh
-        self.rect(x, top, w, ty - top, stroke=HAIR, lw=0.4)
-        self.line(x, top + head_h, x + w, top + head_h, HAIR, 0.4)
+            self.line(x, ty, x + w, ty, GRID, 0.25)
+        self.rect(x, top, w, ty - top, stroke=GRID, lw=0.4, radius=RADIUS["box"])
         return ty
 
     def _cell(self, value, x, y, w, h, size, font, colour, align):
@@ -329,42 +369,48 @@ class Sheet:
             self.text(value, x + settings.CELL_PAD, base, size, font, colour)
 
     def panel_title(self, title, y=None, w=None, x=None):
-        """A red group bar with the heading in white caps, as on OC-01."""
+        """A black rounded group bar with the heading in white caps."""
         top = self.y if y is None else y
         h = 6.0
         self.rect(self.x0 if x is None else x, top, self.w if w is None else w,
-                  h, fill=RED)
+                  h, fill=BRAND, radius=RADIUS["bar"])
         self.text(title, (self.x0 if x is None else x) + 3.0,
                   centre_baseline(top, h, 9), 9, "b", WHITE)
         return top + h + 1.2
 
-    def footer(self, code, title, note, alert=None, subnote=None, page_label=None):
-        """Hairline, the bold 8 pt note, an optional red note on the right and
-        an optional grey sub-note, then the three-part controlled line."""
+    def footer(self, code, title, note, alert=None, subnote=None, page_label=None,
+               page=(1, 1)):
+        """Hairline, the bold 8 pt note (and the alert beneath it), an optional
+        grey sub-note, then the forms' controlled line: code and title on the
+        left, the controller in the middle, the page chip on the right."""
         bottom = settings.PAGE_H - settings.MARGIN
         self.content_bottom = self.y
-        note_w = self.w if not alert else self.w * 0.58
-        lines = self.wrap(note, note_w, 8, "b")
-        extra = 3.4 if subnote else 0
-        top = bottom - 5.6 - 3.8 * len(lines) - extra
-        self.line(self.x0, top, self.x0 + self.w, top, INK, 0.4)
-        for i, line in enumerate(lines):
-            self.text(line, self.x0, top + 3.6 + i * 3.8, 8, "b", INK)
+        lines = self.wrap(note, self.w, 8, "b")
+        extra = (3.8 if alert else 0) + (3.8 if subnote else 0)
+        top = bottom - 6.4 - 3.8 * len(lines) - extra
+        self.line(self.x0, top, self.x0 + self.w, top, HAIRLINE, 0.3)
+        y = top + 3.6
+        for line in lines:
+            self.text(line, self.x0, y, 8, "b", BRAND)
+            y += 3.8
         if alert:
-            self.text(alert, self.x0 + self.w, top + 3.6, 8, "b", RED, "right")
+            self.text(alert, self.x0, y, 8, "b", BRAND)
+            y += 3.8
         if subnote:
-            self.text(subnote, self.x0, top + 3.6 + 3.8 * len(lines), 8, "r", MUTED)
-        if page_label:
-            self.text(page_label, self.x0 + self.w, top + 3.6 + 3.8 * len(lines), 8,
-                      "b", INK, "right")
-        base = bottom - 0.8
-        left = f"{code}  |  {title}"
-        lw = self.text(left, self.x0, base, 8, "r", MUTED)
-        rw = text_width(settings.CONTROLLER, 8, "r")
-        self.text(settings.CONTROLLER, self.x0 + self.w, base, 8, "r", MUTED, "right")
-        # the middle sits in what is left between the two, not at the page centre
-        mid = (self.x0 + lw + (self.x0 + self.w - rw)) / 2
-        self.text("Fisantekraal High School", mid, base, 8, "r", MUTED, "center")
+            self.text(subnote, self.x0, y, 8, "r", BAND)
+            if page_label:
+                self.text(page_label, self.x0 + self.w, y, 8, "b", BRAND, "right")
+            y += 3.8
+        base = bottom - 1.0
+        lw = self.text(code, self.x0, base, 8, "b", BRAND)
+        lw += self.text("   |   ", self.x0 + lw, base, 8, "r", HAIRLINE)
+        self.text(title, self.x0 + lw, base, 8, "r", BAND)
+        chip_w, chip_h = 20.0, 4.6
+        chip_x, chip_y = self.x0 + self.w - chip_w, base - 3.4
+        self.rect(chip_x, chip_y, chip_w, chip_h, fill=PALE, radius=RADIUS["chip"])
+        self.text(f"Page {page[0]} of {page[1]}", chip_x + chip_w / 2,
+                  centre_baseline(chip_y, chip_h, 8), 8, "b", BRAND, "center")
+        self.text(settings.CONTROLLER, chip_x - 4.0, base, 8, "r", BAND, "right")
         self.footer_top = top
         return top
 
@@ -375,8 +421,6 @@ class Sheet:
 
     def save(self, path):
         pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
-        # DejaVu embeds whole at about a megabyte a sheet; subset to the glyphs
-        # the page actually uses and drop the unreferenced objects
         try:
             self.doc.subset_fonts(verbose=False)
         except Exception:

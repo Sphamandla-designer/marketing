@@ -7,8 +7,8 @@ teacher reads a learner's number off them and writes it on SA-01 or SA-02.
 """
 import settings
 import data
-from design import (Sheet, RED, INK, MUTED, HAIR, WHITE, PINK, centre_baseline,
-                    text_width)
+from design import (Sheet, RED, INK, MUTED, HAIR, WHITE, TINT, BRAND, PALE, RADIUS,
+                    centre_baseline, text_width)
 
 YEAR = str(settings.ACADEMIC_YEAR)
 TERM = str(settings.TERM)
@@ -221,7 +221,8 @@ def at01(subject, subject_abbr, grade, term, weeks, source):
     avail = settings.PAGE_H - settings.MARGIN - footer_h - settings.BLOCK_GAP \
         - top - head_h
     row_h = min(17.0, avail / len(weeks))
-    s.rect(s.x0, top, s.w, head_h, fill=RED)
+    s.rect(s.x0, top, s.w, head_h, fill=BRAND, radius=RADIUS["box"])
+    s.rect(s.x0, top + head_h - 1.2, s.w, 1.2, fill=BRAND)
     for label, x, w in (("Week", s.x0, week_w), ("ATP code", s.x0 + week_w, code_w),
                         ("What must be covered", s.x0 + week_w + code_w, narrative_w)):
         s.text(label, x + settings.CELL_PAD,
@@ -229,15 +230,15 @@ def at01(subject, subject_abbr, grade, term, weeks, source):
     y = top + head_h
     for i, (week, narrative) in enumerate(weeks):
         if i % 2 == 1:
-            s.rect(s.x0, y, s.w, row_h, fill=(0xFD / 255, 0xF3 / 255, 0xF5 / 255))
+            s.rect(s.x0, y, s.w, row_h, fill=TINT)
         label = f"Weeks {week}".replace("-", "–") if "-" in str(week) else f"Week {week}"
         s.text(label, s.x0 + settings.CELL_PAD,
                centre_baseline(y, row_h, 9), 9, "b", INK)
         box_w, box_h = code_w - 4.0, 7.0
         bx, by = s.x0 + week_w + 2.0, y + (row_h - box_h) / 2
-        s.rect(bx, by, box_w, box_h, fill=WHITE, stroke=RED, lw=0.7)
+        s.rect(bx, by, box_w, box_h, fill=WHITE, stroke=BRAND, lw=0.6, radius=RADIUS["box"])
         s.text(data.atp_code(subject_abbr, grade, term, week), bx + box_w / 2,
-               centre_baseline(by, box_h, 13), 13, "m", RED, "center")
+               centre_baseline(by, box_h, 13), 13, "m", BRAND, "center")
         lines = s.wrap(narrative, narrative_w - settings.CELL_PAD * 2, 9)
         if len(lines) > 3:
             # never silently drop a line of the week's plan
@@ -247,8 +248,7 @@ def at01(subject, subject_abbr, grade, term, weeks, source):
             s.text(line, s.x0 + week_w + code_w + settings.CELL_PAD,
                    first + k * 4.0, 9, "r", INK)
         y += row_h
-    s.rect(s.x0, top, s.w, y - top, stroke=HAIR, lw=0.4)
-    s.line(s.x0, top + head_h, s.x0 + s.w, top + head_h, HAIR, 0.4)
+    s.rect(s.x0, top, s.w, y - top, stroke=HAIR, lw=0.4, radius=RADIUS["box"])
     s.line(s.x0 + week_w, top, s.x0 + week_w, y, HAIR, 0.4)
     s.line(s.x0 + week_w + code_w, top, s.x0 + week_w + code_w, y, HAIR, 0.4)
     s.y = y + settings.BLOCK_GAP
