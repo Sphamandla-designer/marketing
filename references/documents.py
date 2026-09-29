@@ -206,6 +206,9 @@ def at01(subject, subject_abbr, grade, term, weeks, source):
         s.text(data.atp_code(subject_abbr, grade, term, week), bx + box_w / 2,
                centre_baseline(by, box_h, 13), 13, "m", RED, "center")
         lines = s.wrap(narrative, narrative_w - settings.CELL_PAD * 2, 9)
+        if len(lines) > 3:
+            # never silently drop a line of the week's plan
+            s.truncated.append(f"T{term} week {week}: {len(lines)} lines")
         first = y + (row_h - (len(lines) - 1) * 4.0) / 2 + 1.4
         for k, line in enumerate(lines[:3]):
             s.text(line, s.x0 + week_w + code_w + settings.CELL_PAD,

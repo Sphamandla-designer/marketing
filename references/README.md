@@ -72,17 +72,18 @@ limit.
   prints as that literal placeholder on every list.
 - Academic year 2027, Term 1.
 
-## Not yet delivered
+## AT-01 source
 
-**AT-01 has not been built.** It needs two things that were not supplied:
+Built from `ATP - English FAL - Grade 8.pdf`, the official DBE Annual Teaching
+Plan 2023/24, all four terms, ten weeks each. The narratives in
+`atp/english-fal-grade-8.json` are written only from that document: where the
+ATP groups weeks (1-2, 3-4 and so on) the content is divided across the two
+weeks in the ATP's own order, and each week names its formal assessment task
+with the marks. No week needed heavy cutting; the longest is 219 of the 230
+characters allowed.
 
-1. The official DBE ATP PDF for English First Additional Language, Grade 8.
-   The brief refers to an attachment that did not arrive; the session upload
-   folder, the container filesystem and the linked Google Drive were all
-   searched twice and hold no ATP document.
-
-Which term to produce is **answered: all four terms**, and the build and checks
-already handle a four-term file.
+The source PDFs and the OC-01 demo live in `references/source/` and are
+gitignored; they are held in the repository on the default branch.
 
 The renderer, the ATP code generator and the checks are finished and tested; the
 narratives are the only missing input. They are not written from anything but
@@ -98,9 +99,9 @@ the right-hand column. Nothing is shortened and no type is below 9 pt.
 
 ## Design
 
-OC-01 is not in this repository, so the design language is built from the
-written specification in section 1 of the brief — red #C8102E, dark text
-#1A1A1A, light pink #FBE3E6 panels, alternating row tint, the crest and centred
-masthead, the outlined controlled-reference box, the full-width red title bar,
-red-headed tables with codes in bold red, and the three-part footer. It should
-be compared against the real OC-01 before printing.
+Matched against the real OC-01 (`Fisantekraal_Conduct_Observation_Code_Reference_Demo`):
+the thin rounded frame just inside the page edge, square-cornered title bars and
+info panels, the controlled-reference box outlined in dark rather than red,
+`Label:` styling in the info bar, and red group bars with white caps for section
+headings. OC-01 itself is A4 landscape; these five are A4 portrait because the
+brief sets that explicitly.

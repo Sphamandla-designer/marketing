@@ -30,6 +30,8 @@ TINT = (0xFD / 255, 0xF3 / 255, 0xF5 / 255)     # alternating row tint
 WHITE = (1.0, 1.0, 1.0)
 HAIR = (0xC9 / 255, 0xC9 / 255, 0xC9 / 255)
 MUTED = (0x5E / 255, 0x5E / 255, 0x5E / 255)
+FRAME = (0xD4 / 255, 0xD4 / 255, 0xD4 / 255)   # the thin border around the page
+BOX = (0x1A / 255, 0x1A / 255, 0x1A / 255)     # controlled-reference box border
 
 CAP = 0.729   # DejaVu Sans cap height, as a fraction of the em
 
@@ -52,6 +54,12 @@ class Sheet:
                                       height=settings.PAGE_H * MM)
         for name, path in FONT_FILES.items():
             self.page.insert_font(fontname=name, fontfile=str(path))
+        # OC-01 carries a thin rounded frame just inside the page edge
+        inset = 4.0
+        self.page.draw_rect(
+            fitz.Rect(inset * MM, inset * MM,
+                      (settings.PAGE_W - inset) * MM, (settings.PAGE_H - inset) * MM),
+            color=FRAME, width=0.6, radius=0.012)
         self.x0 = settings.MARGIN
         self.w = settings.PAGE_W - 2 * settings.MARGIN
         self.y = settings.MARGIN
@@ -142,9 +150,9 @@ class Sheet:
         # controlled-reference box. Nothing in it is set below 8 pt; the
         # document name wraps rather than shrink to fit.
         box_h = 25.0
-        self.rect(box_x, y, box_w, box_h, fill=WHITE, stroke=RED, lw=0.9)
+        self.rect(box_x, y, box_w, box_h, fill=WHITE, stroke=BOX, lw=0.9)
         cbx = box_x + box_w / 2
-        self.text("CONTROLLED REFERENCE", cbx, y + 5.0, 8, "b", MUTED, "center")
+        self.text("CONTROLLED REFERENCE", cbx, y + 5.0, 8, "b", INK, "center")
         self.text(code, cbx, y + 13.2, 15, "b", RED, "center")
         name_lines = self.wrap(name, box_w - 4, 8, "b")
         for i, line in enumerate(name_lines):
@@ -155,7 +163,7 @@ class Sheet:
 
     def title_bar(self, title, instruction):
         h = 8.0
-        self.rect(self.x0, self.y, self.w, h, fill=RED, radius=1.2)
+        self.rect(self.x0, self.y, self.w, h, fill=RED)
         self.text(title, self.x0 + 3.5, centre_baseline(self.y, h, 11), 11, "b",
                   WHITE)
         self.text(instruction, self.x0 + self.w - 3.5,
@@ -173,7 +181,7 @@ class Sheet:
         line_h = 6.2
         rows = self._fit_info_rows(rows, big_first, line_h)
         h = settings.PANEL_PAD * 2 + line_h * len(rows)
-        self.rect(self.x0, self.y, self.w, h, fill=PINK, radius=1.6)
+        self.rect(self.x0, self.y, self.w, h, fill=PINK)
         for ri, row in enumerate(rows):
             top = self.y + settings.PANEL_PAD + ri * line_h
             base = centre_baseline(top, line_h, 9)
@@ -182,7 +190,7 @@ class Sheet:
             def spec(ci, pair):
                 label, value = pair
                 big = big_first and ri == 0 and ci == 0
-                lw = text_width(f"{label}  ", 8.5, "b")
+                lw = text_width(f"{label}:  ", 8.5, "b")
                 vw = text_width(value, 12 if big else 9, "b" if big else "r")
                 return label, value, big, lw, vw
             items = [spec(ci, pair) for ci, pair in enumerate(row)]
@@ -193,7 +201,7 @@ class Sheet:
             step = max(self.MIN_ITEM_GAP, min(spread, 26.0))
             x = self.x0 + settings.PANEL_PAD
             for label, value, big, lw, vw in items:
-                self.text(f"{label}  ", x, base, 8.5, "b", MUTED)
+                self.text(f"{label}:  ", x, base, 8.5, "b", INK)
                 self.text(value, x + lw,
                           centre_baseline(top, line_h, 12) if big else base,
                           12 if big else 9, "b" if big else "r",
@@ -208,7 +216,7 @@ class Sheet:
         for ri, row in enumerate(rows):
             def width(ci, pair):
                 big = big_first and ri == 0 and ci == 0
-                return (text_width(f"{pair[0]}  ", 8.5, "b")
+                return (text_width(f"{pair[0]}:  ", 8.5, "b")
                         + text_width(pair[1], 12 if big else 9, "b" if big else "r"))
             line, used = [], 0.0
             for ci, pair in enumerate(row):
@@ -278,23 +286,32 @@ class Sheet:
         else:
             self.text(value, x + settings.CELL_PAD, base, size, font, colour)
 
-    def panel_title(self, title, y=None):
-        """A small red rule and a bold caption above a sub-panel."""
+    def panel_title(self, title, y=None, w=None, x=None):
+        """A red group bar with the heading in white caps, as on OC-01."""
         top = self.y if y is None else y
-        self.text(title, self.x0, top + 3.4, 9, "b", RED)
-        self.line(self.x0, top + 4.6, self.x0 + self.w, top + 4.6, RED, 0.6)
-        return top + 6.4
+        h = 6.0
+        self.rect(self.x0 if x is None else x, top, self.w if w is None else w,
+                  h, fill=RED)
+        self.text(title, (self.x0 if x is None else x) + 3.0,
+                  centre_baseline(top, h, 9), 9, "b", WHITE)
+        return top + h + 1.2
 
-    def footer(self, code, title, note):
-        """Hairline, bold 8 pt note over as many lines as it needs, then the
-        three-part controlled line."""
+    def footer(self, code, title, note, alert=None, subnote=None):
+        """Hairline, the bold 8 pt note, an optional red note on the right and
+        an optional grey sub-note, then the three-part controlled line."""
         bottom = settings.PAGE_H - settings.MARGIN
         self.content_bottom = self.y
-        lines = self.wrap(note, self.w, 8, "b")
-        top = bottom - 5.6 - 3.8 * len(lines)
-        self.line(self.x0, top, self.x0 + self.w, top, HAIR, 0.4)
+        note_w = self.w if not alert else self.w * 0.58
+        lines = self.wrap(note, note_w, 8, "b")
+        extra = 3.4 if subnote else 0
+        top = bottom - 5.6 - 3.8 * len(lines) - extra
+        self.line(self.x0, top, self.x0 + self.w, top, INK, 0.4)
         for i, line in enumerate(lines):
             self.text(line, self.x0, top + 3.6 + i * 3.8, 8, "b", INK)
+        if alert:
+            self.text(alert, self.x0 + self.w, top + 3.6, 8, "b", RED, "right")
+        if subnote:
+            self.text(subnote, self.x0, top + 3.6 + 3.8 * len(lines), 8, "r", MUTED)
         base = bottom - 0.8
         left = f"{code}  |  {title}"
         lw = self.text(left, self.x0, base, 8, "r", MUTED)
