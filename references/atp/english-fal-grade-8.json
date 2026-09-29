@@ -1,0 +1,68 @@
+{
+  "subject": "English First Additional Language",
+  "abbr": "EF",
+  "grade": 8,
+  "source": "DBE Annual Teaching Plan 2023/24",
+  "terms": [
+    {
+      "term": 1,
+      "weeks": [
+        {"week": 1, "narrative": "Conduct the standardised baseline assessment over the first three days and capture the data. Then read aloud an article on a brochure, organise information coherently and discuss the brochure's features and diction."},
+        {"week": 2, "narrative": "Read a brochure for its format, target audience, layout, language and purpose, and study poetry: internal and external structure, figurative meaning, mood and theme. Write and design a brochure using process writing."},
+        {"week": 3, "narrative": "Listen to and discuss a multimedia text on creating an email, activating background knowledge, determining purpose and taking notes. Record main and supporting ideas by note-making, summarising and paraphrasing."},
+        {"week": 4, "narrative": "Read an email for comprehension by skimming, scanning and intensive reading, noting purpose, target group and the impact of font and headings. Study folklore features and write an email in the correct format and style."},
+        {"week": 5, "narrative": "Lead a group discussion on the novel, brainstorm and sequence main ideas, and do listening comprehension in preparation for summary writing. Discuss the youth novel's character, plot, conflict, setting and theme."},
+        {"week": 6, "narrative": "Teach the principles of summary writing and pre-reading strategies such as text features and parts of a book. Write a narrative or reflective essay using process writing. Task 2: Writing, essay, 30 marks."},
+        {"week": 7, "narrative": "Prepare an oral on a newspaper article, investigative report or editorial: research the topic, organise material with examples and prepare an effective introduction and conclusion. Read such texts for key features."},
+        {"week": 8, "narrative": "Apply reading strategies including summarising, inferring meaning and identifying manipulative language, then write a magazine article, investigative report or editorial. Task 3: Response to Texts, 60 marks."},
+        {"week": 9, "narrative": "Listen to a prepared speech by a former president or influential person and discuss its features and language use. Discuss the folktale, retell sections and practise turn-taking and defending a position."},
+        {"week": 10, "narrative": "Read a speech for comprehension, analysing emotive language, the introduction and conclusion, and how language shapes values. Write your own speech using process writing, with paragraph conventions and formal style."}
+      ]
+    },
+    {
+      "term": 2,
+      "weeks": [
+        {"week": 1, "narrative": "Do listening comprehension from the novel and read aloud an extract, teaching its features and conventions and using textual, punctuation and graphic cues to work out unfamiliar words. Study character, plot and setting."},
+        {"week": 2, "narrative": "Apply comprehension strategies: purpose and target group, inference, fact against opinion and implied meaning. Write a summary of one chapter and a descriptive essay on the novel, following the writing process."},
+        {"week": 3, "narrative": "Listen to a dialogue based on a social issue, take notes and study language and power, tone and mood. Examine a recorded speech on a social issue for its key features, language use, format and role players."},
+        {"week": 4, "narrative": "Study poetry: figures of speech, rhyme, rhythm, stanzas, typography, figurative meaning, mood and theme. Write a dialogue with correct format, order and cohesion. Task 1: Oral, reading aloud, 20 marks."},
+        {"week": 5, "narrative": "Do listening comprehension on a non-fictional text such as a newspaper article, then hold a group or panel discussion explaining the author's point of view with appropriate language, style and register."},
+        {"week": 6, "narrative": "Read a newspaper article for comprehension, distinguishing fact from opinion and summarising, and study folktales. Write a review of the article with correct format, paragraph conventions, style, tone and register."},
+        {"week": 7, "narrative": "Watch an advertisement and discuss tone, pacing, emotive and manipulative language, font size, body language and the AIDA principles, then present orally on it, recording main and supporting ideas by making notes."},
+        {"week": 8, "narrative": "Read a visual or multimedia text such as an advertisement or poster, inferring meaning and noting how visuals strengthen the message. Design one. Task 4: Writing, transactional, 10 marks, before the June test."},
+        {"week": 9, "narrative": "Task 5, the June controlled test: Response to Texts, 60 marks. Question 1 is a literary or non-literary text for 20 marks and Question 2 is a visual text for 10 marks."},
+        {"week": 10, "narrative": "The June controlled test continues. Question 3 is a summary for 10 marks and Question 4 is language structures and conventions for 20 marks, completing the 60-mark paper."}
+      ]
+    },
+    {
+      "term": 3,
+      "weeks": [
+        {"week": 1, "narrative": "Listen to an informative text, noting presentation, language use, tempo and voice projection, then choose, plan and present a story. Do prepared reading aloud of sections of the short story, with enunciation and pace."},
+        {"week": 2, "narrative": "Study the short story's character, dialogue, plot, conflict, setting and theme, and a poem's internal and external structure. Write your own short story with correct format and cohesion, following the writing process."},
+        {"week": 3, "narrative": "Take part in a discussion on the project: define research, create eight to ten research questions and note the instructions and stages. Study a drama or play: character, action, dialogue, plot, conflict and theme."},
+        {"week": 4, "narrative": "Read for information on the chosen topic and genre and select research to bring to school. Organise it with graphic organisers, mind maps or infographics. Task 6, Creative Writing Project Stage 1: Research, 20 marks."},
+        {"week": 5, "narrative": "Hold a teacher-led group discussion on the literature project covering methodology, purpose, approach and expectations, and read for information on the layout of the different project topics and items."},
+        {"week": 6, "narrative": "Revise the genres and text types covered in Terms 1 and 2, then write up the project with correct format, organised content, paragraph conventions and cohesion. Task 6 Stage 2: Writing, 30 marks."},
+        {"week": 7, "narrative": "Prepare the oral presentation of the project topic, and listen to and discuss current news from newspapers and magazines, noting tone, pace, intonation and persuasive language. Study the project rubrics."},
+        {"week": 8, "narrative": "Read visual and written texts, making predictions and inferring meaning, then write summary and presentation notes for the oral component. Task 7: Oral presentation of the project, 20 marks, concluded in Term 4."},
+        {"week": 9, "narrative": "Watch and discuss a visual, audio-visual or multimedia text, identifying main and supporting ideas and persuasive techniques, and present the project orally with attention to pronunciation, body language and resources."},
+        {"week": 10, "narrative": "Read a diary entry for format, purpose and cohesion, then write your own on the multimedia text. Task 8: Response to Texts, 30 marks: poem 10, drama or novel 10, short stories or folklore 10."}
+      ]
+    },
+    {
+      "term": 4,
+      "weeks": [
+        {"week": 1, "narrative": "Do listening comprehension on instructions and directions, taking notes and answering questions, then practise giving directions using the imperative and the second person, referring to distance and landmarks."},
+        {"week": 2, "narrative": "Read information texts with visuals such as maps, graphs and infographics, and a short story for its key features. Write an instructional text. Task 7, the project oral, 20 marks, is completed by the end of this term."},
+        {"week": 3, "narrative": "Listen to a panel discussing current news, noting tone, pace, intonation, persuasive language and body language, and do prepared or unprepared reading aloud of a newspaper article, observing punctuation for effect."},
+        {"week": 4, "narrative": "Read newspaper and magazine articles and written speeches for main ideas, facts, opinions and figures of speech, and read a drama for plot, characterisation and dramatic irony. Write a newspaper article."},
+        {"week": 5, "narrative": "Do an oral on filling out a questionnaire or form: research the topic, organise material with examples and prepare an effective introduction and conclusion. Do listening comprehension on a form and take notes."},
+        {"week": 6, "narrative": "Read a questionnaire or form for key features, format and language use, and study a poem's structure, figurative meaning, mood and theme. Task 9: Writing, transactional, 10 marks, before the end-of-year examination."},
+        {"week": 7, "narrative": "Prepare for the examination in speaking and listening: conversation, panel discussion, unprepared speech and listening comprehension. Revise word level and sentence level work."},
+        {"week": 8, "narrative": "Prepare for the examination in reading and writing: comprehension, summary, visual literacy, poetry, short story, drama, essays and transactional texts. Revise word meaning, punctuation and spelling."},
+        {"week": 9, "narrative": "The end-of-the-year examination begins. Task 10, Response to Texts, Paper 2, 60 marks: Question 1 is a literary or non-literary text for 20 marks and Question 2 is a visual text for 10 marks."},
+        {"week": 10, "narrative": "The end-of-the-year examination continues. Question 3 is a summary for 10 marks and Question 4 is language structures and conventions for 20 marks, completing the 60-mark Paper 2."}
+      ]
+    }
+  ]
+}
