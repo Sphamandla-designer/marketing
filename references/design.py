@@ -330,7 +330,13 @@ class Sheet:
 
     def save(self, path):
         pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
-        self.doc.save(str(path), deflate=True)
+        # DejaVu embeds whole at about a megabyte a sheet; subset to the glyphs
+        # the page actually uses and drop the unreferenced objects
+        try:
+            self.doc.subset_fonts(verbose=False)
+        except Exception:
+            pass
+        self.doc.save(str(path), deflate=True, garbage=4, clean=True)
 
 
 def _resolve(cols, total):
