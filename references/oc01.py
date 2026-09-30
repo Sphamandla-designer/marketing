@@ -5,11 +5,9 @@ info bar and flag legend; page 2 a slim continuation header. Both carry the
 footer. Codes and labels are Leon's v0.1; the descriptions and the proposed
 flags are new in v0.2.
 """
-import pymupdf as fitz
-
 import settings
 import oc01_data as d
-from design import (Sheet, RED, INK, MUTED, HAIR, WHITE, TINT, BRAND, BAND, RADIUS,
+from design import (Sheet, Pages, RED, INK, MUTED, HAIR, WHITE, TINT, BRAND, BAND, RADIUS,
                     centre_baseline, text_width)
 
 CODE_W, OBS_W, FLAG_W = 18.0, 52.0, 8.0
@@ -110,31 +108,6 @@ def page2():
     s.card_end(gap=settings.BLOCK_GAP)
     _footer(s, 2)
     return s
-
-
-class Pages:
-    """Two Sheets saved as one PDF; carries the checks' overflow/truncated view."""
-
-    def __init__(self, sheets):
-        self.sheets = sheets
-
-    @property
-    def overflow(self):
-        return max(s.overflow for s in self.sheets)
-
-    @property
-    def truncated(self):
-        return [t for s in self.sheets for t in s.truncated]
-
-    def save(self, path):
-        doc = fitz.open()
-        for s in self.sheets:
-            doc.insert_pdf(s.doc)
-        try:
-            doc.subset_fonts(verbose=False)
-        except Exception:
-            pass
-        doc.save(str(path), deflate=True, garbage=4, clean=True)
 
 
 def build():

@@ -44,7 +44,9 @@ def build(specs):
     made = []
     cls = data.REGISTER_CLASS["class"]
 
-    made.append(("RL-01", f"RL-01-Register-Class-List-{cls}.pdf", documents.rl01()))
+    made.append(("RL-01", f"RL-01-Register-Class-List-{cls}.pdf", documents.rl01(cls)))
+    # the large-class sample: 70 learners, two pages
+    made.append(("RL-01", "RL-01-Register-Class-List-10A.pdf", documents.rl01("10A")))
 
     s = documents.sl01("Mathematics", f"{cls}-MT", data.MATHS_10B,
                        f"Mathematical Literacy — {cls}-ML",

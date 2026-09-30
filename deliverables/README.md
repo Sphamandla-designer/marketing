@@ -19,6 +19,7 @@ refers to the Conduct Observation Code Reference (OC-01).
 | File | Code | Used with |
 |---|---|---|
 | RL-01-Register-Class-List-10B.pdf | RL-01 | SA-01 (10B, 34 learners) |
+| RL-01-Register-Class-List-10A.pdf | RL-01 | SA-01 (10A, 70 learners: a class beyond the one-page capacity of 60, so two pages) |
 | SL-01-Split-Class-List-10B-MT.pdf | SL-01 | SA-02 (Mathematics, 19 learners) |
 | SL-01-Split-Class-List-10B-ML.pdf | SL-01 | SA-02 (Mathematical Literacy, 15 learners) |
 | SL-01-Split-Class-List-10B-TO.pdf | SL-01 | SA-02 (Tourism, 18 learners) |

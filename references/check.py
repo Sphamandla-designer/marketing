@@ -205,8 +205,18 @@ def check_data():
                 f"({printed - sc_codes or 'none missing'})"))
     out.append((len(sc_codes) == 25, f"SC-01 has 25 rows (got {len(sc_codes)})"))
 
+    # 10A, the 70-learner sample: the same partition rules
+    a = data.REGISTER_CLASSES["10A"]
+    a_set = {tuple(p) for p in a["learners"]}
+    out.append((len(a_set) == 70 and len(a["learners"]) == 70, f"10A: 70 distinct learners (got {len(a_set)})"))
+    out.append((_numbering_ok(data.numbered(a["learners"])), "RL-01 10A: numbered from 1, alphabetical by surname"))
+    mt_a, ml_a = {tuple(p) for p in a["maths"]}, {tuple(p) for p in a["maths_lit"]}
+    cw_a, to_a = {tuple(p) for p in a["civil_tech"]}, {tuple(p) for p in a["tourism"]}
+    out.append((not (mt_a & ml_a) and mt_a | ml_a == a_set, "10A: RL-01 = MT ∪ ML, MT ∩ ML = ∅"))
+    out.append((not (cw_a & to_a) and cw_a | to_a == a_set, "10A: RL-01 = CW(10A) ∪ TO, CW ∩ TO = ∅"))
+
     # staff surnames never match a learner surname
-    learners = {s for s, _ in data.CLASS_10B + data.CIVIL_TECH_10A + data.CIVIL_TECH_10C}
+    learners = {s for s, _ in data.CLASS_10B + data.CLASS_10A + data.CIVIL_TECH_10C}
     staff = {data.staff_surname(n) for n in data.STAFF.values()}
     out.append((not (staff & learners),
                 f"no staff surname matches a learner surname ({staff & learners or 'none'})"))
@@ -248,9 +258,10 @@ def check_atp(specs):
 
 def run(built, sheets=(), specs=(), extra_pdfs=()):
     results = []
-    for code, path in built:
+    for (code, path), (_, sheet) in zip(built, sheets):
         results.append((None, f"--- {code}  {pathlib.Path(path).name}"))
-        results += check_pdf(path, pages=2 if code == "OC-01" else 1)
+        pages = len(sheet.sheets) if hasattr(sheet, "sheets") else 1
+        results += check_pdf(path, pages=pages)
         if code == "OC-01":
             results += check_oc01(path)
     results.append((None, "--- forbidden words"))

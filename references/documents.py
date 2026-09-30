@@ -9,8 +9,8 @@ teacher reads a learner's number off them and writes it on SA-01 or SA-02.
 """
 import settings
 import data
-from design import (Sheet, INK, WHITE, TINT, BRAND, PALE, RADIUS, centre_baseline,
-                    text_width)
+from design import (Sheet, Pages, INK, WHITE, TINT, BRAND, PALE, RADIUS,
+                    centre_baseline, text_width)
 
 YEAR = str(settings.ACADEMIC_YEAR)
 TERM = str(settings.TERM)
@@ -77,25 +77,13 @@ LEARNER_COLS = [("No.", 11.0, "center"), ("SURNAME", None, "left"),
 
 
 # ------------------------------------------------------------------- RL-01
-def rl01():
-    cls = data.REGISTER_CLASS
-    learners = data.numbered(data.CLASS_10B)
-    s = _start("RL-01", "REGISTER CLASS LIST", "REGISTER CLASS LIST",
-               "Use these numbers on SA-01", [
-                   [("Class", cls["class"]), ("Class teacher", cls["teacher"]),
-                    ("Room", cls["room"]), ("Total learners", str(len(learners)))],
-                   [("Academic year", YEAR), ("Term", TERM),
-                    ("Phase", settings.phase_label(cls["grade"])), ("List version", VERSION)],
-               ], big_first=True)
+RL01_CAPACITY = 60      # one page holds 1-30 left and 31-60 right
 
-    s.card_begin()
-    s.bar("LEARNERS", "Numbered 1 to 34, alphabetical by surname")
-    left, right = _split(learners, 30)
-    _two_up(s, LEARNER_COLS, left, right, PITCH)
-    s.card_end()
 
-    # Subjects: whole class and split side by side, the combined block full
-    # width beneath them so that "Civil Technology (Woodworking)" prints whole.
+def _subjects_card(s, cls):
+    """Whole class and split side by side, the combined block full width
+    beneath them so that "Civil Technology (Woodworking)" prints whole."""
+    whole, split, combined = data.register_panel(cls)
     s.card_begin()
     s.bar("SUBJECTS FOR THIS CLASS")
     x0, cw = s._inner()
@@ -105,25 +93,76 @@ def rl01():
     top = s.y
     a = s.table(x0, left_w, [("Taken by the whole class", None, "left"),
                              ("Code", 22.0, "center")],
-                data.WHOLE_CLASS_10B, PITCH, y=top, bold_cols=(1,), chip_cols=())
+                whole, PITCH, y=top, bold_cols=(1,), chip_cols=())
     b = s.table(right_x, right_w, [("Split within this class", None, "left"),
                                    ("Code", 22.0, "center"), ("Learners", 18.0, "center"),
                                    ("List", 16.0, "center")],
-                data.SPLIT_10B, PITCH, y=top, bold_cols=(1, 2), chip_cols=())
+                split, PITCH, y=top, bold_cols=(1, 2), chip_cols=())
     s.y = max(a, b) + 1.5
     s.table(x0, cw, [("Combined with other classes", None, "left"),
                      ("With", 22.0, "center"), ("Code", 26.0, "center"),
                      ("Learners", 26.0, "center"), ("List", 16.0, "center")],
-            data.COMBINED_10B, PITCH, bold_cols=(2, 3), chip_cols=())
+            combined, PITCH, bold_cols=(2, 3), chip_cols=())
     s.y += 1.0
     s.note_line(data.ELECTIVE_NOTE)
     s.card_end()
 
-    s.footer("RL-01", "Register class list",
-             "Official list for the year. Use the learner numbers on SA-01. "
+
+RL01_NOTE = ("Official list for the year. Use the learner numbers on SA-01. "
              "Notify the office of changes; a new version is issued when "
              "learners join or leave.")
-    return s
+
+
+def rl01(cls="10B"):
+    """The register class list. A class of up to 60 is one page; a larger
+    class runs to a second page: page 1 carries learners 1-30 and 31-60 in the
+    two columns, page 2 the rest and the subjects panel."""
+    r = data.REGISTER_CLASSES[cls]
+    learners = data.numbered(r["learners"])
+    s = _start("RL-01", "REGISTER CLASS LIST", "REGISTER CLASS LIST",
+               "Use these numbers on SA-01", [
+                   [("Class", r["class"]), ("Class teacher", r["teacher"]),
+                    ("Room", r["room"]), ("Total learners", str(len(learners)))],
+                   [("Academic year", YEAR), ("Term", TERM),
+                    ("Phase", settings.phase_label(r["grade"])), ("List version", VERSION)],
+               ], big_first=True)
+
+    if len(learners) <= RL01_CAPACITY:
+        s.card_begin()
+        s.bar("LEARNERS", f"Numbered 1 to {len(learners)}, alphabetical by surname")
+        left, right = _split(learners, 30)
+        _two_up(s, LEARNER_COLS, left, right, PITCH)
+        s.card_end()
+        _subjects_card(s, cls)
+        s.footer("RL-01", "Register class list", RL01_NOTE)
+        return s
+
+    # page 1: 1-30 and 31-60, at the pitch the page allows
+    s.card_begin()
+    s.bar("LEARNERS", f"Numbered 1 to {len(learners)}, alphabetical by surname "
+                      f"\u00b7 1 to {RL01_CAPACITY} on this page")
+    footer_h = 6.4 + 3.8
+    rows_avail = (settings.PAGE_H - settings.MARGIN - footer_h - settings.BLOCK_GAP
+                  - s.y - s.BAND_H - s.BOX_GAP - s.PAD)
+    pitch = min(PITCH, rows_avail / 30)
+    if pitch < 5.0:
+        s.truncated.append("RL-01 page 1 cannot hold 30 rows per column")
+    first, rest = learners[:RL01_CAPACITY], learners[RL01_CAPACITY:]
+    _two_up(s, LEARNER_COLS, first[:30], first[30:], pitch)
+    s.card_end(gap=settings.BLOCK_GAP)
+    s.footer("RL-01", "Register class list", RL01_NOTE, page=(1, 2))
+
+    # page 2: the rest, balanced over the two columns, then the subjects
+    p2 = Sheet()
+    p2.card_begin()
+    p2.bar(f"RL-01 \u00b7 Register class list {cls} (continued)",
+           f"Learners {RL01_CAPACITY + 1} to {len(learners)}")
+    left, right = _split(rest, 30)
+    _two_up(p2, LEARNER_COLS, left, right, PITCH)
+    p2.card_end()
+    _subjects_card(p2, cls)
+    p2.footer("RL-01", "Register class list", RL01_NOTE, page=(2, 2))
+    return Pages([s, p2])
 
 
 # ------------------------------------------------------------------- SL-01

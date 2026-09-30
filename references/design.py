@@ -451,6 +451,33 @@ class Sheet:
         self.doc.save(str(path), deflate=True, garbage=4, clean=True)
 
 
+class Pages:
+    """Several Sheets saved as one PDF; carries the checks' overflow and
+    truncated views across the pages."""
+
+    def __init__(self, sheets):
+        self.sheets = sheets
+
+    @property
+    def overflow(self):
+        return max(s.overflow for s in self.sheets)
+
+    @property
+    def truncated(self):
+        return [t for s in self.sheets for t in s.truncated]
+
+    def save(self, path):
+        pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
+        doc = fitz.open()
+        for s in self.sheets:
+            doc.insert_pdf(s.doc)
+        try:
+            doc.subset_fonts(verbose=False)
+        except Exception:
+            pass
+        doc.save(str(path), deflate=True, garbage=4, clean=True)
+
+
 def _resolve(cols, total):
     fixed = sum(c[1] for c in cols if c[1] is not None)
     flex = [c for c in cols if c[1] is None]

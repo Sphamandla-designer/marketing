@@ -12,7 +12,7 @@ electives. Every learner takes seven subjects.
 
 | Code | Document | Sample pages | Used with |
 |---|---|---|---|
-| RL-01 | Register class list | 10B | SA-01 |
+| RL-01 | Register class list | 10B (34 learners, one page); 10A (70 learners, two pages) | SA-01 |
 | SL-01 | Split subject class list | 10B-MT, 10B-ML, 10B-TO | SA-02 |
 | CL-01 | Combined subject class list | 10ABC-CW | SA-02 |
 | SC-01 | Subject code key | Grade 10 (25 subject classes) | SA-02 |
@@ -64,6 +64,15 @@ Learner, staff and subject data lives in `data.py`.
 | Elective slot | Civil Technology (Woodworking) (CW), combined across 10A, 10B and 10C — or Tourism (TO), within each register class for the learners not in CW | Combined / Split | CL-01 / SL-01 |
 
 10B: 34 learners; MT 19, ML 15; CW 16 (of the 48 on CL-01), TO 18.
+
+## RL-01 for a large class
+
+RL-01 holds 60 learners on one page: 1-30 in the left column and 31-60 in
+the right. A larger class runs to a second page: page 1 keeps that
+60-learner layout at the pitch the page allows, and page 2 continues with
+the rest, balanced over the two columns, followed by the subjects panel.
+`RL-01-Register-Class-List-10A.pdf` is the sample, 70 learners over two
+pages, with "Page 1 of 2" and "Page 2 of 2" in the footer.
 
 ## AT-01
 
@@ -127,6 +136,8 @@ and "Page X of 2".
   10B and 10C.
 - Register class 10B, room B12, 34 learners; the MT/ML split and the CW/TO
   elective membership; the 10A and 10C learners on CL-01.
+- Register class 10A, room A7, 70 learners (the 16 on CL-01 plus 54 more),
+  class teacher Ms N. Mthembu; its MT/ML split by alternate roll position.
 
 **Provisional (school policy not fixed yet):**
 

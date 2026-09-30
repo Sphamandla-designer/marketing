@@ -66,6 +66,32 @@ CIVIL_TECH_10B_SURNAMES = {
 }
 
 
+# 10A register class, 70 learners: the 16 Civil Technology learners above
+# plus 54 more. FICTIONAL. The sample for a class beyond RL-01's one-page
+# capacity of 60.
+CLASS_10A_MORE = [
+    ("ABRAHAMSE", "Kyle"), ("ALEXANDER", "Robyn"), ("APRIL", "Chadwin"),
+    ("BAARTMAN", "Lisa"), ("BOTHA", "Ruben"), ("BRUINTJIES", "Kaylin"),
+    ("CHRISTIANS", "Amber"), ("COETZEE", "Jason"), ("DANIELS", "Mia"),
+    ("DE KOCK", "Leah"), ("DYANTYI", "Sinovuyo"), ("FILANDER", "Ethan"),
+    ("FRANS", "Chanté"), ("GEORGE", "Micah"), ("GOLIATH", "Tamia"),
+    ("GXOWA", "Anelisa"), ("HEKTOR", "Jordan"), ("HLOPHE", "Sipho"),
+    ("JACKSON", "Keanu"), ("JAFTA", "Zara"), ("JULIES", "Cody"),
+    ("KAMMIES", "Jerome"), ("KLEINSMITH", "Brandon"), ("LANGA", "Thabo"),
+    ("LE ROUX", "Danielle"), ("LOMBARD", "Mila"), ("MAFU", "Anathi"),
+    ("MALGAS", "Dylan"), ("MATTHEWS", "Skye"), ("MBATHA", "Lwazi"),
+    ("MENTOOR", "Jaden"), ("MGCINA", "Lutho"), ("MNGXITAMA", "Sive"),
+    ("MYBURGH", "Liam"), ("NDABA", "Zanele"), ("NEL", "Ashton"),
+    ("NOFEMELA", "Buhle"), ("OKTOBER", "Tristan"), ("OLIVIER", "Nadia"),
+    ("PETERS", "Cameron"), ("PHILANDER", "Tegan"), ("QINA", "Aviwe"),
+    ("RAMOKGOPA", "Tshepo"), ("SAULS", "Jesse"), ("SIMONS", "Kiara"),
+    ("SNYDERS", "Riaan"), ("STEYN", "Chloé"), ("THOMAS", "Ashley"),
+    ("TYALI", "Yonela"), ("VAN NIEKERK", "Lara"), ("VAN ROOYEN", "Wesley"),
+    ("WILLIAMS", "Nathan"), ("WITBOOI", "Marco"), ("ZONDI", "Andile"),
+]
+CLASS_10A = CIVIL_TECH_10A + CLASS_10A_MORE
+
+
 def by_surname(learners):
     """Alphabetical by surname, then first name. This is the numbering order."""
     return sorted(learners, key=lambda p: (p[0], p[1]))
@@ -75,6 +101,14 @@ def numbered(learners):
     """1..n in alphabetical order. The number is valid only for this list."""
     return [(i + 1, s, f) for i, (s, f) in enumerate(by_surname(learners))]
 
+
+# 10A splits for Mathematics by alternate position in the alphabetical roll:
+# 35 Mathematics, 35 Mathematical Literacy. Its elective slot: the 16 on CL-01
+# take Civil Technology (Woodworking); the other 54 take Tourism.
+_10A_ROLL = sorted(CLASS_10A, key=lambda p: (p[0], p[1]))
+MATHS_10A = [p for i, p in enumerate(_10A_ROLL) if i % 2 == 0]
+MATHS_LIT_10A = [p for i, p in enumerate(_10A_ROLL) if i % 2 == 1]
+TOURISM_10A = [p for p in CLASS_10A if p not in CIVIL_TECH_10A]
 
 MATHS_10B = [p for p in CLASS_10B if p[0] in MATHS_SURNAMES]
 MATHS_LIT_10B = [p for p in CLASS_10B if p[0] not in MATHS_SURNAMES]
@@ -129,6 +163,14 @@ REGISTER_CLASS = {
     "room": "B12",
     "grade": GRADE,
 }
+REGISTER_CLASSES = {
+    "10B": {**REGISTER_CLASS, "learners": CLASS_10B, "maths": MATHS_10B,
+            "maths_lit": MATHS_LIT_10B, "tourism": TOURISM_10B,
+            "civil_tech": CIVIL_TECH_10B},
+    "10A": {"class": "10A", "teacher": STAFF["EH"], "room": "A7", "grade": GRADE,
+            "learners": CLASS_10A, "maths": MATHS_10A, "maths_lit": MATHS_LIT_10A,
+            "tourism": TOURISM_10A, "civil_tech": CIVIL_TECH_10A},
+}
 
 
 def staff_surname(name):
@@ -163,6 +205,22 @@ COMBINED_10B = [
 ]
 ELECTIVE_NOTE = ("Elective slot: learners take either Civil Technology "
                  "(Woodworking) or Tourism.")
+
+
+def register_panel(cls):
+    """The subjects panel rows for a register class: whole-class, split and
+    combined, with the learner counts."""
+    r = REGISTER_CLASSES[cls]
+    others = [c for c in CLASSES if c != cls]
+    whole = [(SUBJECT_BY_ABBR[a], f"{cls}-{a}") for a in WHOLE_CLASS_ABBRS]
+    split = [
+        ("Mathematics", f"{cls}-MT", str(len(r["maths"])), "SL-01"),
+        ("Mathematical Literacy", f"{cls}-ML", str(len(r["maths_lit"])), "SL-01"),
+        ("Tourism", f"{cls}-TO", str(len(r["tourism"])), "SL-01"),
+    ]
+    combined = [("Civil Technology (Woodworking)", ", ".join(others), COMBINED_CODE,
+                 f"{len(r['civil_tech'])} from {cls}", "CL-01")]
+    return whole, split, combined
 
 
 def subject_classes():
