@@ -214,6 +214,11 @@ def check_data():
     cw_a, to_a = {tuple(p) for p in a["civil_tech"]}, {tuple(p) for p in a["tourism"]}
     out.append((not (mt_a & ml_a) and mt_a | ml_a == a_set, "10A: RL-01 = MT ∪ ML, MT ∩ ML = ∅"))
     out.append((not (cw_a & to_a) and cw_a | to_a == a_set, "10A: RL-01 = CW(10A) ∪ TO, CW ∩ TO = ∅"))
+    out.append((_numbering_ok(data.numbered(a["tourism"])), "SL-01 10A-TO: numbered from 1, alphabetical by surname"))
+    out.append((len(a["tourism"]) > 50, f"SL-01 10A-TO is a large group ({len(a['tourism'])} learners)"))
+    out.append((len(combined) > 60, f"CL-01 is a large group ({len(combined)} learners)"))
+    c10 = [s for s, _, c in data.CIVIL_TECH_COMBINED if c == "10C"]
+    out.append((len(c10) == len(set(c10)), "CL-01 10C learners have no duplicate surname"))
 
     # staff surnames never match a learner surname
     learners = {s for s, _ in data.CLASS_10B + data.CLASS_10A + data.CIVIL_TECH_10C}

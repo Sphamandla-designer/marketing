@@ -76,10 +76,59 @@ LEARNER_COLS = [("No.", 11.0, "center"), ("SURNAME", None, "left"),
                 ("First name", None, "left")]
 
 
+# ------------------------------------------------------------- learner lists
+# Each list holds a documented number of learners on one page, dealt into two
+# columns. A larger group runs to a second page: page 1 keeps the full
+# one-page layout at the pitch the page allows, page 2 continues with the rest
+# balanced over the two columns and anything that follows the list.
+RL01_CAPACITY = 60      # 1-30 left, 31-60 right
+SL01_CAPACITY = 50      # 1-25 left, 26-50 right
+CL01_CAPACITY = 60      # 1-30 left, 31-60 right
+
+
+def _learner_pages(s, code, title, note, cols, rows, capacity, bar_title, cont_title,
+                   after=None):
+    """Lay `rows` out under the header card already on `s`. Returns the Sheet
+    for one page or a Pages for two."""
+    per_col = capacity // 2
+    if len(rows) <= capacity:
+        s.card_begin()
+        s.bar(bar_title, f"Numbered 1 to {len(rows)}, alphabetical by surname")
+        left, right = _split(rows, per_col)
+        _two_up(s, cols, left, right, PITCH)
+        s.card_end()
+        if after:
+            after(s)
+        s.footer(code, title, note)
+        return s
+
+    s.card_begin()
+    s.bar(bar_title, f"Numbered 1 to {len(rows)}, alphabetical by surname "
+                     f"\u00b7 1 to {capacity} on this page")
+    footer_h = 6.4 + 3.8 * len(s.wrap(note, s.w, 8, "b"))
+    rows_avail = (settings.PAGE_H - settings.MARGIN - footer_h - settings.BLOCK_GAP
+                  - s.y - s.BAND_H - s.BOX_GAP - s.PAD)
+    pitch = min(PITCH, rows_avail / per_col)
+    if pitch < 5.0:
+        s.truncated.append(f"{code} page 1 cannot hold {per_col} rows per column")
+    first, rest = rows[:capacity], rows[capacity:]
+    _two_up(s, cols, first[:per_col], first[per_col:], pitch)
+    s.card_end(gap=settings.BLOCK_GAP)
+    s.footer(code, title, note, page=(1, 2))
+
+    p2 = Sheet()
+    p2.card_begin()
+    p2.bar(cont_title, f"Learners {capacity + 1} to {len(rows)}")
+    left, right = _split(rest, per_col)
+    _two_up(p2, cols, left, right, PITCH)
+    p2.card_end()
+    if after:
+        after(p2)
+    p2.footer(code, title, note, page=(2, 2))
+    return Pages([s, p2])
+
+
 # ------------------------------------------------------------------- RL-01
-RL01_CAPACITY = 60      # one page holds 1-30 left and 31-60 right
-
-
 def _subjects_card(s, cls):
     """Whole class and split side by side, the combined block full width
     beneath them so that "Civil Technology (Woodworking)" prints whole."""
@@ -114,9 +163,7 @@ RL01_NOTE = ("Official list for the year. Use the learner numbers on SA-01. "
 
 
 def rl01(cls="10B"):
-    """The register class list. A class of up to 60 is one page; a larger
-    class runs to a second page: page 1 carries learners 1-30 and 31-60 in the
-    two columns, page 2 the rest and the subjects panel."""
+    """The register class list: one page up to 60 learners, two beyond."""
     r = data.REGISTER_CLASSES[cls]
     learners = data.numbered(r["learners"])
     s = _start("RL-01", "REGISTER CLASS LIST", "REGISTER CLASS LIST",
@@ -126,89 +173,48 @@ def rl01(cls="10B"):
                    [("Academic year", YEAR), ("Term", TERM),
                     ("Phase", settings.phase_label(r["grade"])), ("List version", VERSION)],
                ], big_first=True)
-
-    if len(learners) <= RL01_CAPACITY:
-        s.card_begin()
-        s.bar("LEARNERS", f"Numbered 1 to {len(learners)}, alphabetical by surname")
-        left, right = _split(learners, 30)
-        _two_up(s, LEARNER_COLS, left, right, PITCH)
-        s.card_end()
-        _subjects_card(s, cls)
-        s.footer("RL-01", "Register class list", RL01_NOTE)
-        return s
-
-    # page 1: 1-30 and 31-60, at the pitch the page allows
-    s.card_begin()
-    s.bar("LEARNERS", f"Numbered 1 to {len(learners)}, alphabetical by surname "
-                      f"\u00b7 1 to {RL01_CAPACITY} on this page")
-    footer_h = 6.4 + 3.8
-    rows_avail = (settings.PAGE_H - settings.MARGIN - footer_h - settings.BLOCK_GAP
-                  - s.y - s.BAND_H - s.BOX_GAP - s.PAD)
-    pitch = min(PITCH, rows_avail / 30)
-    if pitch < 5.0:
-        s.truncated.append("RL-01 page 1 cannot hold 30 rows per column")
-    first, rest = learners[:RL01_CAPACITY], learners[RL01_CAPACITY:]
-    _two_up(s, LEARNER_COLS, first[:30], first[30:], pitch)
-    s.card_end(gap=settings.BLOCK_GAP)
-    s.footer("RL-01", "Register class list", RL01_NOTE, page=(1, 2))
-
-    # page 2: the rest, balanced over the two columns, then the subjects
-    p2 = Sheet()
-    p2.card_begin()
-    p2.bar(f"RL-01 \u00b7 Register class list {cls} (continued)",
-           f"Learners {RL01_CAPACITY + 1} to {len(learners)}")
-    left, right = _split(rest, 30)
-    _two_up(p2, LEARNER_COLS, left, right, PITCH)
-    p2.card_end()
-    _subjects_card(p2, cls)
-    p2.footer("RL-01", "Register class list", RL01_NOTE, page=(2, 2))
-    return Pages([s, p2])
+    return _learner_pages(s, "RL-01", "Register class list", RL01_NOTE, LEARNER_COLS,
+                          learners, RL01_CAPACITY, "LEARNERS",
+                          f"RL-01 \u00b7 Register class list {cls} (continued)",
+                          after=lambda sh: _subjects_card(sh, cls))
 
 
 # ------------------------------------------------------------------- SL-01
-def sl01(subject, code, learners, other_label, footer_note, educator):
-    cls = data.REGISTER_CLASS
+def sl01(subject, code, learners, other_label, footer_note, educator, cls="10B"):
+    """A split subject class list: one page up to 50 learners, two beyond."""
     rows = data.numbered(learners)
     s = _start("SL-01", "SPLIT SUBJECT CLASS LIST", "SPLIT SUBJECT CLASS LIST",
                "Use these numbers on SA-02", [
                    [("Subject", subject), ("Subject class code", code),
-                    ("Grade", GRADE), ("Split from register class", cls["class"])],
+                    ("Grade", GRADE), ("Split from register class", cls)],
                    [("Other group", other_label), ("Educator", educator),
                     ("Total learners", str(len(rows))), ("Term", TERM)],
                ])
-    s.card_begin()
-    s.bar("LEARNERS", f"Numbered 1 to {len(rows)}, alphabetical by surname, "
-                      "for this group only")
-    left, right = _split(rows, 25)
-    _two_up(s, LEARNER_COLS, left, right, PITCH)
-    s.card_end()
-    s.footer("SL-01", "Split subject class list", footer_note)
-    return s
+    return _learner_pages(s, "SL-01", "Split subject class list", footer_note,
+                          LEARNER_COLS, rows, SL01_CAPACITY, "LEARNERS",
+                          f"SL-01 \u00b7 {subject} {code} (continued)")
 
 
 # ------------------------------------------------------------------- CL-01
 def cl01():
+    """The combined subject class list: one page up to 60 learners, two beyond."""
     ordered = sorted(data.CIVIL_TECH_COMBINED, key=lambda p: (p[0], p[1]))
     rows = [(i + 1, s_, f, c) for i, (s_, f, c) in enumerate(ordered)]
+    subject = data.SUBJECT_BY_ABBR[data.COMBINED_ABBR]
     s = _start("CL-01", "COMBINED SUBJECT CLASS LIST", "COMBINED SUBJECT CLASS LIST",
                "Use these numbers on SA-02", [
-                   [("Subject", data.SUBJECT_BY_ABBR[data.COMBINED_ABBR]),
-                    ("Subject class code", data.COMBINED_CODE),
+                   [("Subject", subject), ("Subject class code", data.COMBINED_CODE),
                     ("Grade", GRADE), ("Combined from", ", ".join(data.CLASSES))],
                    [("Educator", data.EDUCATORS[data.COMBINED_CODE]),
                     ("Total learners", str(len(rows))), ("Term", TERM)],
                ])
-    s.card_begin()
-    s.bar("LEARNERS", f"Numbered 1 to {len(rows)} across all combined classes")
     cols = [("No.", 11.0, "center"), ("SURNAME", None, "left"),
             ("First name", None, "left"), ("Class", 14.0, "center")]
-    left, right = _split(rows, 30)
-    _two_up(s, cols, left, right, PITCH)
-    s.card_end()
-    s.footer("CL-01", "Combined subject class list",
-             "Learners from different register classes are numbered together "
-             "on this list.")
-    return s
+    return _learner_pages(s, "CL-01", "Combined subject class list",
+                          "Learners from different register classes are numbered "
+                          "together on this list.",
+                          cols, rows, CL01_CAPACITY, "LEARNERS",
+                          f"CL-01 \u00b7 {subject} {data.COMBINED_CODE} (continued)")
 
 
 # ------------------------------------------------------------------- SC-01

@@ -23,7 +23,8 @@ refers to the Conduct Observation Code Reference (OC-01).
 | SL-01-Split-Class-List-10B-MT.pdf | SL-01 | SA-02 (Mathematics, 19 learners) |
 | SL-01-Split-Class-List-10B-ML.pdf | SL-01 | SA-02 (Mathematical Literacy, 15 learners) |
 | SL-01-Split-Class-List-10B-TO.pdf | SL-01 | SA-02 (Tourism, 18 learners) |
-| CL-01-Combined-Class-List-10ABC-CW.pdf | CL-01 | SA-02 (Civil Technology (Woodworking), 48 learners) |
+| SL-01-Split-Class-List-10A-TO.pdf | SL-01 | SA-02 (10A Tourism, 54 learners: beyond the one-page capacity of 50, so two pages) |
+| CL-01-Combined-Class-List-10ABC-CW.pdf | CL-01 | SA-02 (Civil Technology (Woodworking), 70 learners: beyond the one-page capacity of 60, so two pages) |
 | SC-01-Subject-Code-Key-Grade-10.pdf | SC-01 | SA-02 (Grade 10, 25 subject classes) |
 | AT-01-ATP-Weekly-EF-Gr8-T1..T4.pdf | AT-01 | SA-02 Section C (English FAL Grade 8, four terms) |
 | AT-01-ATP-Weekly-HI-Gr10-T1..T4.pdf | AT-01 | SA-02 Section C (History Grade 10, four terms) |

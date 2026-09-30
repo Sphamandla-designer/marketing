@@ -69,6 +69,15 @@ def build(specs):
                        data.EDUCATORS[f"{cls}-TO"])
     made.append(("SL-01", f"SL-01-Split-Class-List-{cls}-TO.pdf", s))
 
+    # the large split group: 10A's Tourism learners, beyond SL-01's 50
+    big = data.REGISTER_CLASSES["10A"]
+    s = documents.sl01("Tourism", "10A-TO", big["tourism"],
+                       f"Civil Technology (Woodworking) — {data.COMBINED_CODE}",
+                       "Learners in 10A not on this list take Civil Technology "
+                       "(Woodworking); see CL-01.",
+                       data.EDUCATORS["10A-TO"], cls="10A")
+    made.append(("SL-01", "SL-01-Split-Class-List-10A-TO.pdf", s))
+
     made.append(("CL-01", f"CL-01-Combined-Class-List-{data.COMBINED_CODE}.pdf",
                  documents.cl01()))
     made.append(("SC-01", f"SC-01-Subject-Code-Key-Grade-{data.GRADE}.pdf",

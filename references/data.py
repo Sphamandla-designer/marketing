@@ -48,6 +48,16 @@ CIVIL_TECH_10C = [
     ("MANGENA", "Owami"), ("NOVEMBER", "Tyrone"), ("PRINS", "Charne"),
     ("SKOSANA", "Kgomotso"), ("TITUS", "Bianca"), ("VISAGIE", "Marco"),
     ("ZWANE", "Nokuthula"),
+    # 22 more from 10C, so the combined class runs past CL-01's one-page
+    # capacity of 60
+    ("ADRIAANSE", "Tamsyn"), ("BENJAMIN", "Lucas"), ("CLAASSEN", "Faith"),
+    ("DOLLIE", "Imraan"), ("ENGELBRECHT", "Zoë"), ("FEBRUARY", "Deshan"),
+    ("GALANT", "Nazeem"), ("HANEKOM", "Elna"), ("ISAACS", "Ayesha"),
+    ("JOOSTE", "Ruan"), ("KOTA", "Lulama"), ("LINKS", "Chanelle"),
+    ("MAGWAZA", "Sanele"), ("NCUBE", "Thabani"), ("OPPERMAN", "Sean"),
+    ("PIETERSEN", "Jodi"), ("RAS", "Wian"), ("SEPTEMBER", "Kaylin"),
+    ("THYS", "Jaydon"), ("UYS", "Anke"), ("VAN DER BERG", "Mikhail"),
+    ("WAGENAAR", "Lee"),
 ]
 
 # Which of the 34 take Mathematics; the rest take Mathematical Literacy. The
