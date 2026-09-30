@@ -176,7 +176,7 @@ class Sheet:
     CARD_GAP = 4.5     # air between cards
     BOX_H = 4.8        # value box height
     BOX_GAP = 1.2      # vertical air between boxes (row pitch = BOX_H + BOX_GAP)
-    BOX_X = 1.0        # horizontal air between boxes
+    BOX_X = 0.0        # cells are plain text; no box air
     BOX_R = 1.2        # value box corner radius
     BAR_H = 6.5        # card title bar
     BAND_H = 4.8       # heading band
@@ -276,9 +276,11 @@ class Sheet:
 
     def box(self, x, y, w, h, text="", size=9, font="r", align="left", chip=False,
             color=BRAND, lines=None):
-        """One rounded value box: white with a grey rule, or a pale label chip."""
-        self.rect(x, y, w, h, fill=PALE if chip else WHITE,
-                  stroke=None if chip else GRID, lw=0.5, radius=self.BOX_R)
+        """One cell of a report row: the value set directly on the row band.
+        These documents are printed outputs, not forms, so no box is drawn
+        around a value; `chip` marks a key column, set in bold."""
+        if chip:
+            font = "b"
         if lines:
             first = centre_baseline(y, h, size) - (len(lines) - 1) * self.LINE / 2
             for k, line in enumerate(lines):
@@ -310,8 +312,8 @@ class Sheet:
         def dims(pair, big):
             label, value = pair[0], pair[1]
             bold = big or (len(pair) > 2 and pair[2] == "red")
-            lw = text_width(f"{label}:", 8.5, "b") + 4.6
-            vw = max(14.0, text_width(value, 12 if big else 9, "b" if bold else "r") + 5.0)
+            lw = text_width(label, 8, "r") + 2.2
+            vw = text_width(value, 12 if big else 9.5, "b") + 2.0
             return lw, vw, bold
         lines, line, used = [], [], 0.0
         for ri, row in enumerate(rows):
@@ -332,12 +334,13 @@ class Sheet:
             step = max(GAP, min(spread, 24.0))
             x = x0
             y = self.y
+            base = centre_baseline(y, self.BOX_H, 9.5)
             for pair, big, lw, vw, bold in items:
                 label, value = pair[0], pair[1]
-                self.box(x, y, lw, self.BOX_H, f"{label}:", 8.5, "b", chip=True)
+                self.text(label, x, base, 8, "r", BAND)
                 x += lw + self.BOX_X
-                self.box(x, y, vw, self.BOX_H, value, 12 if big else 9,
-                         "b" if bold else "r", "center" if big else "left")
+                self.text(value, x, centre_baseline(y, self.BOX_H, 12) if big else base,
+                          12 if big else 9.5, "b", BRAND)
                 x += vw + step
             self.y += pitch
         self.y += 0.6

@@ -149,20 +149,22 @@ and "Page X of 2".
 
 ## Design
 
-The whole set, forms and reference documents alike, is drawn in the
-black-and-white house style of the First Home Finance application form held
-at the repository root, measured from that form: every block is a rounded
-card (0.5 pt rule, 2.4 mm radius) with air inside and between cards; each
-card opens with a dark title bar and an italic instruction on the right; a
-slate heading band names the columns; rows sit on alternating pale bands at a
-6 mm pitch; and every value prints in its own rounded white box, 4.8 mm tall
-with a 0.5 pt rule, beside a pale label chip. Roboto throughout (Roboto Mono
-for the ATP codes); the draft status in the forms' band-grey instruction
-strip; a "CONTROLLED REFERENCE" panel in the masthead where the forms carry
-"FORM CODE", the page code (RL01-P1) beneath it; a page chip in the footer.
-The crest is desaturated on the way in, so nothing on any page is in colour
-and everything photocopies cleanly. OC-01's flags are drawn as shapes. The
-palette is the forms' own (`forms/js/layout.js` COLORS). All of it lives in
-`design.py`; the documents only place cards, bars and boxes. Two dense pages
-run tighter than the 6 mm pitch so that they stay one page: SC-01 at 5.4 mm
-and OC-01 at 5.3 mm.
+The reference documents are printed outputs, not forms, and are designed to
+read that way: nothing on them looks like a field waiting to be filled. They
+share the black-and-white house style of the SA-01 and SA-02 forms, which
+follow the First Home Finance application form held at the repository root:
+every block is a rounded card (0.5 pt rule, 2.4 mm radius) with air inside
+and between cards; each card opens with a dark title bar and an italic
+instruction on the right; a slate heading band names the columns; rows sit on
+alternating pale bands at a 6 mm pitch with the values set directly on them,
+key columns in bold; the header block sets each label as a quiet grey caption
+beside its value in bold. Roboto throughout (Roboto Mono for the ATP codes);
+the draft status in the forms' band-grey instruction strip; a "CONTROLLED
+REFERENCE" panel in the masthead where the forms carry "FORM CODE", the page
+code (RL01-P1) beneath it; a page chip in the footer. The crest is
+desaturated on the way in, so nothing on any page is in colour and everything
+photocopies cleanly. OC-01's flags are drawn as shapes. The palette is the
+forms' own (`forms/js/layout.js` COLORS). All of it lives in `design.py`; the
+documents only place cards, bars and rows. Two dense pages run tighter than
+the 6 mm pitch so that they stay one page: SC-01 at 5.4 mm and OC-01 at
+5.3 mm.

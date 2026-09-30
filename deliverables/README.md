@@ -28,7 +28,7 @@ refers to the Conduct Observation Code Reference (OC-01).
 | AT-01-ATP-Weekly-HI-Gr10-T1..T4.pdf | AT-01 | SA-02 Section C (History Grade 10, four terms) |
 | OC-01-Conduct-Observation-Code-Reference.pdf | OC-01 | SA-01 and SA-02 Section B. v0.2 draft, two pages double-sided: Leon's 54 codes with one-line descriptions; the ▲ and ◆ flags are proposed, awaiting SMT approval |
 
-Black and white like the forms, in the same First Home Finance house style; printed once and kept. Every
+Black and white like the forms, in the same First Home Finance house style, laid out as printed reports rather than forms; printed once and kept. Every
 reference document is **version 0.1, draft for consultation**, and says so in
 its controlled-reference box and in a red status line under the info bar.
 
