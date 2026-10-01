@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 80">
+    <defs><linearGradient id="gs" x1="0" y1="0" x2="850" y2="0" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#C64BC9"/><stop offset="0.65" stop-color="#C64BC9"/><stop offset="1" stop-color="#9672E8"/></linearGradient>
+      <clipPath id="tab"><path d="M-20 -20 H870 V70 H708 Q690 70 690 52 Q690 36 674 36 H-20 Z"/></clipPath></defs>
+    <path d="M-20 -20 H870 V70 H708 Q690 70 690 52 Q690 36 674 36 H-20 Z" fill="url(#gs)"/>
+    <g clip-path="url(#tab)">
+      <circle cx="712" cy="46" r="2" fill="#fff" opacity="0.3"/><circle cx="717.5" cy="57" r="2" fill="#fff" opacity="0.3"/><circle cx="723" cy="46" r="2" fill="#fff" opacity="0.3"/><circle cx="728.5" cy="57" r="2" fill="#fff" opacity="0.3"/><circle cx="734" cy="46" r="2" fill="#fff" opacity="0.3"/><circle cx="739.5" cy="57" r="2" fill="#fff" opacity="0.3"/><circle cx="745" cy="46" r="2" fill="#fff" opacity="0.3"/><circle cx="750.5" cy="57" r="2" fill="#fff" opacity="0.3"/><circle cx="756" cy="46" r="2" fill="#fff" opacity="0.3"/><circle cx="761.5" cy="57" r="2" fill="#fff" opacity="0.3"/>
+      <circle cx="800" cy="44" r="17" fill="none" stroke="#C9A55A" stroke-width="1.8" opacity="0.95"/>
+      <circle cx="803" cy="42" r="14.5" fill="none" stroke="#C9A55A" stroke-width="0.8" opacity="0.75"/>
+      <polygon points="773.0,23.1 773.7,26.5 777.0,27.4 774.0,29.1 774.1,32.5 771.6,30.2 768.3,31.4 769.8,28.3 767.6,25.5 771.1,26.0" fill="#F4C6E6" opacity="0.85"/>
+    </g>
+    <polygon points="470.0,22.5 471.2,25.4 474.3,25.6 471.9,27.6 472.6,30.6 470.0,29.0 467.4,30.6 468.1,27.6 465.7,25.6 468.8,25.4" fill="#fff" opacity="0.5"/><polygon points="261.7,23.9 261.4,26.3 263.4,27.6 261.1,28.1 260.4,30.5 259.2,28.4 256.8,28.5 258.5,26.7 257.6,24.5 259.8,25.4" fill="#fff" opacity="0.4"/>
+    <circle cx="120" cy="27" r="3" fill="#fff" opacity="0.45"/>
+    <circle cx="360" cy="27" r="2.5" fill="#F4C6E6" opacity="0.8"/></svg>

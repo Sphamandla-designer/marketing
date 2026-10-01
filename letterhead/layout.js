@@ -16,6 +16,11 @@ const layout = (paper) => {
     lineH: 0.25,                                 // contact line pitch (as Word lays it out)
     headerDist: 0.3, footerDist: 0.3,            // inside every desktop printer's printable area
     top: 2.75, bottom: 1.15,
+    // multi-page letter: continuation pages and the closing page
+    slimH: 0.8 * s, closingH: 1.1 * s,
+    slimLogo: { x: 0.6, y: 0.42, size: 1.1 },
+    slimTop: 2.05,                               // body starts below the slim header's rule
+    closingBottom: 1.75,                         // keeps body text clear of the closing footer band
   };
 };
 

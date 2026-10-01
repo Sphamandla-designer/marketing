@@ -12,8 +12,29 @@ A4 is the main size (standard paper in South Africa). There's also a US Letter v
 | `Kenzo-Nail-Bar-Letterhead-A4.pdf` | Blank letterhead at A4 size, for printing a stack of letterhead on an office printer. |
 | `Kenzo-Nail-Bar-Letterhead-A4-PRESS.pdf` | **Send this one to a print shop.** A4 plus 3mm bleed on every side, with TrimBox/BleedBox set and the font embedded. |
 | `...-Letter.docx` / `.pdf` / `-PRESS.pdf` | The same three files at US Letter size. |
+| `Kenzo-Nail-Bar-Letter-MultiPage-A4.docx` | **Multi-page letter template**: first, continuation and closing pages (see below). |
+| `Kenzo-Nail-Bar-Letter-MultiPage-A4.pdf` / `-PRESS.pdf` | The 3-page sample for an office printer / print shop. Letter-size versions too. |
+| `Kenzo-Nail-Bar-Letter-MultiPage-preview.png` | The three page designs side by side. |
 | `Kenzo-Nail-Bar-Letterhead-preview.png` | Quick look at the A4 design. |
 | `assets/` | Artwork as SVG (scalable masters) and 300 dpi PNG, plus the logo with softened edges. |
+
+## Multi-page letter
+
+![First, continuation and closing pages](Kenzo-Nail-Bar-Letter-MultiPage-preview.png)
+
+| Page | Header | Footer |
+| --- | --- | --- |
+| **First** | Full header: large logo, address, phone, email | Thin band |
+| **Middle** (continuation) | Slim band with a small rounded tab, small logo, "Page X of Y" | Thin band |
+| **Last** (closing) | Same slim header and page number | Deep band with *KENZO · NAIL BAR* and the contact line in white, above a signature block |
+
+How to use it in Word:
+- Type from page 1. When the text overflows, Word continues it on a page with the middle-page design, so you
+  get as many middle pages as the letter needs. Delete the sample middle page if the letter fits on one page plus the closing page.
+- The closing page is its own Word *section* (Word can only tell "first page" apart from "other pages", so the
+  last-page footer needs a section break). Put your final paragraph and signature there. If your closing text
+  overflows, the extra page also gets the closing design.
+- Page numbers update on their own.
 
 ## Printing
 
@@ -51,7 +72,8 @@ To change the artwork or rebuild everything:
 ```bash
 node render-art.js        # SVG → assets/*.png (trim and bleed versions)
 node fade-logo.js         # assets/kenzo-logo.jpg → softened transparent PNG
-node build-letterhead.js  # → A4 and Letter .docx (page geometry lives in layout.js)
+node build-letterhead.js  # → single-page A4 and Letter .docx (page geometry lives in layout.js)
+node build-multipage.js   # → multi-page A4 and Letter .docx
 python3 make-print.py     # → office and -PRESS PDFs (needs LibreOffice Writer + pypdf,
                           #   with Questrial installed and aliased to "Century Gothic" in fontconfig)
 ```

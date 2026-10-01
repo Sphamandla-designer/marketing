@@ -58,6 +58,49 @@ const art = {
     ${dots(36, 26, 6, 2, 9, 1.6, '#fff', 0.35)}
     ${dots(760, 26, 6, 2, 9, 1.6, '#fff', 0.35)}` },
 
+  // Continuation-page header: the same top band, ending in a small rounded tab top-right
+  'header-slim': { w: 850, h: 80, bleed: 'top', svg: `
+    <defs><linearGradient id="gs" x1="0" y1="0" x2="850" y2="0" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="${MAGENTA}"/><stop offset="0.65" stop-color="${MAGENTA}"/><stop offset="1" stop-color="${PURPLE}"/></linearGradient>
+      <clipPath id="tab"><path d="M-20 -20 H870 V70 H708 Q690 70 690 52 Q690 36 674 36 H-20 Z"/></clipPath></defs>
+    <path d="M-20 -20 H870 V70 H708 Q690 70 690 52 Q690 36 674 36 H-20 Z" fill="url(#gs)"/>
+    <g clip-path="url(#tab)">
+      ${dots(712, 46, 5, 2, 11, 2, '#fff', 0.3)}
+      <circle cx="800" cy="44" r="17" fill="none" stroke="${GOLD}" stroke-width="1.8" opacity="0.95"/>
+      <circle cx="803" cy="42" r="14.5" fill="none" stroke="${GOLD}" stroke-width="0.8" opacity="0.75"/>
+      ${star(772, 28, 5, BLUSH, 0.85, 0.2)}
+    </g>
+    ${star(470, 27, 4.5, '#fff', 0.5)}${star(260, 27, 3.5, '#fff', 0.4, 0.5)}
+    <circle cx="120" cy="27" r="3" fill="#fff" opacity="0.45"/>
+    <circle cx="360" cy="27" r="2.5" fill="${BLUSH}" opacity="0.8"/>` },
+
+  // Last-page footer: tri-colour rule + a deeper band that carries the contact line (text is live in Word)
+  'footer-closing': { w: 850, h: 110, bleed: 'bottom', svg: `
+    <defs><linearGradient id="gc" x1="0" y1="0" x2="850" y2="110" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="${MAGENTA}"/><stop offset="0.55" stop-color="${MAGENTA}"/><stop offset="1" stop-color="${PURPLE}"/></linearGradient>
+      <clipPath id="band"><rect x="-20" y="14" width="890" height="116"/></clipPath></defs>
+    <rect x="-20" y="0" width="303" height="4" fill="${PURPLE}"/>
+    <rect x="283" y="0" width="284" height="4" fill="${MAGENTA}"/>
+    <rect x="567" y="0" width="303" height="4" fill="${PURPLE}"/>
+    <rect x="-20" y="14" width="890" height="116" fill="url(#gc)"/>
+    <g clip-path="url(#band)">
+      <circle cx="40" cy="30" r="40" fill="#fff" opacity="0.12"/>
+      ${dots(36, 30, 6, 2, 9, 1.6, '#fff', 0.35)}
+      ${dots(760, 30, 6, 2, 9, 1.6, '#fff', 0.35)}
+      <circle cx="788" cy="66" r="22" fill="none" stroke="${GOLD}" stroke-width="1.8" opacity="0.9"/>
+      <circle cx="791" cy="63" r="19" fill="none" stroke="${GOLD}" stroke-width="0.8" opacity="0.7"/>
+    </g>` },
+
+  // Contact icons reversed out (white discs, magenta glyphs) for use on the gradient band
+  'icon-pin-light': { w: 24, h: 24, svg: `<circle cx="12" cy="12" r="12" fill="#fff"/>
+    <path d="M12 5.2a4.6 4.6 0 0 0-4.6 4.6c0 3.4 4.6 8.6 4.6 8.6s4.6-5.2 4.6-8.6A4.6 4.6 0 0 0 12 5.2z" fill="${MAGENTA}"/>
+    <circle cx="12" cy="9.8" r="1.7" fill="#fff"/>` },
+  'icon-phone-light': { w: 24, h: 24, svg: `<circle cx="12" cy="12" r="12" fill="#fff"/>
+    <path d="M9.1 6.3l1.4 2.9c.2.4.1.8-.2 1.1l-1 1c.7 1.5 1.9 2.7 3.4 3.4l1-1c.3-.3.7-.4 1.1-.2l2.9 1.4c.4.2.6.6.5 1l-.4 1.6c-.1.4-.5.7-.9.7C11.2 18.2 5.8 12.8 5.8 7.1c0-.4.3-.8.7-.9l1.6-.4c.4-.1.8.1 1 .5z" fill="${MAGENTA}"/>` },
+  'icon-mail-light': { w: 24, h: 24, svg: `<circle cx="12" cy="12" r="12" fill="#fff"/>
+    <rect x="6" y="8" width="12" height="8.4" rx="1.3" fill="none" stroke="${MAGENTA}" stroke-width="1.5"/>
+    <path d="M6.6 8.8L12 12.8l5.4-4" fill="none" stroke="${MAGENTA}" stroke-width="1.5" stroke-linejoin="round"/>` },
+
   // Header divider under the contact block (7in content width)
   rule: { w: 700, h: 4, svg: `
     <rect x="0" y="0" width="233" height="4" fill="${MAGENTA}"/>
