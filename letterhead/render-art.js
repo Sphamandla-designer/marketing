@@ -23,37 +23,40 @@ const star = (cx, cy, R, fill, op, rot = 0) => {
   return `<polygon points="${pts.join(' ')}" fill="${fill}" opacity="${op}"/>`;
 };
 
-// Units: 1 unit = 1/100 inch
+// Units: 1 unit = 1/100 inch on a 8.5in-wide page (A4 uses the same art scaled to 8.27in).
+// Edge-touching shapes run 20 units past the trim so the same art can be cropped with bleed.
+// Small decorations stay ≥0.25in from the paper edge, inside a desktop printer's printable area.
 const art = {
-  // Full-bleed header: thin band across the top, rounded panel top-right
-  header: { w: 850, h: 140, svg: `
+  // Full-bleed header: band across the top, rounded panel top-right
+  header: { w: 850, h: 140, bleed: 'top', svg: `
     <defs><linearGradient id="gd" x1="0" y1="0" x2="850" y2="140" gradientUnits="userSpaceOnUse">
         <stop offset="0" stop-color="${MAGENTA}"/><stop offset="0.6" stop-color="${MAGENTA}"/><stop offset="1" stop-color="${PURPLE}"/></linearGradient>
-      <clipPath id="shape"><path id="p" d="M0 0 H850 V128 H604 Q576 128 576 100 V34 Q576 18 560 18 H0 Z"/></clipPath></defs>
-    <path d="M0 0 H850 V128 H604 Q576 128 576 100 V34 Q576 18 560 18 H0 Z" fill="url(#gd)"/>
+      <clipPath id="shape"><path d="M-20 -20 H870 V128 H604 Q576 128 576 100 V52 Q576 36 560 36 H-20 Z"/></clipPath></defs>
+    <path d="M-20 -20 H870 V128 H604 Q576 128 576 100 V52 Q576 36 560 36 H-20 Z" fill="url(#gd)"/>
     <g clip-path="url(#shape)">
-      ${dots(606, 34, 8, 6, 13, 2.4, '#fff', 0.3)}
+      ${dots(606, 52, 8, 5, 13, 2.4, '#fff', 0.3)}
       <circle cx="820" cy="10" r="48" fill="#fff" opacity="0.14"/>
-      <circle cx="782" cy="74" r="34" fill="none" stroke="${GOLD}" stroke-width="2.2" opacity="0.95"/>
-      <circle cx="787" cy="70" r="30" fill="none" stroke="${GOLD}" stroke-width="1" opacity="0.75"/>
-      ${star(718, 52, 10, BLUSH, 0.85, 0.2)}
-      ${star(632, 112, 5, '#fff', 0.55)}
-      <circle cx="712" cy="108" r="6" fill="${BLUSH}" opacity="0.7"/>
-      <circle cx="718" cy="111" r="6" fill="#fff" opacity="0.35"/>
+      <circle cx="778" cy="84" r="32" fill="none" stroke="${GOLD}" stroke-width="2.2" opacity="0.95"/>
+      <circle cx="783" cy="80" r="28" fill="none" stroke="${GOLD}" stroke-width="1" opacity="0.75"/>
+      ${star(716, 62, 10, BLUSH, 0.85, 0.2)}
+      ${star(632, 114, 5, '#fff', 0.55)}
+      <circle cx="710" cy="112" r="6" fill="${BLUSH}" opacity="0.7"/>
+      <circle cx="716" cy="115" r="6" fill="#fff" opacity="0.35"/>
     </g>
-    ${star(470, 9, 5, '#fff', 0.5)}${star(260, 9, 4, '#fff', 0.4, 0.5)}
-    <circle cx="120" cy="9" r="3.5" fill="#fff" opacity="0.45"/>
-    <circle cx="360" cy="9" r="2.5" fill="${BLUSH}" opacity="0.8"/>` },
+    ${star(470, 27, 4.5, '#fff', 0.5)}${star(260, 27, 3.5, '#fff', 0.4, 0.5)}
+    <circle cx="120" cy="27" r="3" fill="#fff" opacity="0.45"/>
+    <circle cx="360" cy="27" r="2.5" fill="${BLUSH}" opacity="0.8"/>` },
 
   // Full-bleed footer: tri-colour rule + gradient band
-  footer: { w: 850, h: 46, svg: `
-    <defs>${grad('g')}</defs>
-    <rect x="0" y="0" width="283" height="4" fill="${PURPLE}"/>
+  footer: { w: 850, h: 60, bleed: 'bottom', svg: `
+    <defs><linearGradient id="g" x1="0" y1="0" x2="850" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="${MAGENTA}"/><stop offset="1" stop-color="${PURPLE}"/></linearGradient></defs>
+    <rect x="-20" y="0" width="303" height="4" fill="${PURPLE}"/>
     <rect x="283" y="0" width="284" height="4" fill="${MAGENTA}"/>
-    <rect x="567" y="0" width="283" height="4" fill="${PURPLE}"/>
-    <rect x="0" y="12" width="850" height="34" fill="url(#g)"/>
-    ${dots(20, 20, 6, 3, 9, 1.6, '#fff', 0.35)}
-    ${dots(760, 20, 6, 3, 9, 1.6, '#fff', 0.35)}` },
+    <rect x="567" y="0" width="303" height="4" fill="${PURPLE}"/>
+    <rect x="-20" y="14" width="890" height="66" fill="url(#g)"/>
+    ${dots(36, 26, 6, 2, 9, 1.6, '#fff', 0.35)}
+    ${dots(760, 26, 6, 2, 9, 1.6, '#fff', 0.35)}` },
 
   // Header divider under the contact block (7in content width)
   rule: { w: 700, h: 4, svg: `
@@ -72,17 +75,32 @@ const art = {
     <path d="M6.6 8.8L12 12.8l5.4-4" fill="none" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>` },
 };
 
+// Paper sizes in inches; bleed is 3mm, the standard print-shop allowance.
+const PAPERS = { a4: 8.2677, letter: 8.5 };
+const BLEED_IN = 3 / 25.4;
+
+async function shoot(page, name, vb, pw, ph, svg) {
+  await page.setViewportSize({ width: pw, height: ph });
+  await page.setContent(`<html><body style="margin:0;background:transparent">
+    <svg xmlns="http://www.w3.org/2000/svg" width="${pw}" height="${ph}" viewBox="${vb.join(' ')}" preserveAspectRatio="none">${svg}</svg></body></html>`);
+  await page.screenshot({ path: `assets/${name}.png`, omitBackground: true, clip: { x: 0, y: 0, width: pw, height: ph } });
+  console.log(name, pw + 'x' + ph);
+}
+
 (async () => {
   const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' }).catch(() => chromium.launch());
   const page = await browser.newPage();
-  for (const [name, { w, h, svg }] of Object.entries(art)) {
-    const pw = Math.round(w * DPI / 100), ph = Math.round(h * DPI / 100);
-    await page.setViewportSize({ width: pw, height: ph });
-    await page.setContent(`<html><body style="margin:0;background:transparent">
-      <svg xmlns="http://www.w3.org/2000/svg" width="${pw}" height="${ph}" viewBox="0 0 ${w} ${h}">${svg}</svg></body></html>`);
-    await page.screenshot({ path: `assets/${name}.png`, omitBackground: true, clip: { x: 0, y: 0, width: pw, height: ph } });
+  for (const [name, { w, h, svg, bleed }] of Object.entries(art)) {
     fs.writeFileSync(`assets/${name}.svg`, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}">${svg}</svg>\n`);
-    console.log(name, pw + 'x' + ph);
+    // trim-size art (used in the Word files and desktop PDFs), 300dpi at Letter width
+    await shoot(page, name, [0, 0, w, h], Math.round(w * DPI / 100), Math.round(h * DPI / 100), svg);
+    if (!bleed) continue;
+    for (const [paper, widthIn] of Object.entries(PAPERS)) {
+      const B = BLEED_IN * 100 * 8.5 / widthIn;      // bleed in art units at this paper's scale
+      const vb = bleed === 'top' ? [-B, -B, w + 2 * B, h + B] : [-B, 0, w + 2 * B, h + B];
+      const scale = DPI * widthIn / 850;              // px per art unit at 300dpi on this paper
+      await shoot(page, `${name}-bleed-${paper}`, vb, Math.round(vb[2] * scale), Math.round(vb[3] * scale), svg);
+    }
   }
   await browser.close();
 })();
