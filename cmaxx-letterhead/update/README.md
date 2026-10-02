@@ -15,7 +15,18 @@ design was touched.
 | --- | --- |
 | `CMaxx Solutions Letterhead.docx` | The original Word file (`../source/CMaxx Solutions Letterhead Word.docx`) with the new details. |
 | `CMaxx Solutions Letterhead.pdf` | PDF of the same file: A4, letterhead image at full resolution, Arial embedded. |
+| `CMaxx Solutions Letterhead - Multi-page.docx` | The same letterhead with a 3-page sample letter. |
+| `CMaxx Solutions Letterhead - Multi-page.pdf` | PDF of the 3-page version. |
 | `letterhead-image.jpg` | The updated full-page letterhead image on its own. |
+
+## Multi-page
+
+The original Word file already has its own multi-page design, the one used in the Acceptable Use
+Policy: **page 1** shows the full letterhead (header, contact details, watermark, footer) and
+**every later page** shows only the watermark and footer, from the same image. Nothing new was
+added. `build-multipage.py` takes the updated letterhead and only lets the sample text run over
+three pages, using the original's own paragraph style (Body Text, Arial 9 pt) and page breaks.
+When typing, Word adds the continuation pages by itself as the letter grows.
 
 ## How it was done
 
@@ -35,7 +46,7 @@ drawn into it. `update-contacts.py`:
    setup, header layout (full image on page 1, footer and watermark on later pages) and the
    sample text are the original's, byte for byte.
 
-Rebuild: `python3 update-contacts.py` (needs Pillow, numpy and `jpegtran` from libjpeg-turbo),
+Rebuild: `python3 update-contacts.py`, then `python3 build-multipage.py` (needs Pillow, numpy and `jpegtran` from libjpeg-turbo),
 then export the PDF with LibreOffice without image downsampling:
 
 ```bash
