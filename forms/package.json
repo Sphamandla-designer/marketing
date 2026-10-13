@@ -1,0 +1,15 @@
+{
+  "name": "fhs-forms",
+  "version": "1.0.0",
+  "description": "Fisantekraal High School weekly attendance & observation forms with PDF + PNG submission output",
+  "scripts": {
+    "start": "node server.js",
+    "qa": "node qa/run-qa.mjs",
+    "qa:inspect": "python3 qa/check_outputs.py"
+  },
+  "devDependencies": {
+    "jspdf": "^2.5.2",
+    "playwright": "^1.63.0"
+  },
+  "private": true
+}

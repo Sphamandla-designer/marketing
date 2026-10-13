@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <clipPath id="shieldClip">
+      <path d="M32 18 H168 V108 C168 140 140 160 100 178 C60 160 32 140 32 108 Z"/>
+    </clipPath>
+  </defs>
+  <!-- outer shield -->
+  <path d="M28 14 H172 V110 C172 145 142 166 100 184 C58 166 28 145 28 110 Z" fill="#B5121B"/>
+  <path d="M34 20 H166 V108 C166 139 139 158 100 175 C61 158 34 139 34 108 Z" fill="none" stroke="#FFFFFF" stroke-width="2.5"/>
+  <g clip-path="url(#shieldClip)">
+    <!-- sun rays -->
+    <g stroke="#F7B500" stroke-width="4" stroke-linecap="round">
+      <line x1="100" y1="34" x2="100" y2="24"/>
+      <line x1="80" y1="40" x2="73" y2="32"/>
+      <line x1="120" y1="40" x2="127" y2="32"/>
+      <line x1="66" y1="56" x2="55" y2="52"/>
+      <line x1="134" y1="56" x2="145" y2="52"/>
+      <line x1="60" y1="76" x2="49" y2="78"/>
+      <line x1="140" y1="76" x2="151" y2="78"/>
+    </g>
+    <circle cx="100" cy="74" r="20" fill="#F7B500"/>
+    <circle cx="100" cy="74" r="14" fill="#FFD84D"/>
+    <!-- mountains -->
+    <path d="M32 112 L70 70 L92 94 L112 66 L142 100 L168 82 V128 H32 Z" fill="#7A0C14"/>
+    <path d="M32 118 L60 92 L84 110 L108 84 L136 112 L168 98 V132 H32 Z" fill="#8F0F19"/>
+    <!-- open book -->
+    <path d="M100 118 C90 110 74 110 62 114 L62 148 C74 144 90 144 100 152 Z" fill="#FFFFFF"/>
+    <path d="M100 118 C110 110 126 110 138 114 L138 148 C126 144 110 144 100 152 Z" fill="#FFFFFF"/>
+    <path d="M100 118 V152" stroke="#B5121B" stroke-width="2"/>
+    <g stroke="#B5121B" stroke-width="1.4" fill="none" opacity="0.7">
+      <path d="M68 122 C78 119 88 120 96 124"/>
+      <path d="M68 130 C78 127 88 128 96 132"/>
+      <path d="M68 138 C78 135 88 136 96 140"/>
+      <path d="M132 122 C122 119 112 120 104 124"/>
+      <path d="M132 130 C122 127 112 128 104 132"/>
+      <path d="M132 138 C122 135 112 136 104 140"/>
+    </g>
+  </g>
+  <!-- ribbon -->
+  <path d="M18 158 L36 150 L36 176 L18 184 Z" fill="#8F0F19"/>
+  <path d="M182 158 L164 150 L164 176 L182 184 Z" fill="#8F0F19"/>
+  <path d="M30 150 C55 160 145 160 170 150 L170 174 C145 184 55 184 30 174 Z" fill="#FFFFFF" stroke="#B5121B" stroke-width="2.5"/>
+  <path d="M30 150 C55 160 145 160 170 150" fill="none" stroke="#B5121B" stroke-width="2.5"/>
+  <text x="100" y="171" text-anchor="middle" font-family="Roboto, Arial, Helvetica, sans-serif" font-weight="700" font-size="12.5" fill="#B5121B" letter-spacing="0.6">STRIVE TO EXCEL</text>
+</svg>
