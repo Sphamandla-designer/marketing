@@ -1,0 +1,41 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="canvas" content="1128x191"><title>ManaGEM — LinkedIn company banner</title>
+<link rel="stylesheet" href="base.css">
+<style>
+/* LinkedIn company banner, 1128 × 191. The page logo covers the bottom-left corner,
+   so the left ~320px is kept quiet and every word sits centre-right. */
+html,body{width:1128px;height:191px}
+:root{--ink:#0F172A;--ink-9:#0B1222;--gem:#00BFA6;--teal-300:#5EEAD4;--muted:#A7B3C6}
+body{font-family:'Outfit',sans-serif;background:var(--ink-9);color:#fff}
+.bg{position:absolute;inset:0;background:
+  radial-gradient(ellipse 34% 90% at 80% 40%,rgba(0,191,166,.16),transparent 70%),
+  radial-gradient(ellipse 40% 120% at 8% 100%,rgba(14,165,233,.10),transparent 70%),
+  linear-gradient(100deg,#0B1222 0%,#0F172A 45%,#162036 100%)}
+.tex{position:absolute;inset:0;opacity:.45;background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1px);background-size:6px 6px}
+.grid{--grid:rgba(255,255,255,.035);background-size:38px 38px}
+/* the ribbon M, oversized and faint, bleeding off the quiet left zone */
+.mark{position:absolute;left:880px;top:-40px;width:300px;opacity:.10;filter:saturate(1.2)}
+.mark img{width:100%;display:block}
+/* a job's journey: a hairline track with six stops, enquiry to paid */
+.track{position:absolute;left:356px;right:56px;top:121px;height:1px;background:linear-gradient(90deg,rgba(0,191,166,0),rgba(0,191,166,.55) 12%,rgba(0,191,166,.55) 88%,rgba(0,191,166,0))}
+.copy{position:absolute;left:400px;top:24px}
+h1{font-size:30px;line-height:1.12;font-weight:700;letter-spacing:-.012em}
+h1 em{font-style:normal;color:var(--gem)}
+.row{position:absolute;left:400px;top:101px;display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+.proof{font-family:'Plex Mono',monospace;font-size:14px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:#E2E8F0;display:flex;align-items:center;gap:11px}
+.proof i{width:5px;height:5px;border-radius:50%;background:var(--gem);display:block}
+.chip{white-space:nowrap;display:flex;align-items:center;gap:9px;background:var(--gem);color:var(--ink-9);font-size:14.5px;font-weight:600;padding:7px 16px 7px 12px;border-radius:999px;box-shadow:0 8px 20px -8px rgba(0,191,166,.55)}
+.chip b{font-weight:700}
+.chip svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.chip s{text-decoration:none;opacity:.45}
+.dash{position:absolute;right:56px;top:28px;width:230px;border-radius:10px;overflow:hidden;opacity:.9;box-shadow:0 18px 30px -16px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.08);transform:rotate(-2deg)}
+.dash img{display:block;width:100%}
+</style></head><body><div class="poster">
+<div class="bg"></div><div class="tex"></div><div class="grid"></div>
+<div class="mark"><img src="../assets/managem-mark.png" alt=""></div>
+<div class="copy"><h1>Know where every job stands,<br><em>from enquiry to invoice.</em></h1></div>
+<div class="row">
+  <div class="proof">Quotes<i></i>Jobs<i></i>Stock<i></i>Production<i></i>Invoices</div>
+  <div class="chip"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg><b>14 days free</b><s>·</s>No card needed<s>·</s>managem.co.za</div>
+</div>
+<div class="grain" style="--grain:.05"></div>
+</div></body></html>

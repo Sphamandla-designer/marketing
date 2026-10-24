@@ -117,3 +117,28 @@ flags it:
 plus "GEMIS / Technical Academy" in Playfair, because no Academy logo file is in the
 repos and gemis.tech is not reachable from this environment. Swap in the real logo if it
 differs. The Jordan Wine Estate scene is an illustration, not the estate photograph.
+
+---
+
+# ManaGEM LinkedIn company banner
+
+`src/managem-linkedin-banner.html` → `out/managem-linkedin-banner.png` (2256 × 382, upload
+this one; LinkedIn downsamples it sharply) and `out/managem-linkedin-banner-1128x191.png`
+(the exact spec size). `out/managem-linkedin-banner-preview.png` shows it with the page
+logo where LinkedIn places it.
+
+One promise, one proof line, one call to action, set as one block at x 400–810 so the
+logo's bottom-left corner stays clear and mobile's side crop keeps every word:
+
+- Headline: Know where every job stands, from enquiry to invoice.
+- Proof line: Quotes · Jobs · Stock · Production · Invoices
+- CTA chip: 14 days free · No card needed · managem.co.za
+
+ManaGEM's own system: navy `#0B1222` → `#162036`, GEM teal `#00BFA6`, Outfit with
+IBM Plex Mono for the proof line, the ribbon M as a faint watermark at the right.
+
+**Confirm before uploading:** `managem.co.za`. The ManaGEM README records the sign-up
+address `app.managem.co.za/signup` as a placeholder, and `facts.md` leaves the separate
+ManaGEM site as FILL, so the domain should be live before the banner goes up.
+
+`render.mjs` now honours `<meta name="canvas" content="WxH">` for non-poster sizes.

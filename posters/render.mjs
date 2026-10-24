@@ -15,11 +15,15 @@ for (const f of files) {
   page.on('console', m => m.type()==='error' && console.log('console', m.text()));
   const built = resolve(src, basename(f, '.html') + '.built.html');
   writeFileSync(built, html);
+  // a file may declare its own canvas: <meta name="canvas" content="1128x191">
+  const m = html.match(/<meta name="canvas" content="(\d+)x(\d+)">/);
+  const [w, h] = m ? [+m[1], +m[2]] : [1080, 1350];
+  await page.setViewportSize({ width: w, height: h });
   await page.goto('file://' + built, { waitUntil: 'networkidle' });
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(150);
   const name = basename(f, '.html');
-  await page.screenshot({ path: resolve(out, name + '.png'), clip: { x: 0, y: 0, width: 1080, height: 1350 } });
+  await page.screenshot({ path: resolve(out, name + '.png'), clip: { x: 0, y: 0, width: w, height: h } });
   unlinkSync(built);
   console.log('rendered', name);
 }
