@@ -75,3 +75,45 @@ Chromium. Sources are in `src/`, shared rules in `src/base.css`, assets in `asse
 - ManaGEM pricing is published on the site but marked "commercial terms not frozen" in the
   ManaGEM README; the posters say "14 days free, no card needed" and do not quote plan prices.
 - The Studio's `@`-handle. None is recorded, so the posters carry `gemis.co.za/studio`.
+
+---
+
+# GEMIS Technical Academy (gemis.tech) — nine posters by purpose
+
+Built from `briefs/gemis.tech-page-briefs-2026-10-24.docx`, the brief for the three
+pages that sell the Academy's public offers. Each page gets three posters, one per
+purpose. The Academy look is read off the live site (the mockup at
+`gemis-site/assets/img/portfolio/gemistech-mock.jpg`): navy `#1B2A4A` (the theme colour
+the brief records), gold action buttons, Playfair Display with gold italic emphasis,
+cream paper sections and the hexagon mark. Shared rules are in `src/academy.css`.
+
+| File | Page | Purpose | Sell |
+|---|---|---|---|
+| `advantage-01-event` | AI Advantage | Event | Now booking: 2 days · 12 activities · max 20 seats, Cape Town · Stellenbosch · Johannesburg, first delivered at Jordan Wine Estate |
+| `advantage-02-promo` | AI Advantage | Advertising & promotion | The lowest price the retreat will ever be: R5,999 Flexible Voucher, R8,999 struck, full-refund promise |
+| `advantage-03-guide` | AI Advantage | Informational | The two-day arc, the five tracks A01–A05, what's included |
+| `express-01-event` | Express | Event | Saturday working sessions, 09:00–13:00, the four-theme line-up and what each produces |
+| `express-02-promo` | Express | Advertising & promotion | Four hours. One new workflow. You keep it forever. 50% off: R1,249, R2,499 struck |
+| `express-03-guide` | Express | Informational | What you'll build in each theme, what you need, what every voucher includes |
+| `education-01-promo` | Education Excellence | Advertising & promotion | You didn't become a teacher to spend your evenings on admin. SPARK, R5,999, R300 per educator |
+| `education-02-guide` | Education Excellence | Informational | The four streams, 250+ activities, the SPARK → MASTERY PLUS ladder |
+| `education-03-sponsor` | Education Excellence | Sponsorship appeal (in place of an event poster) | Give a school its first step into AI: one SPARK for up to 20 educators |
+
+**Why Education has no event poster.** SPARK is booked by a school and delivered on its
+own premises; there is no public date or venue to promote. The page's second goal is
+sponsor acquisition, so that slot is a sponsorship appeal.
+
+**What the posters deliberately leave out**, because the brief's own inconsistency list
+flags it:
+
+- AI Advantage team discounts (the FAQ and the table disagree, #1) and the "Sandton venue" meta line (#10).
+- Express dates (the published schedule is in the past, #2), voucher validity (60 vs 90 days, #3), the six named testimonials (unverified, #4), volume discounts (#6), and the delivery platform (Teams vs Zoom, #8). The event poster points to gemis.tech/events for dates instead.
+- TRANSFORM (not on the page, #5) and "maximum 20%" (#13) on Education.
+- Gemini from every public tool list (internal content rule, #12).
+- The unattributed Jordan Wine Estate quote (#15).
+- The phone number. Only `training@gemis.tech` and the page URLs are used.
+
+**To confirm before posting:** the Academy lockup is rebuilt from the GEMIS hexagon mark
+plus "GEMIS / Technical Academy" in Playfair, because no Academy logo file is in the
+repos and gemis.tech is not reachable from this environment. Swap in the real logo if it
+differs. The Jordan Wine Estate scene is an illustration, not the estate photograph.

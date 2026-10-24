@@ -1,0 +1,45 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Education Excellence — sponsor a school</title>
+<link rel="stylesheet" href="base.css"><link rel="stylesheet" href="academy.css">
+<style>
+body{background:var(--gold);color:var(--navy-dd)}
+.bg{position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 40%,#e3c77a,#c9a447 60%,#a9852f 100%)}
+.top{left:0;right:0;top:62px;display:flex;justify-content:center}
+.top .lock{color:var(--navy-dd)} .top .lock small{color:var(--navy)} .top .lock .m{color:var(--navy)}
+.pre{left:0;right:0;top:176px;text-align:center;font-size:24px;letter-spacing:.14em;text-transform:uppercase;font-weight:500}
+h1{left:0;right:0;top:214px;text-align:center;font-family:'Playfair',serif;font-size:100px;font-weight:800;line-height:.98;letter-spacing:-.01em}
+h1 em{display:block;font-style:italic;font-weight:500;font-size:76px}
+/* the hero object: a lit hexagon, the Academy's own shape, holding 20 seats */
+.hexw{left:320px;top:520px;width:440px;height:508px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:var(--navy);filter:drop-shadow(0 40px 60px rgba(12,21,40,.5))}
+.hexw:before{content:"";position:absolute;inset:14px;clip-path:inherit;background:radial-gradient(ellipse at 50% 30%,#2b4170,#1B2A4A 60%,#0c1528)}
+.in{left:320px;top:520px;width:440px;height:508px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff}
+.in .k{font-size:14px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--gold)}
+.in .p{font-family:'Playfair',serif;font-size:82px;font-weight:800;line-height:1;margin:8px 0}
+.in .s{font-size:18px;line-height:1.35;width:290px;color:rgba(255,255,255,.85)}
+.seats{display:grid;grid-template-columns:repeat(5,22px);gap:10px;margin-top:22px}
+.seats i{width:22px;height:22px;border-radius:50%;background:var(--gold);display:block;box-shadow:0 0 0 3px rgba(201,164,71,.25)}
+.side{width:215px;font-size:20px;line-height:1.35;font-weight:500}
+.side b{display:block;font-family:'Playfair',serif;font-size:28px;font-weight:800;margin-bottom:6px}
+.l{left:64px}.r{right:64px;text-align:right}
+.l:after,.r:after{display:none;content:"";position:absolute;top:18px;width:60px;height:2px;background:var(--navy-dd)}
+.l:after{left:100%;margin-left:-20px}.r:after{right:100%;margin-right:-20px}
+.cta{left:0;right:0;top:1120px;display:flex;justify-content:center;gap:16px}
+.cta .btn{background:var(--navy-dd);color:#fff}
+.cta .btn.ghost{background:transparent;color:var(--navy-dd);border-color:var(--navy-dd)}
+.fine{left:0;right:0;top:1206px;text-align:center;font-size:17px;font-weight:500}
+.foot{border-top:1px solid rgba(12,21,40,.25);color:var(--navy-dd);font-weight:600}
+</style></head><body><div class="poster">
+<div class="bg"></div><div class="grid" style="--grid:rgba(12,21,40,.06)"></div>
+<div class="abs top"><div class="lock"><span class="m">{{inline:assets/academy-mark.svg}}</span><span class="w">GEMIS<small>Technical Academy</small></span></div></div>
+<div class="abs pre">Corporates · Foundations · Individuals</div>
+<h1 class="abs">Give a school<em>its first step into AI.</em></h1>
+<div class="abs hexw"></div>
+<div class="abs in"><div class="k">One SPARK session</div><div class="p">R5,999</div><div class="s">excl. VAT — a half-day at the school for up to 20 educators</div>
+ <div class="seats"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+<div class="abs side l" style="top:590px"><b>R300</b>per educator, with a printed certificate for each</div>
+<div class="abs side r" style="top:590px"><b>Everything</b>included — facilitator, materials, 2 LTE routers</div>
+<div class="abs side l" style="top:860px"><b>Any tier</b>from SPARK to MASTERY PLUS can be sponsored</div>
+<div class="abs side r" style="top:860px"><b>Matched</b>to a school by region and need</div>
+<div class="abs cta"><span class="btn">Sponsor a school</span><span class="btn ghost">Talk to us</span></div>
+<p class="abs fine">Free AI tools only, so the school keeps using them long after the session.</p>
+<div class="abs foot"><span>gemis.tech/sponsor</span><span>training@gemis.tech</span></div>
+</div></body></html>

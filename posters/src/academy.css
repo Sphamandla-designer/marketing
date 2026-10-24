@@ -1,0 +1,29 @@
+/* GEMIS Technical Academy (gemis.tech) — tokens read off the live site:
+   theme colour #1B2A4A navy, gold action buttons, Playfair display with gold italic
+   emphasis, cream paper sections, a hexagon outline motif. */
+@font-face{font-family:'Playfair';src:url(../assets/playfair.woff2) format('woff2');font-weight:400 900;font-style:normal}
+@font-face{font-family:'Playfair';src:url(../assets/playfair-italic.woff2) format('woff2');font-weight:400 900;font-style:italic}
+:root{--navy:#1B2A4A;--navy-d:#121d35;--navy-dd:#0c1528;--gold:#C9A447;--gold-l:#E3C77A;--cream:#FAF6EE;--cream-2:#F1EADC;--ink:#1B2A4A;--mute:#5e6a80;--line:rgba(27,42,74,.14)}
+body{font-family:'Inter',sans-serif}
+.serif{font-family:'Playfair',Georgia,serif}
+.g{color:var(--gold)}
+.gi{font-family:'Playfair',Georgia,serif;font-style:italic;color:var(--gold);font-weight:500}
+/* lockup: hexagon mark + GEMIS Technical Academy */
+.lock{display:flex;align-items:center;gap:14px;color:#fff}
+.lock .m{width:44px;height:46px;color:var(--gold)}
+.lock .m svg{width:100%;height:100%;display:block}
+.lock .w{font-family:'Playfair',Georgia,serif;font-size:25px;font-weight:700;letter-spacing:.01em;line-height:1}
+.lock .w small{display:block;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-top:6px}
+.lock.dark{color:var(--navy)}
+/* hexagon outline motif */
+.hex{position:absolute;aspect-ratio:1/1.1547;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:var(--hexc,rgba(201,164,71,.35))}
+.hex:after{content:"";position:absolute;inset:var(--hexw,2px);clip-path:inherit;background:var(--hexbg,var(--navy))}
+.btn{display:inline-flex;align-items:center;gap:12px;background:var(--gold);color:var(--navy-dd);font-weight:700;font-size:21px;padding:18px 32px;border-radius:6px;white-space:nowrap}
+.btn:after{content:"→"}
+.btn.ghost{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.55)}
+.btn.ghost:after{content:""}
+.eyebrow{font-size:15px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--gold)}
+.vat{font-size:14px;letter-spacing:.06em;color:rgba(255,255,255,.6)}
+.foot{left:0;right:0;bottom:0;height:84px;display:flex;align-items:center;justify-content:space-between;padding:0 64px;font-size:19px;border-top:1px solid rgba(201,164,71,.35)}
+.foot span{display:flex;align-items:center;gap:10px}
+.foot .ico{width:24px;height:24px;color:var(--gold)}
