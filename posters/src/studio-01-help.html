@@ -1,0 +1,51 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>GEMIS Studio — Tell us what isn't working</title>
+<link rel="stylesheet" href="base.css">
+<style>
+:root{--ink:#16161a;--pink:#ff1f7a;--orange:#ff7a12;--paper:#f5f6f8;--mute:#9a9ba3;--grid:rgba(255,255,255,.05)}
+body{font-family:'Manrope',sans-serif;background:var(--ink);color:#fff}
+.bg{position:absolute;inset:0;background:radial-gradient(ellipse 50% 40% at 85% 12%,rgba(255,31,122,.35),transparent 70%),radial-gradient(ellipse 50% 40% at 15% 95%,rgba(255,122,18,.28),transparent 70%),#16161a}
+.logo{right:64px;top:56px;width:290px}
+.logo svg{width:100%;height:auto;display:block}
+.hello{left:400px;top:150px;font-size:60px;font-weight:800;letter-spacing:-.02em;line-height:1;transform:rotate(-4deg)}
+.hello i{font-style:normal;font-family:'Caveat',cursive;font-size:84px;display:block;margin-bottom:6px}
+.hello span{display:block;font-size:30px;font-weight:500;line-height:1.2;margin-top:10px;letter-spacing:0}
+.hello span em{font-style:normal;color:var(--pink);font-weight:800}
+/* the two devices, the two handsets of the reference */
+.ph{border-radius:28px;overflow:hidden;box-shadow:0 50px 100px -30px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.08)}
+.ph img{display:block;width:100%}
+.p1{left:70px;top:120px;width:300px;transform:rotate(-12deg)}
+.p2{right:50px;top:640px;width:340px;transform:rotate(10deg)}
+.rings{left:470px;top:560px;width:360px;height:360px;border-radius:50%;background:repeating-radial-gradient(circle at 60% 40%,transparent 0 26px,rgba(255,255,255,.14) 27px 29px);
+  -webkit-mask-image:conic-gradient(from 200deg at 60% 40%,#000 0 120deg,transparent 120deg 360deg)}
+.reply{left:440px;top:380px;width:470px;transform:rotate(-5deg)}
+.reply .tag{display:inline-block;background:var(--pink);color:#fff;font-weight:800;font-size:30px;padding:8px 22px;border-radius:999px;letter-spacing:-.01em;margin-bottom:10px}
+.reply p{font-size:30px;line-height:1.15;font-weight:500}
+.reply p b{font-weight:800}
+.svc{left:64px;top:790px;width:520px}
+.svc h3{font-size:22px;font-weight:600;color:var(--mute);margin-bottom:18px;letter-spacing:.02em}
+.svc li{list-style:none;display:flex;align-items:center;gap:18px;font-size:27px;font-weight:600;margin-bottom:16px}
+.svc .ico{width:38px;height:38px;color:var(--pink);background:rgba(255,31,122,.12);border-radius:10px;padding:7px}
+.svc .ico svg{stroke-width:2}
+.svc small{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:500;color:var(--mute);margin-left:auto;letter-spacing:.02em}
+.tagline{left:64px;top:1110px;font-size:40px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.tagline em{display:block;font-style:normal;background:linear-gradient(90deg,var(--pink),var(--orange));-webkit-background-clip:text;color:transparent;font-size:34px;font-weight:700;margin-top:6px}
+.site{left:0;right:0;bottom:48px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:18px;letter-spacing:.14em;text-transform:uppercase;color:#fff}
+.site b{color:var(--pink)}
+</style></head><body><div class="poster">
+<div class="bg"></div><div class="grid"></div>
+<div class="abs logo">{{inline:assets/studio-logo-white.svg}}</div>
+<div class="abs ph p1"><img src="../assets/shotWaste.jpg" alt=""></div>
+<div class="abs hello"><i>Help!…</i>Our team is<br><span><em>avoiding</em> the system<br>we paid for.</span></div>
+<div class="abs rings"></div>
+<div class="abs reply"><span class="tag">GEMIS Studio:</span><p>Tell us what <b>isn't working.</b><br>Five days later you'll know exactly why.</p></div>
+<div class="abs ph p2"><img src="../assets/shotNura.jpg" alt=""></div>
+<div class="abs svc"><h3>Services:</h3><ul>
+ <li><span class="ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5M8 11h6M11 8v6"/></svg></span>Product Teardown<small>5 DAYS</small></li>
+ <li><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"/></svg></span>Interface Refresh Sprint<small>2 WEEKS</small></li>
+ <li><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg></span>Web Experience<small>6–8 WEEKS</small></li>
+ <li><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>Embedded Designer<small>MONTHLY</small></li>
+</ul></div>
+<div class="abs tagline">We don't just design.<em>We hand your developers something they can build.</em></div>
+<div class="abs site">gemis.co.za<b>/studio</b></div>
+<div class="grain"></div>
+</div></body></html>

@@ -1,0 +1,51 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ManaGEM — From enquiry to invoice. One record.</title>
+<link rel="stylesheet" href="base.css">
+<style>
+:root{--ink:#0F172A;--ink-9:#0B1222;--gem:#00BFA6;--muted:#A7B3C6}
+body{font-family:'Outfit',sans-serif;background:var(--ink);color:#fff}
+.bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% 0%,#1E2A44,#0F172A 60%,#0B1222 100%)}
+.tex{position:absolute;inset:0;opacity:.5;background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1px);background-size:5px 5px}
+.logo{left:50%;top:70px;transform:translateX(-50%);width:300px}
+.logo img{width:100%;display:block}
+.pre{left:0;right:0;top:196px;text-align:center;font-size:30px;font-weight:300;letter-spacing:.12em;text-transform:uppercase;color:#fff}
+h1{left:0;right:0;top:240px;text-align:center;font-size:82px;line-height:1;font-weight:800;text-transform:uppercase;letter-spacing:-.01em}
+h1 em{font-style:normal;color:var(--gem)}
+.sub{left:0;right:0;top:428px;text-align:center;font-size:23px;color:var(--muted)}
+/* the folders — one per step of the job (the Jenica reference) */
+.tabs{left:-40px;right:-40px;top:520px;height:700px}
+.tab{position:absolute;left:0;right:0;height:132px;background:linear-gradient(180deg,#f8fafc,#e2e8f0);border-radius:10px 10px 0 0;
+  box-shadow:0 -14px 34px -12px rgba(0,0,0,.55)}
+.tab:before{content:"";position:absolute;top:-34px;height:36px;width:400px;background:#f8fafc;border-radius:18px 18px 0 0;clip-path:polygon(7% 0,93% 0,100% 100%,0 100%)}
+.tab .t{position:absolute;top:-30px;font-size:30px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);display:flex;align-items:center;gap:16px}
+.tab .t i{font-family:'Plex Mono',monospace;font-style:normal;font-size:20px;font-weight:500;color:var(--gem);letter-spacing:0}
+.tab .d{position:absolute;top:30px;font-size:19px;color:#5B6B82;max-width:560px;line-height:1.3}
+.tab.a:before,.tab.a .t,.tab.a .d{left:120px}
+.tab.b:before{left:auto;right:120px}.tab.b .t,.tab.b .d{right:120px;text-align:right}.tab.b .d{left:auto}
+.tab.b .t{flex-direction:row-reverse}
+.clip{position:absolute;width:26px;height:70px;border:3px solid #94a3b8;border-radius:13px;transform:rotate(14deg)}
+.clip:after{content:"";position:absolute;left:5px;top:12px;width:9px;height:44px;border:3px solid #94a3b8;border-top:0;border-radius:0 0 8px 8px}
+.proof{left:0;right:0;bottom:108px;text-align:center;font-size:24px;color:#fff}
+.proof b{color:var(--gem);font-weight:700}
+.proof small{display:block;font-family:'Plex Mono',monospace;font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+.cta{left:50%;bottom:36px;transform:translateX(-50%);display:flex;align-items:center;gap:22px;white-space:nowrap}
+.cta .b{background:var(--gem);color:var(--ink);font-weight:700;font-size:21px;padding:16px 30px;border-radius:999px}
+.cta .n{font-size:18px;color:var(--muted)}
+.cta .n b{color:#fff;font-weight:600}
+</style></head><body><div class="poster">
+<div class="bg"></div><div class="tex"></div>
+<div class="abs logo"><img src="../assets/managem-logo-rev.png" alt="ManaGEM"></div>
+<div class="abs pre">This is how you run</div>
+<h1 class="abs">Every job on<br><em>one record</em></h1>
+<p class="abs sub">From the first call to the money in the bank — nobody types the same job in twice.</p>
+<div class="abs tabs">
+  <div class="tab a" style="top:0"><span class="t"><i>01</i>Enquiry</span><span class="d">Captured once: customer, site, scope and schedule, in a pipeline by stage.</span><span class="clip" style="left:30px;top:50px"></span></div>
+  <div class="tab b" style="top:98px"><span class="t"><i>02</i>Quote</span><span class="d">Priced from your own product list, with today's cost behind every line.</span></div>
+  <div class="tab a" style="top:196px"><span class="t"><i>03</i>Job</span><span class="d">Foreman, dates and progress, with the crew booked on the calendar.</span><span class="clip" style="left:30px;top:50px"></span></div>
+  <div class="tab b" style="top:294px"><span class="t"><i>04</i>Stock &amp; production</span><span class="d">Dispatched the day it leaves the store, low-stock alerts before the next job.</span></div>
+  <div class="tab a" style="top:392px"><span class="t"><i>05</i>Invoice</span><span class="d">Deposits, partials and the final invoice, straight off the job.</span><span class="clip" style="left:30px;top:50px"></span></div>
+  <div class="tab b" style="top:490px"><span class="t"><i>06</i>Paid · posted to Sage</span><span class="d">Debtors aged by customer, so the call happens on day 31, not day 91.</span></div>
+</div>
+<div class="abs proof">Month-end close: <b>nine days to two.</b><small>Confirmed by a ManaGEM client</small></div>
+<div class="abs cta"><span class="b">Start your free trial</span><span class="n"><b>14 days free</b> · no card needed · info@gemis.co.za</span></div>
+<div class="grain" style="--grain:.06"></div>
+</div></body></html>

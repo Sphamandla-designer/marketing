@@ -1,0 +1,52 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>GEMIS — Is your business running on workarounds?</title>
+<link rel="stylesheet" href="base.css">
+<style>
+:root{--navy:#0b2642;--navy-2:#16395e;--blue:#2a5c8a;--wash:#e6edf4;--ink:#121a26;--ink-2:#4b5563;--grid:rgba(11,38,66,.07)}
+body{font-family:'Archivo',sans-serif;background:#f3f4f6;color:var(--ink)}
+.poster{background:
+  radial-gradient(ellipse 60% 45% at 85% 70%,rgba(42,92,138,.18),transparent 70%),
+  radial-gradient(ellipse 50% 40% at 10% 10%,rgba(230,237,244,.9),transparent 70%),#f3f4f6}
+.logo{left:64px;top:60px;width:270px;color:var(--navy)}
+.logo svg{width:100%;height:auto;display:block}
+.site{right:64px;top:66px;font-size:20px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);font-weight:500}
+h1{left:64px;top:196px;font-size:98px;line-height:.92;font-weight:800;font-stretch:88%;letter-spacing:-.025em;text-transform:uppercase}
+h1 em{font-style:normal;color:var(--blue)}
+.rule{left:64px;top:590px;width:64px;height:5px;background:var(--blue)}
+.sub{left:64px;top:624px;font-size:34px;line-height:1.2;font-weight:400;color:var(--ink);max-width:560px}
+.sub b{font-weight:700;color:var(--blue)}
+/* hero object: the real dashboard in a browser frame, tilted like a product render */
+.scene{left:300px;top:770px;width:1000px;height:600px;perspective:1800px}
+.win{position:absolute;left:0;top:0;width:940px;border-radius:18px;background:#fff;overflow:hidden;
+  transform:rotateY(-18deg) rotateX(8deg) rotateZ(-3deg);transform-origin:40% 50%;
+  box-shadow:0 60px 120px -30px rgba(11,38,66,.55),0 20px 40px -20px rgba(11,38,66,.35)}
+.win .bar{height:42px;background:#e9edf2;display:flex;align-items:center;gap:8px;padding:0 16px}
+.win .bar i{width:11px;height:11px;border-radius:50%;background:#c8d0da;display:block}
+.win .bar span{margin-left:14px;height:22px;flex:1;max-width:420px;border-radius:7px;background:#fff;font-size:13px;line-height:22px;padding:0 10px;color:#6b7280;font-family:'Archivo'}
+.win img{display:block;width:100%}
+.kpi{position:absolute;left:150px;top:-30px;width:300px;border-radius:14px;overflow:hidden;background:#fff;
+  box-shadow:0 30px 60px -20px rgba(11,38,66,.5);transform:rotateY(-18deg) rotateX(8deg) rotateZ(-3deg) translateZ(90px);transform-origin:40% 50%}
+.kpi img{display:block;width:100%}
+.foot{left:0;right:0;bottom:0;height:96px;background:var(--navy);color:#fff;display:flex;align-items:center;padding:0 64px;gap:0;font-size:22px}
+.foot .c{display:flex;align-items:center;gap:12px;padding-right:34px;margin-right:34px;border-right:1px solid rgba(255,255,255,.25);white-space:nowrap}
+.foot .c:last-child{border:0;margin-left:auto;padding:0;text-align:right;display:block;font-weight:800;font-size:17px;letter-spacing:.06em;line-height:1.25;text-transform:uppercase}
+.foot .c:last-child em{font-style:normal;color:#8fb8e0}
+.foot .ico{width:26px;height:26px}
+.tag{left:64px;top:120px;font-size:17px;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);font-weight:600;display:none}
+</style></head><body><div class="poster">
+<div class="grid"></div>
+<div class="abs logo">{{inline:assets/gemis-logo.svg}}</div>
+<div class="abs site">gemis.co.za</div>
+<h1 class="abs">Is your<br>business<br>running on<br><em>workarounds?</em></h1>
+<div class="abs rule"></div>
+<p class="abs sub">Every operation needs <b>systems it can run on.</b></p>
+<div class="abs scene">
+  <div class="win"><div class="bar"><i></i><i></i><i></i><span>app.managem.co.za/dashboard</span></div><img src="../assets/app-dashboard.webp" alt=""></div>
+  <div class="kpi"><img src="../assets/card-kpi-outstanding.webp" alt=""></div>
+</div>
+<div class="abs foot">
+  <div class="c"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg></span>GEMIS.CO.ZA</div>
+  <div class="c"><span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>INFO@GEMIS.CO.ZA</div>
+  <div class="c">Systems built to last.<br><em>Partners built to stay.</em></div>
+</div>
+<div class="grain" style="--grain:.05"></div>
+</div></body></html>

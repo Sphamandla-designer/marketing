@@ -1,0 +1,46 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ManaGEM — Most find out at year end. You see it now.</title>
+<link rel="stylesheet" href="base.css">
+<style>
+:root{--ink:#0F172A;--ink-9:#0B1222;--gem:#00BFA6;--sky:#0EA5E9;--muted:#A7B3C6;--grid:rgba(255,255,255,.04)}
+body{font-family:'Outfit',sans-serif;background:var(--ink-9);color:#fff}
+.bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 25% 40%,#162036,#0B1222 70%)}
+.tex{position:absolute;inset:0;opacity:.35;background-image:radial-gradient(rgba(255,255,255,.08) 1px,transparent 1px);background-size:6px 6px}
+.logo{right:64px;top:58px;width:250px}
+.logo img{width:100%;display:block}
+.kick{left:64px;top:66px;font-family:'Plex Mono',monospace;font-size:17px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+/* the laptop, blurred outside the capsule and sharp inside it (the Adva reference) */
+.lap{left:-140px;top:150px;width:900px;height:900px;background:url(../assets/managem-mock.jpg) center/cover;filter:blur(7px) brightness(.8);
+  -webkit-mask-image:radial-gradient(ellipse 60% 60% at 50% 50%,#000 55%,transparent 100%)}
+.cap{left:110px;top:230px;width:420px;height:760px;border-radius:999px;overflow:hidden;border:2px solid rgba(255,255,255,.55);
+  background:url(../assets/managem-mock.jpg) 46% 38%/auto 1000px no-repeat #0B1222;box-shadow:0 40px 90px -30px rgba(0,0,0,.8),inset 0 0 0 1px rgba(255,255,255,.1)}
+.cap:after{content:"";position:absolute;inset:0;border-radius:999px;background:linear-gradient(160deg,rgba(255,255,255,.18),transparent 40%,transparent 70%,rgba(0,191,166,.12))}
+h1{left:560px;top:560px;font-size:68px;line-height:1.06;font-weight:400;text-transform:uppercase;letter-spacing:.005em;color:var(--gem);width:480px}
+h1 b{display:block;font-weight:800;color:#fff;font-size:88px;line-height:1.02;margin-top:16px;letter-spacing:-.01em}
+.sub{left:560px;top:1000px;width:450px;font-size:23px;line-height:1.35;color:var(--muted)}
+.sub b{color:#fff;font-weight:600}
+.soc{left:64px;bottom:62px;display:flex;gap:18px;color:#fff}
+.soc .ico{width:30px;height:30px}
+.foot{right:64px;bottom:60px;display:flex;align-items:center;gap:40px;font-size:21px}
+.foot span{display:flex;align-items:center;gap:12px}
+.foot .ico{width:30px;height:30px;color:var(--gem)}
+.trial{right:64px;bottom:118px;font-family:'Plex Mono',monospace;font-size:16px;letter-spacing:.1em;text-transform:uppercase;color:var(--gem)}
+</style></head><body><div class="poster">
+<div class="bg"></div><div class="tex"></div><div class="grid"></div>
+<div class="abs kick">Job management software</div>
+<div class="abs logo"><img src="../assets/managem-logo-rev.png" alt="ManaGEM"></div>
+<div class="abs lap"></div>
+<div class="abs cap"></div>
+<h1 class="abs">Most find out<br>at year end.<b>You see<br>it now.</b></h1>
+<p class="abs sub">A full order book can still lose money. ManaGEM keeps <b>the job, the money and the stock on one record</b> — synced with Sage — so you see it while there is time to act.</p>
+<div class="abs soc">
+  <span class="ico"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg></span>
+  <span class="ico"><svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg></span>
+  <span class="ico"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>
+</div>
+<div class="abs trial">14 days free · no card needed</div>
+<div class="abs foot">
+  <span><i class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></i>info@gemis.co.za</span>
+  <span><i class="ico"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></i>Built and supported in South Africa</span>
+</div>
+<div class="vignette"></div><div class="grain"></div>
+</div></body></html>

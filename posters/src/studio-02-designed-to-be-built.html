@@ -1,0 +1,57 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>GEMIS Studio — Designed to be built.</title>
+<link rel="stylesheet" href="base.css">
+<style>
+:root{--ink:#16161a;--pink:#ff1f7a;--orange:#ff7a12;--paper:#f5f6f8;--mute:#6a6b73;--line:#dcdee3}
+body{font-family:'Manrope',sans-serif;background:var(--paper);color:var(--ink)}
+.bg{position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 70% 20%,#fff,#f5f6f8 60%,#e9ebef 100%)}
+.hdr{left:64px;right:64px;top:62px;display:flex;align-items:center;font-family:'JetBrains Mono',monospace;font-size:17px;letter-spacing:.06em;color:var(--mute)}
+.hdr span{flex:1}
+.hdr .logo{flex:none;width:280px}
+.hdr .logo svg{width:100%;height:auto;display:block}
+h1{left:64px;top:250px;font-size:130px;line-height:.95;font-weight:300;letter-spacing:-.04em}
+h1 b{display:block;font-weight:800}
+.rule{left:64px;top:540px;width:120px;height:1px;background:var(--ink)}
+.rule:after{content:"";position:absolute;left:60px;top:-14px;width:1px;height:29px;background:var(--ink)}
+.sub{left:260px;top:522px;font-size:24px;line-height:1.3;width:520px;color:var(--ink)}
+.sub b{font-weight:700}
+/* the laptop, as in the "Build your website" reference */
+.lap{left:-40px;top:640px;width:760px;perspective:1600px}
+.lid{position:relative;width:700px;background:#1c1c21;border-radius:22px 22px 6px 6px;padding:16px 16px 6px;transform:rotateY(14deg) rotateX(2deg);transform-origin:70% 100%;
+  box-shadow:0 60px 100px -30px rgba(22,22,26,.6)}
+.lid img{display:block;width:100%;border-radius:8px}
+.lid:after{content:"";position:absolute;left:50%;top:6px;width:8px;height:8px;border-radius:50%;background:#333;transform:translateX(-50%)}
+.deck{position:absolute;left:-30px;top:100%;width:760px;height:22px;background:linear-gradient(#e8e9ee,#c5c7cf);border-radius:4px 4px 16px 16px;transform:rotateY(14deg);transform-origin:70% 0}
+.shadow{left:-40px;top:1120px;width:760px;height:24px;background:#1c1c21;border-radius:50%;filter:blur(18px);opacity:.35}
+.ladder{left:700px;top:655px;width:340px;font-family:'JetBrains Mono',monospace}
+.ladder h3{font-family:'Manrope',sans-serif;font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);font-weight:600;margin-bottom:12px}
+.ladder li{list-style:none;border-top:1px solid var(--line);padding:16px 0}
+.ladder li:last-child{border-bottom:1px solid var(--line)}
+.ladder .n{font-size:14px;color:var(--pink);font-weight:600}
+.ladder .t{font-family:'Manrope',sans-serif;font-size:24px;font-weight:700;letter-spacing:-.01em;margin:2px 0 4px;color:var(--ink)}
+.ladder .m{font-size:15px;color:var(--mute);display:flex;justify-content:space-between}
+.ladder .m b{color:var(--ink);font-weight:600}
+.cta{left:64px;bottom:60px;display:flex;align-items:center;gap:26px}
+.cta .b{background:var(--ink);color:#fff;font-weight:700;font-size:21px;padding:18px 32px;border-radius:999px}
+.cta .b:after{content:"→";margin-left:12px;color:var(--pink)}
+.cta .n{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--mute);letter-spacing:.02em}
+.cta .n b{color:var(--ink);font-weight:600}
+.mark{right:64px;bottom:58px;width:54px}
+.mark img{width:100%;display:block}
+</style></head><body><div class="poster">
+<div class="bg"></div>
+<div class="abs hdr"><span>Product &amp; experience design</span><span>gemis.co.za/studio</span><div class="logo">{{inline:assets/studio-logo-colour-light.svg}}</div></div>
+<h1 class="abs">Designed<b>to be built.</b></h1>
+<div class="abs rule"></div>
+<p class="abs sub">We design the screen and <b>build what we design</b> — senior eyes on every screen, under one roof.</p>
+<div class="abs lap"><div class="lid"><img src="../assets/app-dashboard.webp" alt=""></div><div class="deck"></div></div>
+<div class="abs shadow"></div>
+<div class="abs ladder"><h3>One ladder. Four fixed steps.</h3><ul>
+ <li><div class="n">01 · DIAGNOSE</div><div class="t">Product Teardown</div><div class="m"><span>5 days</span><b>R6,500</b></div></li>
+ <li><div class="n">02 · REFRESH</div><div class="t">Interface Refresh Sprint</div><div class="m"><span>2 weeks</span><b>from R18,000</b></div></li>
+ <li><div class="n">03 · BUILD</div><div class="t">Web Experience</div><div class="m"><span>6–8 weeks</span><b>from R55,000</b></div></li>
+ <li><div class="n">04 · EMBED</div><div class="t">Embedded Designer</div><div class="m"><span>monthly</span><b>from R20,000/mo</b></div></li>
+</ul></div>
+<div class="abs cta"><span class="b">Book a teardown</span><span class="n">Excl. VAT · <b>developer handoff + 30 days aftercare in every price</b></span></div>
+
+<div class="grain" style="--grain:.05"></div>
+</div></body></html>
