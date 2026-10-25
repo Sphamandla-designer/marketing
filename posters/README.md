@@ -197,3 +197,16 @@ The photograph comes from the 736 × 920 reference, upscaled to 1080 × 1350, so
 little softer than the type. For print or a larger format, use the original high-resolution
 image the reference was made from. Re-run with `python3 tools-recolour-reference.py`
 (needs `opencv-contrib-python-headless`), then `node render.mjs ax-eksellent-partnership`.
+
+# GEMIS LinkedIn company banner
+
+`out/gemis-linkedin-banner.png` (2256 × 382, upload this one), `out/gemis-linkedin-banner-1128x191.png`
+(spec size) and `out/gemis-linkedin-banner-preview.png` (with a stand-in page logo in LinkedIn's
+position). Same layout as the ManaGEM banner: one block centre-right, logo corner clear.
+
+- Promise: Systems built to last. Partners built to stay. (the gemis.co.za homepage tagline)
+- Proof: 12+ years · 50+ systems delivered · 5+ sectors (all confirmed in `scripts/facts.md`)
+- CTA: Book a Discovery Session · gemis.co.za (the site's own primary call to action)
+
+Ground is the hero sky photograph under the navy scrim, per the site's design rule; Archivo;
+the hexagon mark as a faint watermark at the right. No phone number.

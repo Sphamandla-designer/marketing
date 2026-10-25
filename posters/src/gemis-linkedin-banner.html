@@ -1,0 +1,36 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="canvas" content="1128x191"><title>GEMIS — LinkedIn company banner</title>
+<link rel="stylesheet" href="base.css">
+<style>
+/* LinkedIn company banner, 1128 × 191. The page logo covers the bottom-left corner,
+   so the left is kept quiet and the copy sits centre-right. */
+html,body{width:1128px;height:191px}
+:root{--navy:#0b2642;--navy-2:#16395e;--blue:#2a5c8a;--sky:#8fb8e0}
+body{font-family:'Archivo',sans-serif;background:var(--navy);color:#fff}
+/* the site's rule: every non-paper ground is the hero photograph under a navy scrim */
+.sky{position:absolute;inset:0;background:url(../assets/sky.jpg) 30% 45%/1300px auto}
+.scrim{position:absolute;inset:0;background:linear-gradient(100deg,rgba(11,38,66,.55) 0%,rgba(11,38,66,.78) 34%,rgba(11,38,66,.9) 70%,rgba(7,24,44,.95) 100%)}
+.grid{--grid:rgba(255,255,255,.04);background-size:38px 38px}
+/* the hexagon mark, oversized and faint at the right edge */
+.mark{position:absolute;right:-30px;top:-46px;width:250px;height:262px;color:#fff;opacity:.08}
+.mark svg{width:100%;height:100%;display:block}
+.copy{position:absolute;left:400px;top:24px}
+h1{font-size:30px;line-height:1.12;font-weight:800;font-stretch:92%;letter-spacing:-.012em}
+h1 em{font-style:normal;color:var(--sky)}
+.row{position:absolute;left:400px;top:101px;display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+.proof{font-size:14px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#dbe6f1;display:flex;align-items:center;gap:12px}
+.proof b{font-weight:800;color:#fff;letter-spacing:.04em;margin-right:5px}
+.proof i{width:5px;height:5px;background:var(--sky);transform:rotate(45deg);display:block}
+.chip{white-space:nowrap;display:flex;align-items:center;gap:9px;background:#fff;color:var(--navy);font-size:14.5px;font-weight:700;padding:7px 16px 7px 14px;border-radius:999px;box-shadow:0 10px 22px -10px rgba(0,0,0,.6)}
+.chip span{font-weight:500;color:var(--blue)}
+.chip s{text-decoration:none;opacity:.4}
+.chip:after{content:"→";color:var(--blue)}
+</style></head><body><div class="poster">
+<div class="sky"></div><div class="scrim"></div><div class="grid"></div>
+<div class="mark">{{inline:assets/academy-mark.svg}}</div>
+<div class="copy"><h1>Systems built to last.<br><em>Partners built to stay.</em></h1></div>
+<div class="row">
+  <div class="proof"><span><b>12+</b>years</span><i></i><span><b>50+</b>systems delivered</span><i></i><span><b>5+</b>sectors</span></div>
+  <div class="chip">Book a Discovery Session<s>·</s><span>gemis.co.za</span></div>
+</div>
+<div class="grain" style="--grain:.05"></div>
+</div></body></html>
