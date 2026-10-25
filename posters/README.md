@@ -142,3 +142,39 @@ address `app.managem.co.za/signup` as a placeholder, and `facts.md` leaves the s
 ManaGEM site as FILL, so the domain should be live before the banner goes up.
 
 `render.mjs` now honours `<meta name="canvas" content="WxH">` for non-poster sizes.
+
+---
+
+# AX-Channels × Eksellent Labs — channel partnership poster
+
+`src/ax-eksellent-partnership.html` → `out/ax-eksellent-partnership.png` (2160 × 2700) and
+`.jpg` (1080 × 1350). The reference is the "Connecting Vision with Opportunity" partnership
+poster uploaded on 2026-10-25 (`refs/partnership-reference.jpeg`, from the "partnership"
+commit on the higgsfield branch).
+
+What it takes from the reference: the dark ground under a fine curved line field, the two
+logos side by side at the top, a bold-then-light two-line headline, a central hero image
+of two things joining, the coloured glow rising from the foot, an arrow and the web
+address across the top, and the logo plus contact block in the footer.
+
+What is AX-Channels': ink `#0C0C0C` and magenta `#D62F6C` / `#F06E9A`, Poppins for
+display and Inter for text, the white logo, and hairline stripes cut to the AX mark's
+51.6° diagonal — all from the AX-Channels kit (`tools/brand/system.py`, branch
+`claude/blissful-cori-yyvaq7`). The handshake becomes two linked rings, white and
+magenta, so the image belongs to the brand rather than a stock photo.
+
+Copy: "Channel partnership" · "Stronger together. Built to perform." (the second line
+echoes the AX tagline, "Designing Digital Experiences That Perform.") · "AX-Channels and
+Eksellent Labs are now channel partners — one team, more reach for every client we serve."
+
+**Confirm before posting:**
+
+- **Eksellent Labs' logo.** No logo, site or description for Eksellent Labs is in any repo
+  or turns up in a web search, so its name is typeset in Poppins as a placeholder. Drop
+  the logo file into `assets/` and replace the `.ek` block with an `<img>`.
+- **The spelling "Eksellent Labs"** — taken from the request as written.
+- **AX-Channels contact details.** `www.axchannels.co.za` and `hello@axchannels.co.za`
+  are the kit's own placeholders (its README says to swap them before publishing). No
+  phone number is used; the kit's is `+27 00 000 0000`.
+- **The benefit line** describes the partnership generally. Replace it with what the
+  partnership actually offers once that is agreed.
