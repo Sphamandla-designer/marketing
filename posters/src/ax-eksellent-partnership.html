@@ -1,78 +1,34 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><title>AX-Channels × Eksellent Labs — channel partnership</title>
 <link rel="stylesheet" href="base.css">
 <style>
-/* AX-Channels kit tokens (tools/brand/system.py): ink #0C0C0C, magenta #D62F6C, Poppins + Inter */
-@font-face{font-family:'Poppins';src:url(../assets/poppins-400.woff2) format('woff2');font-weight:300 400}
-@font-face{font-family:'Poppins';src:url(../assets/poppins-500.woff2) format('woff2');font-weight:500}
+/* The uploaded reference, kept as designed. tools-recolour-reference.py turns its purple
+   into AX-Channels magenta and lifts out the old wording; this page sets the new wording
+   in the same places, at the same sizes, in Poppins (the AX-Channels face, and the
+   reference's own). Positions are the reference's, scaled 736 → 1080 (×1.467). */
+@font-face{font-family:'Poppins';src:url(../assets/poppins-300.woff2) format('woff2');font-weight:300}
+@font-face{font-family:'Poppins';src:url(../assets/poppins-400.woff2) format('woff2');font-weight:400}
 @font-face{font-family:'Poppins';src:url(../assets/poppins-700.woff2) format('woff2');font-weight:600 700}
-@font-face{font-family:'Poppins';src:url(../assets/poppins-800.woff2) format('woff2');font-weight:800}
-:root{--ink:#0C0C0C;--graphite:#17171B;--magenta:#D62F6C;--mag-deep:#B02458;--mag-light:#F06E9A;--silver:#B9B9C2}
-body{font-family:'Inter',sans-serif;background:var(--ink);color:#fff}
-.bg{position:absolute;inset:0;background:
-  radial-gradient(ellipse 80% 45% at 50% 108%,rgba(214,47,108,.75),rgba(176,36,88,.35) 45%,transparent 75%),
-  radial-gradient(ellipse 60% 40% at 50% 0%,#1d1d23,transparent 70%),
-  linear-gradient(180deg,#0C0C0C,#0C0C0C 55%,#2a0d1b 100%)}
-.arcs{position:absolute;inset:0;background:url(../assets/ax-arcs.svg) center/100% 100%;opacity:.9;
-  -webkit-mask-image:radial-gradient(ellipse 46% 40% at 50% 47%,transparent 30%,#000 75%)}
-.stripes{position:absolute;inset:0;background-image:repeating-linear-gradient(38.4deg,rgba(255,255,255,.035) 0 2px,transparent 2px 26px);
-  -webkit-mask-image:linear-gradient(180deg,transparent 60%,#000)}
-.arrow{left:64px;top:74px;width:70px;height:2px;background:#fff}
-.arrow:after{content:"";position:absolute;right:-1px;top:-5px;border-left:10px solid #fff;border-top:6px solid transparent;border-bottom:6px solid transparent}
-.url{right:64px;top:62px;font-family:'Poppins';font-size:21px;font-weight:400;letter-spacing:.01em}
-/* the two logos, as in the reference: one lockup each, a hairline between */
-.logos{left:0;right:0;top:176px;display:flex;justify-content:center;align-items:center;gap:40px}
-.logos .ax{height:78px}
-.logos .ax img{height:100%;display:block}
-.logos .x{width:1px;height:64px;background:rgba(255,255,255,.35)}
-
-/* partner slot: typeset name until the Eksellent Labs logo file is supplied */
-.ek{font-family:'Poppins';color:#fff;line-height:.95;text-align:left}
-.ek b{display:block;font-size:34px;font-weight:700;letter-spacing:-.005em}
-.ek span{display:block;font-size:13px;font-weight:500;letter-spacing:.62em;text-transform:uppercase;color:var(--silver);margin-top:7px}
-.pill{left:50%;top:320px;transform:translateX(-50%);font-size:15px;font-weight:600;letter-spacing:.26em;text-transform:uppercase;border:1px solid rgba(240,110,154,.65);color:var(--mag-light);padding:9px 20px;border-radius:999px;white-space:nowrap}
-h1{left:0;right:0;top:392px;text-align:center;font-family:'Poppins';font-weight:700;font-size:94px;line-height:1;letter-spacing:-.02em}
-h1 span{display:block;font-weight:300;font-size:80px;letter-spacing:-.01em;margin-top:10px}
-h1 em{font-style:normal;color:var(--mag-light)}
-/* hero object: two linked rings, the reference's handshake as a joint */
-.rings{left:140px;top:612px;width:800px;height:470px}
-.rings svg{width:100%;height:100%;overflow:visible}
-.line{left:0;right:0;top:1100px;text-align:center;font-size:23px;line-height:1.45;color:rgba(255,255,255,.88)}
-.line b{color:#fff;font-weight:700}
-.foot{left:64px;right:64px;bottom:58px;display:flex;align-items:flex-end;justify-content:space-between}
-.foot .ax{height:46px}.foot .ax img{height:100%;display:block}
-.foot .r{text-align:right;font-family:'Poppins';font-size:20px;line-height:1.4}
-.foot .r b{font-weight:700}
+body{font-family:'Poppins',sans-serif;color:#fff;background:#0C0C0C}
+.ground{position:absolute;inset:0;background:url(../assets/partnership-ground.png) center/cover}
+.url{right:109px;top:109px;font-size:21px;font-weight:400;letter-spacing:.005em}
+.logos{left:0;right:0;top:270px;display:flex;justify-content:center;align-items:center;gap:72px}
+.logos .ax{height:94px}.logos .ax img{height:100%;display:block}
+.ek{line-height:.92}
+.ek b{display:block;font-size:50px;font-weight:700;letter-spacing:-.01em}
+.ek span{display:block;font-size:17px;font-weight:700;letter-spacing:.34em;text-transform:uppercase;margin-top:6px}
+h1{left:0;right:0;top:452px;text-align:center;font-weight:700;font-size:80px;line-height:1.02;letter-spacing:-.005em}
+h1 span{display:block;font-weight:300;font-size:70px;letter-spacing:0;margin-top:22px}
+.flogo{left:114px;top:1176px;height:66px}.flogo img{height:100%;display:block}
+.fr{right:109px;top:1186px;text-align:right;font-size:20px;line-height:1.25}
+.fr b{display:block;font-weight:700}
 </style></head><body><div class="poster">
-<div class="bg"></div><div class="arcs"></div><div class="stripes"></div>
-<div class="abs arrow"></div>
+<div class="ground"></div>
 <div class="abs url">www.axchannels.co.za</div>
 <div class="abs logos">
   <div class="ax"><img src="../assets/ax-logo-white.png" alt="AX-Channels"></div>
-  <div class="x"></div>
   <div class="ek"><b>Eksellent</b><span>Labs</span></div>
 </div>
-<div class="abs pill">Channel partnership</div>
-<h1 class="abs">Stronger together.<span>Built to <em>perform.</em></span></h1>
-<div class="abs rings"><svg viewBox="0 0 800 470">
-  <defs>
-    <linearGradient id="gm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F06E9A"/><stop offset=".55" stop-color="#D62F6C"/><stop offset="1" stop-color="#7d1440"/></linearGradient>
-    <linearGradient id="gw" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#d9d9e0"/><stop offset="1" stop-color="#6c6c78"/></linearGradient>
-    <radialGradient id="glow"><stop offset="0" stop-color="#F06E9A" stop-opacity=".75"/><stop offset="1" stop-color="#D62F6C" stop-opacity="0"/></radialGradient>
-    <filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="22" stdDeviation="18" flood-color="#000" flood-opacity=".7"/></filter>
-    <!-- the white ring passes over the magenta ring in its upper crossing -->
-    <clipPath id="over"><circle cx="413.6" cy="93.8" r="150"/></clipPath>
-  </defs>
-  <ellipse cx="400" cy="235" rx="150" ry="120" fill="url(#glow)"/>
-  <g filter="url(#sh)" fill="none" stroke-width="46">
-    <ellipse cx="290" cy="235" rx="200" ry="168" stroke="url(#gw)" transform="rotate(-14 290 235)"/>
-    <ellipse cx="510" cy="235" rx="200" ry="168" stroke="url(#gm)" transform="rotate(-14 510 235)"/>
-    <ellipse cx="290" cy="235" rx="200" ry="168" stroke="url(#gw)" transform="rotate(-14 290 235)" clip-path="url(#over)"/>
-  </g>
-</svg></div>
-<p class="abs line"><b>AX-Channels</b> and <b>Eksellent Labs</b> are now channel partners —<br>one team, more reach for every client we serve.</p>
-<div class="abs foot">
-  <div class="ax"><img src="../assets/ax-logo-white.png" alt="AX-Channels"></div>
-  <div class="r"><b>www.axchannels.co.za</b><br>hello@axchannels.co.za</div>
-</div>
-<div class="grain" style="--grain:.06"></div>
+<h1 class="abs">Stronger Together<span>as Channel Partners.</span></h1>
+<div class="abs flogo"><img src="../assets/ax-logo-white.png" alt="AX-Channels"></div>
+<div class="abs fr"><b>hello@axchannels.co.za</b>AX-Channels | Eksellent Labs</div>
 </div></body></html>

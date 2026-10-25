@@ -178,3 +178,22 @@ Eksellent Labs are now channel partners — one team, more reach for every clien
   phone number is used; the kit's is `+27 00 000 0000`.
 - **The benefit line** describes the partnership generally. Replace it with what the
   partnership actually offers once that is agreed.
+
+**Revision (2026-10-25): the reference, kept as designed.** At the owner's request the
+poster now *is* the uploaded reference — its curved line field, handshake photograph,
+gradient, arrow and layout — with only the colour and the words changed.
+`tools-recolour-reference.py` shifts the reference's purple (hue 230–300) to AX-Channels
+magenta, leaving the suits, cuffs and skin untouched, and lifts out the old wording and
+logos with frequency-selective inpainting so the line field runs on underneath
+(`assets/partnership-ground.png`). The page then sets the new copy in the reference's
+own positions and sizes, in Poppins:
+
+- Logos: AX-Channels · Eksellent Labs (typeset until its logo is supplied)
+- Headline: **Stronger Together** / as Channel Partners.
+- Top right: www.axchannels.co.za · Footer: AX-Channels logo, hello@axchannels.co.za,
+  "AX-Channels | Eksellent Labs"
+
+The photograph comes from the 736 × 920 reference, upscaled to 1080 × 1350, so it is a
+little softer than the type. For print or a larger format, use the original high-resolution
+image the reference was made from. Re-run with `python3 tools-recolour-reference.py`
+(needs `opencv-contrib-python-headless`), then `node render.mjs ax-eksellent-partnership`.
