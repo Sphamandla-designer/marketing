@@ -5,6 +5,11 @@ Final creative treatment · Round 2 · for approval before production
 Client: GEMIS · Product: ManaGEM · Formats: 45-second master, 30-second television cut, 15-second cutdown
 No video prompts, storyboard images or footage are included. This document fixes the creative direction only.
 
+> **Scripts superseded.** The shooting script, product steps and production plan are
+> now in `please-hold-production-readiness.md`. Two things in this document are no
+> longer correct: the administrator does not use the global search bar, and the
+> voiceover "Every job on one record" has been cut.
+
 ---
 
 ## 0. What changed since Round 1, and why
