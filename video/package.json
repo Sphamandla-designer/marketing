@@ -1,0 +1,25 @@
+{
+  "name": "campaign-video-toolkit",
+  "version": "1.0.0",
+  "description": "End cards, product inserts and animatics for campaign films",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "audio": "node scripts/gen-audio.mjs public/films/please-hold/audio",
+    "screens": "node scripts/capture-screens.js",
+    "render": "npm run render:animatic && npm run render:endcard && npm run render:inserts",
+    "render:animatic": "remotion render src/index.ts PleaseHold-Animatic-45 out/PleaseHold-Animatic-45.mp4 --codec h264 --crf 16",
+    "render:endcard": "remotion render src/index.ts PleaseHold-EndCard out/PleaseHold-EndCard.mp4 --codec h264 --crf 16",
+    "render:inserts": "remotion render src/index.ts PleaseHold-ProductInserts out/PleaseHold-ProductInserts.mp4 --codec h264 --crf 16",
+    "typecheck": "tsc --noEmit"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@remotion/cli": "^4.0.544",
+    "@types/react": "^19.3.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "remotion": "^4.0.544",
+    "typescript": "^7.0.2"
+  },
+  "private": true
+}
