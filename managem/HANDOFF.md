@@ -11,6 +11,24 @@ Read this first. It carries the state of the work into a fresh session.
   `kling.ai`. In the previous session the Kling connector reached the server but was
   waiting for the account owner to sign in.
 
+## Kling account check (16 November 2026)
+
+- Signed in and responding. Membership: NORMAL (non-member). Credits: 0.
+- Every video model is limited to **720p** on this membership. 1080p needs a paid
+  membership. 4K is not enabled on Kling 4.0 at all.
+- The connector exposes no price list and no cost preview, so credit costs per shot
+  could not be quoted from here. They must be read from Kling's own pricing page.
+- Video models available: Kling 4.0 (flagship, 3–30 s, first frame plus optional
+  tail frame and keyframes), Kling 4.0 Flash, Kling 3.0, Kling 3.0 Omni (reusable
+  subjects, native audio, 3–15 s), Kling 3.0 Turbo, Kling O1, 2.6, 2.5.
+- Image models available: Kling Image 3.0 Omni (default, up to 2K as non-member),
+  Kling Image 3.0, O1, 2.1, Nano Banana Pro, Nano Banana 2, GPT-Image-2 and 2.5
+  (up to 4K).
+- Recommended: reference stills first, then Kling 4.0 image-to-video from the
+  approved still, audio off, 16:9. Nothing has been submitted.
+- Kling reported that its tool list has been updated; reconnect the connector or
+  start a new session before generating.
+
 ## Documents, in reading order
 
 | File | What it holds | Status |
