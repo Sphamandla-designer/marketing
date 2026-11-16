@@ -3,6 +3,11 @@
 Client: GEMIS · Product: ManaGEM · Format: 30-second commercial film with 15-second cutdown
 Status: concept stage. No video prompts or generation yet.
 
+> **Superseded for "Please Hold".** The selected concept was rewritten in Round 2
+> against the real product material: see `please-hold-final-treatment.md`. The
+> product details in this Round 1 document (tablet screen, "stock's reserved",
+> "Book a demo") are not accurate and must not be used.
+
 > **Research caveat.** managem.co.za could not be reached from the working environment
 > (the host is outside the session's allowed network domains) and web search returned
 > nothing on the product. Everything below is built on the brief: ManaGEM brings
