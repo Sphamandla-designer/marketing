@@ -29,6 +29,20 @@ Read this first. It carries the state of the work into a fresh session.
 - Kling reported that its tool list has been updated; reconnect the connector or
   start a new session before generating.
 
+## Video toolkit (16 November 2026)
+
+- `video/` is a Remotion project: reusable end card, untouched product inserts and
+  a data-driven animatic. See `video/README.md`.
+- Renders are in `managem/renders/`: the 45-second animatic, the end card and the
+  three clean product inserts. All 1920 x 1080, 25 fps.
+- The animatic uses text boards for shots not yet made, scratch sound synthesised
+  in code, and subtitles in place of voices.
+- Timing finding from the animatic: shot 8 is tight. Lerato's line, "Mrs Pillay?",
+  "Hello?" and "Thanks, Lerato." only fit before the voiceover if each pause is
+  about 0.4 s. The script wanted longer silences.
+- Remotion needs a paid company licence for a for-profit company with more than
+  three employees. Check before these renders are used commercially.
+
 ## Documents, in reading order
 
 | File | What it holds | Status |

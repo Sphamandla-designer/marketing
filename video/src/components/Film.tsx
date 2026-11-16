@@ -112,7 +112,8 @@ export const Film: React.FC<FilmProps> = ({ brand, spec, guides = true }) => {
         <CueView key={i} cue={cue} fps={fps} total={durationInFrames} />
       ))}
       {guides ? <Burnin brand={brand} spec={spec} /> : null}
-      {guides ? <Subtitles brand={brand} lines={spec.lines} compact={overScreen} /> : null}
+      {/* The end card is finished picture: nothing is drawn over it. */}
+      {guides && current?.kind !== "endcard" ? <Subtitles brand={brand} lines={spec.lines} compact={overScreen} /> : null}
     </AbsoluteFill>
   );
 };
