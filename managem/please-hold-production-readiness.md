@@ -7,6 +7,11 @@ the administrator-led resolution, and the line *Know where every job stands.*
 This document supersedes the scripts in `please-hold-final-treatment.md`.
 It contains no video-generation prompts, storyboard images or footage.
 
+> **Part two revised.** Shots 9 to 17, the administrator's lines, the second caller
+> and the verification register are superseded by `please-hold-product-truth.md`.
+> Part one (shots 1 to 8), the production plan, the three tests and the continuity
+> guide in this document still stand.
+
 ---
 
 ## 0. What this pass changed
