@@ -1,0 +1,207 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="fonts.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#02050B;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;color:#fff}
+.scene{position:absolute;inset:0;overflow:hidden;display:none;perspective:1800px;perspective-origin:50% 46%;background:radial-gradient(90% 55% at 50% 62%,#0A2233 0%,#050B16 55%,#02050B 100%)}
+.p3{transform-style:preserve-3d}
+.abs{position:absolute;left:0;top:0}
+.glow{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none}
+.floor{position:absolute;left:-1460px;top:1180px;width:4000px;height:3000px;transform-origin:50% 0;transform:rotateX(78deg);
+  background-image:linear-gradient(rgba(45,227,197,.55) 2px,transparent 2px),linear-gradient(90deg,rgba(56,189,248,.55) 2px,transparent 2px);background-size:160px 160px;
+  -webkit-mask-image:radial-gradient(ellipse 45% 60% at 50% 0%,#000 0%,transparent 75%);mask-image:radial-gradient(ellipse 45% 60% at 50% 0%,#000 0%,transparent 75%)}
+.cap{position:absolute;left:60px;right:60px;text-align:center;font-weight:700;font-size:86px;line-height:1.06;letter-spacing:.005em;text-transform:uppercase;text-shadow:0 6px 30px rgba(0,0,0,.85),0 0 60px rgba(0,0,0,.6);z-index:60}
+.cap .w{display:inline-block}
+.cap .acc{color:#2DE3C5;text-shadow:0 0 40px rgba(45,227,197,.65),0 6px 30px rgba(0,0,0,.85)}
+.neon{box-shadow:0 0 0 2px rgba(94,234,212,.9),0 0 40px rgba(45,227,197,.7),0 0 120px rgba(14,165,233,.55)}
+.wire{position:absolute;border:2px solid rgba(94,234,212,.7);border-radius:14px;box-shadow:0 0 30px rgba(45,227,197,.5),inset 0 0 30px rgba(14,165,233,.25)}
+.card{position:absolute;left:-270px;top:-230px;width:540px;height:460px;border-radius:28px;padding:22px;background:linear-gradient(160deg,rgba(210,240,250,.30),rgba(120,190,220,.12));border:1.5px solid rgba(190,240,250,.55);box-shadow:0 30px 80px rgba(0,0,0,.45),inset 0 0 40px rgba(255,255,255,.08);backface-visibility:visible}
+.card b{display:block;font-size:40px;font-weight:600;letter-spacing:.01em;margin:2px 0 16px 6px;text-shadow:0 2px 10px rgba(0,0,0,.4)}
+.card b i{display:inline-block;width:16px;height:16px;border-radius:50%;background:#2DE3C5;box-shadow:0 0 16px #2DE3C5;margin-right:14px;vertical-align:middle}
+.card img{width:496px;height:347px;border-radius:14px;object-fit:cover;object-position:0 0;display:block}
+.vig{position:absolute;inset:0;background:radial-gradient(75% 60% at 50% 50%,transparent 55%,rgba(0,0,0,.6) 100%);z-index:70;pointer-events:none}
+.dot{position:absolute;width:5px;height:5px;border-radius:50%;background:#7CF5E1;box-shadow:0 0 10px #2DE3C5}
+.key{position:absolute;inset:40px 50px 250px 50px;border-radius:10px;background-image:linear-gradient(#0a0d12 5px,transparent 5px),linear-gradient(90deg,#0a0d12 5px,transparent 5px);background-size:57.2px 62px;background-color:#1b212b}
+</style></head><body>
+
+<!-- A laptop -->
+<div class="scene" id="sA">
+  <div class="glow" id="gA" style="left:140px;top:500px;width:800px;height:700px;background:#0EA5E9;opacity:0"></div>
+  <div class="abs p3" id="lap" style="left:540px;top:1000px">
+    <div class="abs p3" id="base" style="left:-450px;top:0;width:900px;height:620px;transform-origin:50% 0;transform:rotateX(90deg);border-radius:10px 10px 34px 34px;background:linear-gradient(180deg,#2a313d,#151a22);box-shadow:inset 0 0 0 2px #3b4452">
+      <div class="key"></div>
+      <div style="position:absolute;left:300px;top:400px;width:300px;height:190px;border-radius:14px;background:#1a2029;box-shadow:inset 0 0 0 2px #303846"></div>
+    </div>
+    <div class="abs p3" id="lid" style="left:-450px;top:-580px;width:900px;height:580px;transform-origin:50% 100%">
+      <div class="abs" style="width:900px;height:580px;border-radius:26px 26px 6px 6px;background:#0b0e13;box-shadow:inset 0 0 0 2px #3b4452"></div>
+      <img id="lscr" class="abs" src="img/dashboard.png" style="left:18px;top:18px;width:864px;height:540px;border-radius:12px">
+      <div class="abs" id="lback" style="width:900px;height:580px;border-radius:26px 26px 6px 6px;background:linear-gradient(180deg,#39424f,#1a2029);transform:translateZ(-8px) rotateY(180deg);backface-visibility:hidden"><img src="img/mark.png" style="position:absolute;left:390px;top:240px;width:120px;opacity:.5"></div>
+    </div>
+  </div>
+</div>
+
+<!-- B hologram -->
+<div class="scene" id="sB">
+  <div class="floor" id="flB"></div>
+  <div class="glow" style="left:90px;top:420px;width:900px;height:800px;background:#0B6F8F;opacity:.55"></div>
+  <div class="abs p3" id="holo" style="left:540px;top:800px">
+    <div class="wire" style="left:-500px;top:-330px;width:1000px;height:660px;transform:translateZ(-260px);opacity:.55"></div>
+    <div class="wire" style="left:-500px;top:-330px;width:1000px;height:660px;transform:translateZ(-520px);opacity:.3"></div>
+    <div class="wire" style="left:-500px;top:-330px;width:1000px;height:660px;transform:translateZ(-780px);opacity:.15"></div>
+    <img class="abs neon" src="img/dashboard.png" style="left:-480px;top:-300px;width:960px;height:600px;border-radius:14px">
+    <img class="abs neon hk" src="img/kpi2.png" style="left:-620px;top:-520px;width:420px;border-radius:14px">
+    <img class="abs neon hk" src="img/kpi3.png" style="left:180px;top:-560px;width:420px;border-radius:14px">
+    <img class="abs neon hk" src="img/pj1.png" style="left:-600px;top:330px;width:420px;border-radius:14px">
+    <img class="abs neon hk" src="img/kpi4.png" style="left:160px;top:360px;width:420px;border-radius:14px">
+  </div>
+</div>
+
+<!-- C ring -->
+<div class="scene" id="sC" style="background:radial-gradient(90% 60% at 50% 45%,#12384d 0%,#081320 55%,#02050B 100%)">
+  <div class="floor" style="top:1320px;opacity:.5"></div>
+  <div class="glow" id="core" style="left:340px;top:560px;width:400px;height:400px;background:#2DE3C5;opacity:.7;filter:blur(70px)"></div>
+  <div class="abs p3" id="ringT" style="left:540px;top:760px"><div class="abs p3" id="ring"></div>
+    <div class="abs" id="halo" style="left:-760px;top:-760px;width:1520px;height:1520px;border-radius:50%;border:3px solid rgba(94,234,212,.55);box-shadow:0 0 50px rgba(45,227,197,.6),inset 0 0 50px rgba(14,165,233,.4);transform:translateY(290px) rotateX(90deg)"></div>
+  </div>
+</div>
+
+<!-- D phone -->
+<div class="scene" id="sD" style="background:radial-gradient(80% 50% at 50% 60%,#1a2740 0%,#0a1020 55%,#04060c 100%)">
+  <div class="glow" style="left:190px;top:1250px;width:700px;height:260px;background:#9FE8FF;opacity:.35;filter:blur(60px)"></div>
+  <div class="abs p3" id="ph" style="left:540px;top:800px">
+    <div id="phT" class="abs p3"></div>
+    <div class="abs" style="left:-215px;top:-466px;width:430px;height:932px;border-radius:64px;background:#05070b;box-shadow:inset 0 0 0 3px #6f7f99,inset 0 0 0 9px #0c0f15"></div>
+    <div class="abs" style="left:-201px;top:-452px;width:402px;height:904px;border-radius:52px;overflow:hidden;background:#F8FAFC">
+      <img id="phs" src="img/m_full.png" style="position:absolute;left:0;top:0;width:402px">
+      <div id="tap" style="position:absolute;left:0;top:0;width:110px;height:110px;margin:-55px;border-radius:50%;border:5px solid rgba(14,165,233,.9);background:rgba(14,165,233,.18);opacity:0"></div>
+    </div>
+    <div class="abs" style="left:-55px;top:-438px;width:110px;height:30px;border-radius:20px;background:#05070b"></div>
+    <img class="abs neon dk" src="img/kpi3.png" style="left:150px;top:-330px;width:400px;border-radius:14px">
+    <img class="abs neon dk" src="img/pj2.png" style="left:-560px;top:60px;width:400px;border-radius:14px">
+  </div>
+</div>
+
+<!-- E chart -->
+<div class="scene" id="sE">
+  <div class="floor" id="flE" style="top:1250px"></div>
+  <div class="glow" style="left:140px;top:500px;width:800px;height:700px;background:#0B6F8F;opacity:.5"></div>
+  <div class="abs p3" id="ch" style="left:540px;top:1240px"></div>
+  <svg class="abs" id="ln" width="1080" height="1920" style="z-index:5;filter:drop-shadow(0 0 14px #2DE3C5)"><polyline id="lnp" fill="none" stroke="#E7FFFB" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><polygon id="lna" fill="#E7FFFB"/></svg>
+</div>
+
+<!-- F outro -->
+<div class="scene" id="sF" style="background:radial-gradient(90% 60% at 50% 45%,#0c2a3c 0%,#060d19 55%,#02050B 100%)">
+  <div class="floor" style="top:1380px;opacity:.35"></div>
+  <div id="flare" class="abs" style="left:540px;top:800px">
+    <div class="abs" id="fl1" style="left:-300px;top:-300px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,#fff 0%,#9FF3E6 12%,rgba(14,165,233,.5) 30%,transparent 65%)"></div>
+    <div class="abs" id="fl2" style="left:-900px;top:-5px;width:1800px;height:10px;border-radius:10px;background:linear-gradient(90deg,transparent,#BFF8FF,#fff,#BFF8FF,transparent);filter:blur(3px)"></div>
+  </div>
+  <div class="abs p3" id="endc" style="left:540px;top:820px">
+    <div class="abs" style="left:-430px;top:-380px;width:860px;height:760px;border-radius:44px;background:linear-gradient(160deg,rgba(210,240,250,.20),rgba(120,190,220,.06));border:1.5px solid rgba(190,240,250,.5);box-shadow:0 40px 120px rgba(0,0,0,.5),inset 0 0 60px rgba(255,255,255,.06)"></div>
+    <div class="abs" id="sheen" style="left:-430px;top:-380px;width:860px;height:760px;border-radius:44px;overflow:hidden"><div id="sh" style="position:absolute;top:-200px;width:160px;height:1200px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transform:rotate(22deg)"></div></div>
+    <img id="elogo" class="abs" src="img/logo0.png" style="left:-340px;top:-240px;width:680px">
+    <div class="abs" id="etag" style="left:-400px;top:-70px;width:800px;text-align:center;font-size:50px;font-weight:400;color:#DDF3F2"></div>
+    <div class="abs" id="ecta" style="left:-250px;top:110px;width:500px;height:116px;border-radius:60px;background:linear-gradient(90deg,#12C9AC,#0EA5E9);box-shadow:0 0 70px rgba(45,227,197,.6);text-align:center;font-size:46px;font-weight:600;line-height:116px">Book a demo today</div>
+    <div class="abs" id="eby" style="left:-400px;top:290px;width:800px;text-align:center;font-size:26px;letter-spacing:.05em;color:#8FB0C4">A product of GEM Information Systems</div>
+  </div>
+</div>
+
+<div class="cap" id="cap" style="top:1440px"></div>
+<div id="dots" style="position:absolute;inset:0;z-index:65;pointer-events:none"></div>
+<div class="vig"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const cl=(x,a=0,b=1)=>Math.min(b,Math.max(a,x)),L=(a,b,p)=>a+(b-a)*p;
+const E={out:x=>1-Math.pow(1-x,3),expo:x=>x>=1?1:1-Math.pow(2,-10*x),in:x=>x*x*x,io:x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2,back:x=>{const c=1.70158;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)}};
+const P=(t,a,d)=>cl((t-a)/d);
+const tf=(el,o)=>{(typeof el=='string'?$(el):el).style.transform=`translate3d(${o.x||0}px,${o.y||0}px,${o.z||0}px) rotateX(${o.rx||0}deg) rotateY(${o.ry||0}deg) rotateZ(${o.rz||0}deg) scale(${o.s??1})`};
+
+// ---- timing: [id, design duration]; window.ACT overrides actual durations (set from voice-over lengths)
+const SC=[['sA',5.0],['sB',4.5],['sC',9.0],['sD',6.5],['sE',5.0],['sF',7.0]];
+const ACT=(window.ACT||(location.hash?JSON.parse(decodeURIComponent(location.hash.slice(1))):null))||SC.map(s=>s[1]);
+let acc=0;const ST=SC.map((s,i)=>{const a=acc;acc+=ACT[i];return a});window.DUR=acc;
+// captions in design time per scene: [scene, t0, t1, text]
+const CAPS=[['sA',.4,2.55,'Your business|runs on *numbers.*'],['sA',2.7,4.85,'Can you|actually *see* them?'],
+ ['sB',.25,1.85,'Meet *ManaGEM.*'],['sB',1.95,4.35,'One system.|Your *whole* business.'],
+ ['sC',.3,2.7,'Customers. Quotes.|*Invoices.*'],['sC',2.8,5.2,'Projects. Stock.|*Factory.*'],['sC',5.3,6.8,'Debtors.|*Reports.*'],['sC',6.95,8.85,'All connected.|*All live.*'],
+ ['sD',.3,2.9,'Track every enquiry.|*Every job.*'],['sD',3.0,6.3,'Every rand.|*From anywhere.*'],
+ ['sE',.2,1.6,'Less *admin.*'],['sE',1.7,3.2,'Better *decisions.*'],['sE',3.3,4.85,'More *profit.*']];
+const capHTML=s=>{let on=false;return s.split('|').map(l=>l.split(' ').map(w=>{if(w[0]=='*')on=true;const h=`<span class="w${on?' acc':''}">${w.replace(/\*/g,'')}</span>`;if(w.endsWith('*'))on=false;return h}).join(' ')).join('<br>')};
+
+// ring
+const RC=[['Customers','c_customers'],['Quotes','c_quotes'],['Invoices','c_invoices'],['Projects','c_projects'],['Stock','c_stock'],['Factory','c_factory'],['Debtors','c_debtors'],['Reports','c_reports']];
+const RR=760;
+$('ring').innerHTML=RC.map((c,i)=>`<div class="card" style="transform:rotateY(${i*45}deg) translateZ(${RR}px)"><b><i></i>${c[0]}</b><img src="img/${c[1]}.jpg"></div>`).join('');
+const RT=[.3,1.1,1.9,2.9,3.7,4.5,5.4,6.1];
+// phone thickness
+$('phT').innerHTML=Array.from({length:12},(_,i)=>`<div class="abs" style="left:-215px;top:-466px;width:430px;height:932px;border-radius:64px;background:${i==11?'#2a3140':'#566379'};transform:translateZ(${-(i+1)*2.2}px)"></div>`).join('');
+// laptop thickness
+$('base').insertAdjacentHTML('beforeend',Array.from({length:6},(_,i)=>`<div class="abs" style="width:900px;height:620px;border-radius:10px 10px 34px 34px;background:#0e1218;transform:translateZ(${-(i+1)*3}px)"></div>`).join(''));
+// chart bars
+const BH=[150,230,200,330,420,390,560],BW=92,BD=92,GAP=40;
+$('ch').innerHTML=BH.map((h,i)=>{const x=(i-3)*(BW+GAP)-BW/2;return `<div class="abs p3 bar" style="left:${x}px;top:0">
+ <div class="abs" style="width:${BW}px;height:${h}px;top:${-h}px;background:linear-gradient(180deg,rgba(125,245,225,.95),rgba(14,165,233,.35));box-shadow:0 0 0 2px #9FF3E6,0 0 40px rgba(45,227,197,.7);transform:translateZ(${BD/2}px)"></div>
+ <div class="abs" style="width:${BD}px;height:${h}px;top:${-h}px;left:${BW-BD/2}px;background:linear-gradient(180deg,rgba(14,165,233,.7),rgba(14,165,233,.15));box-shadow:0 0 0 2px rgba(94,234,212,.7);transform:rotateY(90deg)"></div>
+ <div class="abs" style="width:${BW}px;height:${BD}px;top:${-h-BD/2}px;background:rgba(200,255,248,.85);box-shadow:0 0 0 2px #9FF3E6;transform:rotateX(90deg)"></div></div>`}).join('');
+// dust
+const DN=26;$('dots').innerHTML=Array.from({length:DN},()=>'<div class="dot"></div>').join('');
+const rnd=i=>{const x=Math.sin(i*127.1)*43758.5453;return x-Math.floor(x)};
+
+const R={};
+R.sA=s=>{const op=E.io(P(s,.25,1.5));const on=P(s,1.1,.5);
+  tf('lap',{y:L(140,0,E.out(P(s,0,1.6))),z:L(-500,-120,E.out(P(s,0,4.9))),rx:L(-26,-14,E.out(P(s,0,3))),ry:L(-38,22,E.io(P(s,0,5)))});
+  $('lid').style.transform=`rotateX(${L(-90,12,op)}deg)`;$('lscr').style.opacity=on;$('lscr').style.filter=`brightness(${L(.2,1.08,on)})`;
+  $('gA').style.opacity=on*.45};
+R.sB=s=>{const p=E.expo(P(s,0,1.3));
+  tf('holo',{z:L(-1500,-260,p)+s*45,ry:L(40,-12,E.out(P(s,0,4.5))),rx:L(14,4,p),y:Math.sin(s*1.4)*10});
+  $('holo').style.opacity=cl(p*1.5);$('flB').style.backgroundPosition=`0 ${s*90}px`;
+  document.querySelectorAll('.hk').forEach((k,i)=>{const q=E.back(P(s,1.3+i*.22,.7));k.style.opacity=cl(q);k.style.transform=`translateZ(${q*(160+i*40)}px) scale(${L(.6,1,cl(q))})`})};
+R.sC=s=>{let th=0;for(let i=1;i<8;i++)th-=45*E.io(P(s,RT[i]-.3,.55));const fin=E.io(P(s,6.9,1.9));th-=fin*405;
+  const inn=E.expo(P(s,0,1.1));
+  tf('ringT',{z:L(-2600,-RR,inn)-fin*520,rx:L(-28,-9,inn)-fin*8,y:fin*40});
+  $('ring').style.transform=`rotateY(${th+L(-140,0,inn)}deg)`;
+  const cur=-(th+L(-140,0,inn));
+  [...$('ring').children].forEach((c,i)=>{let d=((i*45-cur)%360+540)%360-180;const f=Math.cos(d*Math.PI/180);c.style.opacity=L(.28,1,cl((f+1)/2)**2)+fin*.3;c.style.filter=f<.5&&fin<.3?`blur(${((1-(f+1)/2)*5).toFixed(1)}px)`:'none'});
+  $('core').style.opacity=.45+.25*Math.sin(s*4)+fin*.4;$('core').style.transform=`scale(${1+fin*1.2})`;$('halo').style.opacity=inn};
+R.sD=s=>{const inn=E.expo(P(s,0,1.3)),zm=E.io(P(s,3.0,1.3));
+  tf('ph',{y:L(900,0,inn)+zm*60,z:L(-600,-80,inn)+zm*330,ry:L(-70,-24,inn)+E.io(P(s,1.2,2.2))*38-zm*14+Math.sin(s*1.1)*2,rx:L(20,8,inn)-zm*4,rz:L(-12,-3,inn)+zm*3});
+  const sc=E.io(P(s,1.0,1.7));$('phs').style.transform=`translateY(${-sc*380}px)`;
+  const tp=P(s,2.45,.5);const tap=$('tap');tap.style.left='200px';tap.style.top='420px';tap.style.opacity=tp>0&&tp<1?1-tp:0;tap.style.transform=`scale(${.4+tp*1.4})`;
+  document.querySelectorAll('.dk').forEach((k,i)=>{const q=E.back(P(s,3.3+i*.3,.7));k.style.opacity=cl(q);k.style.transform=`translateZ(${q*(120+i*60)}px) translateY(${Math.sin(s*2+i)*8}px) scale(${L(.5,1,cl(q))})`})};
+R.sE=s=>{tf('ch',{z:L(-900,-200,E.expo(P(s,0,1.2)))+s*25,ry:L(-48,-18,E.out(P(s,0,5))),rx:-10});$('flE').style.backgroundPosition=`${s*40}px ${s*60}px`;
+  document.querySelectorAll('.bar').forEach((b,i)=>{const g=E.back(P(s,.25+i*.16,.8));b.style.transform=`scaleY(${Math.max(.001,g)})`;b.style.opacity=cl(g*2)});
+  // line over bar tops (screen-space approximation drawn in svg)
+  const pts=[];const lp=E.io(P(s,1.5,2.2));const ry=L(-48,-18,E.out(P(s,0,5)))*Math.PI/180,z0=L(-900,-200,E.expo(P(s,0,1.2)))+s*25;
+  BH.forEach((h,i)=>{const X=(i-3)*(BW+GAP),Y=-h-70,Z=0;const x=X*Math.cos(ry)+Z*Math.sin(ry),z=-X*Math.sin(ry)*-1*0+(-X*Math.sin(ry))+z0;const k=1800/(1800-z);pts.push([540+x*k,883+(1240+Y-883)*k])});
+  const n=lp*(pts.length-1);const out=[];for(let i=0;i<=Math.floor(n);i++)out.push(pts[i]);const fi=Math.floor(n),fr=n-fi;let tip=pts[fi];
+  if(fi<pts.length-1){tip=[L(pts[fi][0],pts[fi+1][0],fr),L(pts[fi][1],pts[fi+1][1],fr)];out.push(tip)}
+  $('lnp').setAttribute('points',out.map(p=>p.join(',')).join(' '));$('ln').style.opacity=lp>0?1:0;
+  const pv=out[out.length-2]||tip,a=Math.atan2(tip[1]-pv[1],tip[0]-pv[0]);const ar=[[26,0],[-14,-18],[-14,18]].map(([x,y])=>[tip[0]+x*Math.cos(a)-y*Math.sin(a),tip[1]+x*Math.sin(a)+y*Math.cos(a)]);
+  $('lna').setAttribute('points',ar.map(p=>p.join(',')).join(' '))};
+R.sF=s=>{const f=P(s,0,1.5);const up=Math.sin(Math.PI*cl(f));
+  $('fl1').style.transform=`scale(${.05+up*2.2})`;$('fl1').style.opacity=up;$('fl2').style.transform=`scaleX(${up*1.2}) scaleY(${1+up*2})`;$('fl2').style.opacity=up;
+  const c=E.expo(P(s,.7,1.1));tf('endc',{z:L(-700,0,c),ry:L(-35,0,c)+Math.sin(s*.8)*2.5,rx:L(12,0,c),y:Math.sin(s*1.2)*6});$('endc').style.opacity=cl(c*1.6);
+  const lg=E.expo(P(s,1.2,.9));$('elogo').style.opacity=lg;$('elogo').style.transform=`scale(${L(1.3,1,lg)})`;$('elogo').style.filter=`blur(${((1-lg)*16).toFixed(1)}px)`;
+  const TAG="Know what's making you money.";$('etag').textContent=TAG.slice(0,Math.floor(P(s,2.0,1.1)*TAG.length));
+  const q=E.back(P(s,3.0,.6));$('ecta').style.opacity=cl(q);$('ecta').style.transform=`scale(${q*(1+.025*Math.sin(s*5))})`;$('eby').style.opacity=P(s,3.5,.6);
+  $('sh').style.left=L(-300,1100,P(s,1.6,1.4))+'px'};
+
+window.render=function(t){
+  let capTxt=null,capP=0;
+  SC.forEach(([id,dd],i)=>{const el=$(id),a=ST[i],b=a+ACT[i];if(t<a-0.001||t>=b+.25){el.style.display='none';return}
+    if(t>=b&&i==SC.length-1){}
+    el.style.display='block';const k=dd/ACT[i];const s=(t-a)*k;
+    const inn=i==0?P(t,0,.4):P(t,a,.25),out=(i==SC.length-1)?P(t,b-.7,.7):P(t,b,.25);
+    el.style.opacity=inn*(1-out);el.style.zIndex=i+1;
+    const wz=(1-E.out(inn))*.12+E.in(out)*.18;el.style.transform=`scale(${1+wz})`;el.style.filter=(inn<1||out>0)?`blur(${((1-inn)*10+out*14).toFixed(1)}px) brightness(${1+out*1.5})`:'none';
+    R[id](Math.min(s,dd+.3));
+    if(t<b)for(const c of CAPS){if(c[0]==id&&s>=c[1]&&s<c[2]){capTxt=c;capP=s}}});
+  const cap=$('cap');if(capTxt){if(cap.dataset.k!=capTxt[3]){cap.innerHTML=capHTML(capTxt[3]);cap.dataset.k=capTxt[3]}
+    cap.style.display='block';const o=1-P(capP,capTxt[2]-.18,.18);
+    [...cap.querySelectorAll('.w')].forEach((w,i)=>{const p=E.back(P(capP,capTxt[1]+i*.11,.3));w.style.opacity=cl(p)*o;w.style.transform=`translateY(${(1-cl(p))*30}px) scale(${L(.7,1,p)})`})}
+  else cap.style.display='none';
+  [...$('dots').children].forEach((d,i)=>{const x=(rnd(i)*1080+t*(8+rnd(i+50)*16))%1080,y=(rnd(i+9)*1920-t*(14+rnd(i+70)*26)+19200)%1920;d.style.transform=`translate(${x}px,${y}px) scale(${.5+rnd(i+3)*1.2})`;d.style.opacity=.12+.3*Math.abs(Math.sin(t*1.3+i))});
+};
+</script></body></html>
