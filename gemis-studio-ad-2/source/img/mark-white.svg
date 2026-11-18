@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="GEMIS Studio">
+  <!-- the stone: table and crown above the girdle, pavilion below -->
+  <path d="M18 6 L46 6 L60 27 L4 27 Z" fill="#ffffff"/>
+  <path d="M4 31 L60 31 L32 60 Z" fill="#ffffff"/>
+</svg>
