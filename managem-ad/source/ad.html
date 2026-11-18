@@ -1,0 +1,265 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="fonts.css">
+<style>
+:root{--navy:#0F172A;--deep:#070C18;--teal:#00C9A7;--sky:#0EA5E9;--ink:#0F172A}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#070C18;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased}
+.scene{position:absolute;inset:0;overflow:hidden;display:none;perspective:2200px;perspective-origin:50% 45%}
+.dark{background:radial-gradient(120% 90% at 50% 110%,#0d2a3f 0%,#0B1324 45%,#060A14 100%);color:#fff}
+.light{background:linear-gradient(180deg,#ffffff 0%,#F3FBFB 55%,#DDF7F3 100%);color:var(--ink)}
+.bright{background:linear-gradient(120deg,#5EEAD4 0%,#22D3EE 45%,#38BDF8 100%);color:#062436}
+.blob{position:absolute;border-radius:50%;filter:blur(110px);pointer-events:none}
+.streak{position:absolute;height:26px;border-radius:20px;filter:blur(22px);background:linear-gradient(90deg,transparent,var(--teal),var(--sky),transparent);opacity:.55}
+.ring{position:absolute;border-radius:50%;border:1.5px solid rgba(125,231,214,.22)}
+.h{position:absolute;font-weight:500;letter-spacing:-0.025em;line-height:1.08;white-space:nowrap}
+.c{left:0;right:0;text-align:center}
+.w{display:inline-block;will-change:transform,opacity,filter}
+.dark .acc{background:linear-gradient(90deg,#2DE3C5,#38BDF8);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none}
+.light .acc{background:linear-gradient(90deg,#00B597,#0284C7);-webkit-background-clip:text;background-clip:text;color:transparent}
+.bright .acc{color:#fff}
+.mock{position:absolute;left:240px;top:90px;width:1440px;height:900px;transform-style:preserve-3d;will-change:transform}
+.mock>img.scr{position:absolute;inset:0;width:1440px;height:900px;border-radius:16px;box-shadow:0 0 0 1.5px rgba(94,234,212,.55),0 0 70px rgba(14,165,233,.45),0 60px 120px rgba(0,0,0,.55)}
+.light .mock>img.scr{box-shadow:0 0 0 1.5px rgba(14,165,233,.35),0 0 80px rgba(0,201,167,.35),0 60px 120px rgba(15,23,42,.25)}
+.lift{position:absolute;border-radius:12px;box-shadow:0 30px 60px rgba(8,20,40,.35),0 0 0 1px rgba(14,165,233,.35)}
+.star{position:absolute;width:70px;height:70px;left:0;top:0}
+.trail{position:absolute;left:0;top:0;width:260px;height:10px;border-radius:10px;background:linear-gradient(90deg,transparent,rgba(45,227,197,.9));filter:blur(7px);transform-origin:100% 50%}
+.chip{position:absolute;left:0;top:0;padding:16px 28px;border-radius:40px;font-size:38px;font-weight:500;white-space:nowrap;color:#E2F6F5;background:rgba(18,36,58,.85);border:1.5px solid rgba(94,234,212,.35);box-shadow:0 10px 40px rgba(0,0,0,.4),inset 0 0 20px rgba(45,227,197,.08)}
+.chip i{display:inline-block;width:14px;height:14px;border-radius:50%;margin-right:14px;vertical-align:middle}
+.pill{position:absolute;border-radius:60px;white-space:nowrap}
+.cursor{position:absolute;left:0;top:0;width:54px;height:54px;z-index:50;filter:drop-shadow(0 6px 10px rgba(0,0,0,.45))}
+.ripple{position:absolute;left:0;top:0;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;border:4px solid rgba(45,227,197,.9);z-index:49}
+.lab{position:absolute;font-size:64px;font-weight:500;letter-spacing:-.02em;text-align:center;width:600px;margin-left:-300px}
+</style></head><body>
+
+<!-- S1 hook -->
+<div class="scene dark" id="s1">
+  <div class="blob" style="width:900px;height:900px;background:#0b6f73;opacity:.55" data-b="200,700,160,.5"></div>
+  <div class="blob" style="width:700px;height:700px;background:#0a4f8a;opacity:.5" data-b="1300,-200,140,.7"></div>
+  <div class="streak" style="width:1500px;left:-200px;top:260px;transform:rotate(-18deg)" data-s="1"></div>
+  <div class="streak" style="width:1300px;left:800px;top:820px;transform:rotate(-18deg)" data-s="-1"></div>
+  <div class="h c" id="s1a" style="top:455px;font-size:132px"></div>
+  <div class="h c" id="s1b" style="top:455px;font-size:132px"></div>
+  <div class="trail" id="s1t"></div>
+  <svg class="star" id="s1s" viewBox="-1 -1 2 2"><path d="M0,-1C.12,-.12 .12,-.12 1,0C.12,.12 .12,.12 0,1C-.12,.12 -.12,.12 -1,0C-.12,-.12 -.12,-.12 0,-1Z" fill="#2DE3C5"/></svg>
+</div>
+
+<!-- S2 chaos orbit -->
+<div class="scene dark" id="s2">
+  <div class="blob" style="width:1000px;height:1000px;background:#075e63;opacity:.5" data-b="460,300,90,.6"></div>
+  <div class="ring" id="r1"></div><div class="ring" id="r2"></div><div class="ring" id="r3"></div>
+  <div id="orb" style="position:absolute;left:960px;top:520px;width:170px;height:170px;margin:-85px 0 0 -85px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#7CF5E1,#12B8A6 45%,#0A6C86);box-shadow:0 0 90px rgba(45,227,197,.75)">
+    <svg viewBox="0 0 24 24" style="position:absolute;inset:38px;width:94px;height:94px" fill="#fff"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 21c0-4.7 3.8-7.6 8.5-7.6s8.5 2.9 8.5 7.6z"/></svg>
+  </div>
+  <div id="chips"></div>
+  <div class="h c" id="s2a" style="top:120px;font-size:92px"></div>
+  <div class="h c" id="s2b" style="top:890px;font-size:54px;font-weight:400;color:#B8D8DC"></div>
+  <div id="flash" style="position:absolute;left:960px;top:520px;width:200px;height:200px;margin:-100px;z-index:20;border-radius:50%;background:radial-gradient(circle,#fff 0%,#E7FFFB 55%,#9FF3E6 100%);opacity:0"></div>
+</div>
+
+<!-- S3 meet -->
+<div class="scene light" id="s3">
+  <div class="blob" style="width:900px;height:900px;background:#7EEBDD;opacity:.75" data-b="-200,500,160,.6"></div>
+  <div class="blob" style="width:800px;height:800px;background:#8FD3FF;opacity:.7" data-b="1300,400,140,.8"></div>
+  <div class="h c" id="s3a" style="top:440px;font-size:170px"></div>
+  <img id="s3logo" src="img/logo_dark.png" style="position:absolute;left:960px;top:430px;width:1033px;margin:-92px 0 0 -516px">
+  <div class="pill" id="s3pill" style="left:960px;top:640px;height:104px;background:#fff;box-shadow:0 0 0 2px rgba(0,201,167,.5),0 0 60px rgba(14,165,233,.45),0 20px 50px rgba(15,23,42,.12);overflow:hidden">
+    <div class="h" id="s3tag" style="left:50px;top:24px;font-size:46px;letter-spacing:-.01em"></div>
+  </div>
+</div>
+
+<!-- S4 dashboard -->
+<div class="scene dark" id="s4">
+  <div class="blob" style="width:1100px;height:1100px;background:#0b6f73;opacity:.5" data-b="900,300,120,.5"></div>
+  <div class="blob" style="width:700px;height:700px;background:#0a4f8a;opacity:.5" data-b="-200,-200,100,.7"></div>
+  <div class="streak" style="width:1600px;left:300px;top:1000px;transform:rotate(-8deg)" data-s="1"></div>
+  <div class="mock" id="m4"><img class="scr" src="img/dashboard.png">
+    <img class="lift k" src="img/kpi1.png" style="left:264px;top:216px;width:276px">
+    <img class="lift k" src="img/kpi2.png" style="left:556px;top:216px;width:276px">
+    <img class="lift k" src="img/kpi3.png" style="left:848px;top:216px;width:276px">
+    <img class="lift k" src="img/kpi4.png" style="left:1140px;top:216px;width:276px">
+  </div>
+  <div id="scrim4" style="position:absolute;left:0;right:0;bottom:0;height:520px;background:linear-gradient(180deg,rgba(6,10,20,0),rgba(6,10,20,.92) 55%,#060A14)"></div>
+  <div class="h" id="s4a" style="left:110px;top:400px;font-size:84px;white-space:normal;width:520px"></div>
+  <div class="h c" id="s4b" style="top:860px;font-size:88px"></div>
+</div>
+
+<!-- S5 sidebar / in one place -->
+<div class="scene light" id="s5">
+  <div class="blob" style="width:900px;height:900px;background:#7EEBDD;opacity:.7" data-b="1100,300,140,.6"></div>
+  <div class="blob" style="width:700px;height:700px;background:#9AD8FF;opacity:.6" data-b="-150,-250,120,.8"></div>
+  <div id="sbwrap" style="position:absolute;left:1180px;top:0;width:480px;height:1800px;transform-style:preserve-3d">
+    <img src="img/side.png" style="width:480px;height:1800px;border-radius:26px;box-shadow:0 0 0 2px rgba(0,201,167,.55),0 0 90px rgba(14,165,233,.5),0 60px 120px rgba(15,23,42,.35)">
+    <div id="sbhi" style="position:absolute;left:14px;width:452px;height:60px;border-radius:14px;border:2.5px solid #2DE3C5;background:rgba(45,227,197,.16);box-shadow:0 0 40px rgba(45,227,197,.75)"></div>
+    <svg class="star" id="s5s" viewBox="-1 -1 2 2" style="width:60px;height:60px"><path d="M0,-1C.12,-.12 .12,-.12 1,0C.12,.12 .12,.12 0,1C-.12,.12 -.12,.12 -1,0C-.12,-.12 -.12,-.12 0,-1Z" fill="#2DE3C5"/></svg>
+  </div>
+  <div class="h" id="s5a" style="left:150px;top:290px;font-size:104px"></div>
+  <div id="s5roll" style="position:absolute;left:150px;top:410px;height:150px;width:900px;overflow:hidden"></div>
+  <div class="h" id="s5c" style="left:150px;top:570px;font-size:124px"></div>
+</div>
+
+<!-- S6 features -->
+<div class="scene dark" id="s6">
+  <div class="blob" style="width:1000px;height:1000px;background:#0b6f73;opacity:.5" data-b="500,200,150,.5"></div>
+  <div class="blob" style="width:700px;height:700px;background:#0a4f8a;opacity:.5" data-b="1400,500,100,.9"></div>
+  <div class="mock" id="m6a"><img class="scr" src="img/open_enquiries.png"></div>
+  <div class="mock" id="m6b"><img class="scr" src="img/invoices.png"></div>
+  <div id="pjs" style="position:absolute;left:1280px;top:520px;transform-style:preserve-3d"></div>
+  <div class="h" id="s6a" style="left:110px;top:420px;font-size:88px;white-space:normal;width:560px"></div>
+  <div class="h" id="s6b" style="left:1270px;top:420px;font-size:88px;white-space:normal;width:560px"></div>
+  <div class="h" id="s6c" style="left:110px;top:420px;font-size:88px;white-space:normal;width:640px"></div>
+  <div class="ripple" id="rip6"></div>
+  <svg class="cursor" id="cur6" viewBox="0 0 24 24"><path d="M4 2l15 9.2-6.6 1.5-3 6.5z" fill="#fff" stroke="#0F172A" stroke-width="1.3" stroke-linejoin="round"/></svg>
+</div>
+
+<!-- S7 connected -->
+<div class="scene dark" id="s7">
+  <div class="blob" style="width:1200px;height:900px;background:#0b6f73;opacity:.5" data-b="360,500,120,.5"></div>
+  <div class="streak" style="width:1700px;left:100px;top:170px;transform:rotate(4deg)" data-s="1"></div>
+  <div class="mock" id="m7a"><img class="scr" src="img/stock_control.png"></div>
+  <div class="mock" id="m7c"><img class="scr" src="img/debtors_management.png"></div>
+  <div class="mock" id="m7b"><img class="scr" src="img/factory.png"></div>
+  <div class="lab" id="l7a" style="left:330px;top:150px">Stock.</div>
+  <div class="lab" id="l7b" style="left:960px;top:110px">Factory.</div>
+  <div class="lab" id="l7c" style="left:1590px;top:150px">Debtors.</div>
+  <div class="h c" id="s7d" style="top:105px;font-size:120px"></div>
+</div>
+
+<!-- S8 statements -->
+<div class="scene bright" id="s8">
+  <div class="blob" style="width:900px;height:900px;background:#ffffff;opacity:.55" data-b="-200,-300,180,.8"></div>
+  <div class="blob" style="width:900px;height:900px;background:#0EA5E9;opacity:.5" data-b="1300,500,160,.6"></div>
+  <div class="h c" id="s8a" style="top:420px;font-size:190px"></div>
+  <div class="h c" id="s8b" style="top:420px;font-size:190px"></div>
+  <div class="h c" id="s8c" style="top:420px;font-size:190px"></div>
+</div>
+
+<!-- S9 outro -->
+<div class="scene dark" id="s9">
+  <div class="blob" style="width:1100px;height:1100px;background:#0b6f73;opacity:.55" data-b="410,60,60,.5"></div>
+  <div class="ring" id="o1"></div><div class="ring" id="o2"></div>
+  <div class="streak" style="width:1500px;left:-300px;top:900px;transform:rotate(-14deg)" data-s="1"></div>
+  <img id="s9logo" src="img/logo0.png" style="position:absolute;left:960px;top:400px;width:900px;margin:-80px 0 0 -450px">
+  <div class="h c" id="s9a" style="top:540px;font-size:64px;font-weight:400;color:#DDF3F2"></div>
+  <div class="pill" id="s9cta" style="left:960px;top:760px;width:400px;height:104px;margin-left:-200px;background:linear-gradient(90deg,#12C9AC,#0EA5E9);box-shadow:0 0 70px rgba(45,227,197,.6);text-align:center;font-size:44px;font-weight:600;line-height:104px;color:#fff">Book a demo</div>
+  <div class="h c" id="s9b" style="top:960px;font-size:28px;font-weight:400;letter-spacing:.04em;color:#7F9BB0">A product of GEM Information Systems</div>
+  <div class="trail" id="s9t"></div>
+  <svg class="star" id="s9s" viewBox="-1 -1 2 2"><path d="M0,-1C.12,-.12 .12,-.12 1,0C.12,.12 .12,.12 0,1C-.12,.12 -.12,.12 -1,0C-.12,-.12 -.12,-.12 0,-1Z" fill="#2DE3C5"/></svg>
+  <div class="ripple" id="rip9"></div>
+  <svg class="cursor" id="cur9" viewBox="0 0 24 24"><path d="M4 2l15 9.2-6.6 1.5-3 6.5z" fill="#fff" stroke="#0F172A" stroke-width="1.3" stroke-linejoin="round"/></svg>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const cl=(x,a=0,b=1)=>Math.min(b,Math.max(a,x)), L=(a,b,p)=>a+(b-a)*p;
+const E={out:x=>1-Math.pow(1-x,3),expo:x=>x>=1?1:1-Math.pow(2,-10*x),in:x=>x*x*x,io:x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2,
+  back:x=>{const c=1.70158;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)}};
+const P=(t,a,d)=>cl((t-a)/d);
+function T(el,str){el=$(el);el.innerHTML=str.split('|').map(line=>line.split(' ').map(w=>{const a=w[0]=='*';return `<span class="w${a?' acc':''}">${w.replace(/\*/g,'')}</span>`}).join(' ')).join('<br>')}
+function kt(id,s,t0,tOut,o={}){const el=$(id),st=o.st??.09,d=o.d??.6;[...el.querySelectorAll('.w')].forEach((w,i)=>{
+  const p=E.expo(P(s,t0+i*st,d)),q=tOut==null?0:E.in(P(s,tOut+i*.03,.32));
+  w.style.opacity=(p*(1-q)).toFixed(3);w.style.transform=`translateY(${((1-p)*70-q*60).toFixed(1)}px) scale(${L(.92,1,p).toFixed(3)})`;
+  const b=(1-p)*18+q*18;w.style.filter=b>.2?`blur(${b.toFixed(1)}px)`:'none'})}
+function tf(el,o){(typeof el=='string'?$(el):el).style.transform=`translate3d(${o.x||0}px,${o.y||0}px,${o.z||0}px) rotateX(${o.rx||0}deg) rotateY(${o.ry||0}deg) rotateZ(${o.rz||0}deg) scale(${o.s??1})`}
+function fx(el,o,b){el=typeof el=='string'?$(el):el;el.style.opacity=o;el.style.filter=b>.2?`blur(${b.toFixed(1)}px)`:'none'}
+function star(sid,tid,x,y,ang,rot,sc,o){const s=$(sid);s.style.opacity=o;s.style.transform=`translate(${x-35}px,${y-35}px) rotate(${rot}deg) scale(${sc})`;
+  if(tid){const tr=$(tid);tr.style.opacity=o*.9;tr.style.transform=`translate(${x-260}px,${y-5}px) rotate(${ang}deg)`}}
+function cursor(cid,rid,x,y,click,o){const c=$(cid);c.style.opacity=o;const k=1-.18*Math.sin(Math.PI*cl(click*2.5));c.style.transform=`translate(${x}px,${y}px) scale(${k})`;
+  const r=$(rid);r.style.opacity=click>0&&click<1?(1-click):0;r.style.transform=`translate(${x+6}px,${y+4}px) scale(${.3+click*1.3})`}
+
+// text
+T('s1a','Running a business');T('s1b',"shouldn't feel like *chaos.*");
+T('s2a','Too many *tools.*');T('s2b','Spreadsheets. Paper. Chat groups. Guesswork.');
+T('s3a','Meet');
+T('s4a','Your whole business.|*One* *view.*');T('s4b','Enquiries. Quotes. Sales. *Live.*');
+T('s5a','Handle');T('s5c','*in* *one* *place.*');
+T('s6a','Track every *enquiry.*');T('s6b','Invoice in *seconds.*');T('s6c','Keep every project *on* *track.*');
+T('s7d','All *connected.*');
+T('s8a','Less admin.');T('s8b','Better decisions.');T('s8c','More *profit.*');
+T('s9a',"Know what's making you *money.*");
+const TAG="Know what's making you money.";
+// chips
+const CH=[['Spreadsheets','#22C55E'],['WhatsApp groups','#25D366'],['Paper quotes','#FBBF24'],['Sticky notes','#F59E0B'],['Email threads','#60A5FA'],['Job cards','#F472B6'],['Whiteboards','#A78BFA'],['Month-end exports','#38BDF8'],['Phone calls','#FB7185']];
+$('chips').innerHTML=CH.map(c=>`<div class="chip"><i style="background:${c[1]}"></i>${c[0]}</div>`).join('');
+const ROLL=['Customers','Sales','Projects','Stock','Factory','Debtors','everything'];
+$('s5roll').innerHTML=ROLL.map(r=>`<div class="h rw" style="left:0;top:0;font-size:124px;color:#0F172A">${r}</div>`).join('');
+const SBY={Customers:220,Sales:377,Projects:744,Stock:804,Factory:774,Debtors:684,everything:684};
+$('pjs').innerHTML=[1,2,3,4,5,6].map(i=>`<img class="lift pj" src="img/pj${i}.png" style="left:-271px;top:-160px;width:542px">`).join('');
+
+const SC=[['s1',0,3.5],['s2',3.3,8.15],['s3',8.0,11.3],['s4',11.1,17.0],['s5',16.8,22.0],['s6',21.8,29.3],['s7',29.1,33.4],['s8',33.2,37.3],['s9',37.1,43]];
+const DUR=43;window.DUR=DUR;
+const R={};
+R.s1=s=>{kt('s1a',s,.15,1.35);kt('s1b',s,1.55,3.05);
+  const p=P(s,.3,2.9),x=L(-100,2050,E.io(p)),y=330-Math.sin(p*Math.PI)*170+p*380;
+  star('s1s','s1t',x,y,L(-22,38,p),s*220,1+.25*Math.sin(s*9),p>0&&p<1?1:0)};
+R.s2=s=>{kt('s2a',s,.25,3.9);kt('s2b',s,1.3,3.9,{st:.16});
+  const gather=E.in(P(s,3.75,.75));
+  [['r1',300],['r2',430],['r3',560]].forEach(([id,r],i)=>{const k=E.expo(P(s,.1+i*.12,.9))*(1-gather);const e=$(id);e.style.left=(960-r*k)+'px';e.style.top=(520-r*k*.42)+'px';e.style.width=(2*r*k)+'px';e.style.height=(2*r*k*.42)+'px';e.style.opacity=k});
+  const ob=E.back(P(s,0,.6));tf('orb',{s:ob*(1+.35*gather)+0.03*Math.sin(s*5)});
+  [...$('chips').children].forEach((c,i)=>{const p=E.expo(P(s,.45+i*.14,.7));const ring=i%2?560:400;const a=i/CH.length*Math.PI*2+s*(.55+gather*4)+(i%2?.4:0);
+    const r=ring*p*(1-gather),x=960+Math.cos(a)*r,y=520+Math.sin(a)*r*.42,d=(Math.sin(a)+1)/2,sc=L(.74,1.1,d)*p*(1-gather*.8);
+    c.style.transform=`translate(${x}px,${y}px) translate(-50%,-50%) scale(${sc.toFixed(3)})`;c.style.opacity=p*(1-gather)*L(.8,1,d);c.style.zIndex=Math.round(d*10);
+    const b=(1-p)*10+gather*14+(1-d)*1.2;c.style.filter=`blur(${b.toFixed(1)}px)`});
+  $('orb').style.zIndex=5;
+  const f=E.in(P(s,4.2,.5));$('flash').style.opacity=cl(f*1.6);$('flash').style.transform=`scale(${1+f*16})`};
+R.s3=s=>{kt('s3a',s,.15,.95);
+  const p=E.expo(P(s,1.05,.8));const lg=$('s3logo');lg.style.opacity=p;lg.style.transform=`scale(${L(1.7,1,p)})`;lg.style.filter=`blur(${((1-p)*26).toFixed(1)}px)`;
+  const q=E.back(P(s,1.55,.6));const n=Math.floor(cl((s-1.85)/.9)*TAG.length);$('s3tag').textContent=TAG.slice(0,n)+(n<TAG.length&&s>1.8?'|':'');
+  const w=L(110,790,E.io(P(s,1.75,.95)));const pl=$('s3pill');pl.style.width=w+'px';pl.style.marginLeft=(-w/2)+'px';pl.style.opacity=cl(q);pl.style.transform=`scale(${q})`};
+R.s4=s=>{const a=E.expo(P(s,.1,1.9)),b=E.io(P(s,3.0,1.1));
+  const A={x:L(260,290,a),y:L(760,20,a),rx:L(62,20,a),ry:L(-34,-16,a)+s*1.2,rz:L(14,3,a),s:L(.5,.78,a)};
+  const B={x:-215,y:250,rx:26,ry:-7+ (s-3)*1.0,rz:0,s:1.75};
+  tf('m4',{x:L(A.x,B.x,b),y:L(A.y,B.y,b),rx:L(A.rx,B.rx,b),ry:L(A.ry,B.ry,b),rz:L(A.rz,B.rz,b),s:L(A.s,B.s,b)});
+  $('m4').style.filter=a<.98?`blur(${((1-a)*14).toFixed(1)}px)`:'none';
+  document.querySelectorAll('#m4 .k').forEach((k,i)=>{const p=E.back(P(s,3.55+i*.16,.6));k.style.opacity=cl(P(s,3.0,.2));k.style.transform=`translate3d(0,${-p*10}px,${p*85}px)`});
+  $('scrim4').style.opacity=b;kt('s4a',s,.7,2.9,{st:.11});kt('s4b',s,3.9,5.45,{st:.2})};
+R.s5=s=>{kt('s5a',s,.2,null);
+  const step=.5,t0=.45;const idx=cl(Math.floor((s-t0)/step),0,ROLL.length-1);
+  [...document.querySelectorAll('.rw')].forEach((w,i)=>{const p=E.expo(P(s,t0+i*step,.38)),q=(i==ROLL.length-1)?0:E.out(P(s,t0+(i+1)*step,.3));
+    w.style.opacity=p*(1-q);w.style.transform=`translateY(${(1-p)*130-q*130}px)`;w.style.filter=`blur(${((1-p)*10+q*10).toFixed(1)}px)`});
+  kt('s5c',s,3.95,null,{st:.12});$('s5a').style.transform=`translateY(${-0*s}px)`;
+  // sidebar: positions in 2x px (480x1800)
+  let y=SBY[ROLL[0]];for(let i=1;i<ROLL.length;i++){y=L(y,SBY[ROLL[i]],E.io(P(s,t0+i*step-.08,.4)))}
+  const inp=E.expo(P(s,0,1.2));const hy=y*2-30;
+  tf('sbwrap',{x:L(500,0,inp),y:540-hy-30+L(300,0,inp),rx:8,ry:L(-50,-24,inp)+s*1.4,rz:L(8,2,inp),s:1.25});$('sbwrap').style.transformOrigin=`240px ${hy+30}px`;
+  $('sbhi').style.top=hy+'px';$('sbhi').style.opacity=P(s,.5,.3);
+  star('s5s',null,470,hy+30,0,s*200,(1+.3*Math.sin(s*10))*P(s,.5,.3),P(s,.5,.3))};
+R.s6=s=>{// beat a 0-2.5, b 2.5-5, c 5-7.5
+  const ai=E.expo(P(s,.05,1.1)),ao=E.in(P(s,2.25,.4));
+  tf('m6a',{x:L(900,330,ai)+ao*900,y:L(200,10,ai),rx:L(40,16,ai),ry:L(-45,-20,ai)+s*1.5,rz:L(10,2,ai),s:L(.5,.72,ai)});fx('m6a',cl(ai*1.5)*(1-ao),(1-ai)*14+ao*16);
+  kt('s6a',s,.35,2.2,{st:.12});
+  // cursor to "New Enquiry" button (approx projected)
+  const cp=E.io(P(s,.9,.8));cursor('cur6','rip6',L(1500,1748,cp),L(900,268-s*3,cp),P(s,1.75,.5),P(s,.8,.2)*(1-P(s,2.2,.2)));
+  const bi=E.expo(P(s,2.5,1.1)),bo=E.in(P(s,4.75,.4));
+  tf('m6b',{x:L(-900,-330,bi)-bo*900,y:L(200,10,bi),rx:L(40,16,bi),ry:L(45,20,bi)-(s-2.5)*1.5,rz:L(-10,-2,bi),s:L(.5,.72,bi)});fx('m6b',cl(bi*1.5)*(1-bo),(1-bi)*14+bo*16);
+  kt('s6b',s,2.85,4.7,{st:.12});
+  const co=E.in(P(s,7.15,.35));
+  document.querySelectorAll('.pj').forEach((c,i)=>{const p=E.expo(P(s,5.05+i*.13,.8));const k=i-2.5;
+    c.style.opacity=cl(p*1.4)*(1-co);c.style.transform=`translate3d(${k*46+ (1-p)*500}px,${k*108+(1-p)*260+co*-80}px,${-k*60+p*40}px) rotateX(${L(50,22,p)}deg) rotateY(${L(-50,-24,p)+ (s-5)*1.6}deg) rotateZ(${L(12,4,p)}deg)`;
+    c.style.filter=`blur(${((1-p)*12+co*14).toFixed(1)}px)`});
+  kt('s6c',s,5.3,7.1,{st:.11})};
+R.s7=s=>{const o=E.in(P(s,3.95,.35));
+  [['m7a',-630,38,0],['m7b',0,0,.18],['m7c',630,-38,.36]].forEach(([id,x,ry,d],i)=>{const p=E.expo(P(s,.1+d,1.0));
+    tf(id,{x:x*L(1.8,1,p),y:L(520,110,p)+Math.sin(s*1.3+i)*8,z:i==1?L(-300,120,p):L(-500,-140,p),rx:L(50,10,p),ry:ry+Math.sin(s*.9)*3,s:L(.4,i==1?.62:.56,p)});fx(id,cl(p*1.4)*(1-o),(1-p)*12+o*12)});
+  const lo=E.in(P(s,2.0,.3));[['l7a',.75],['l7b',.95],['l7c',1.15]].forEach(([id,t0])=>{const p=E.expo(P(s,t0,.5));const e=$(id);e.style.opacity=p*(1-lo);e.style.transform=`translateY(${(1-p)*50-lo*40}px)`;e.style.filter=`blur(${((1-p)*12+lo*12).toFixed(1)}px)`});
+  kt('s7d',s,2.25,3.9,{st:.14})};
+R.s8=s=>{kt('s8a',s,.15,1.15,{st:.1,d:.5});kt('s8b',s,1.3,2.35,{st:.1,d:.5});kt('s8c',s,2.5,3.75,{st:.12,d:.5});
+  ['s8a','s8b','s8c'].forEach((id,i)=>{$(id).style.transform=`scale(${1+.04*cl(s-[.15,1.3,2.5][i],0,2)})`})};
+R.s9=s=>{[['o1',380],['o2',560]].forEach(([id,r],i)=>{const k=E.expo(P(s,.1+i*.15,1.2));const e=$(id);const rr=r*k*(1+.02*Math.sin(s*2+i));e.style.left=(960-rr)+'px';e.style.top=(470-rr)+'px';e.style.width=e.style.height=(2*rr)+'px';e.style.opacity=k*.9});
+  const p=E.expo(P(s,.25,1.0));const lg=$('s9logo');lg.style.opacity=p;lg.style.transform=`scale(${L(1.6,1,p)+.012*cl(s-1.2,0,5)})`;lg.style.filter=`blur(${((1-p)*24).toFixed(1)}px) drop-shadow(0 0 40px rgba(45,227,197,.35))`;
+  kt('s9a',s,1.0,null,{st:.1});
+  const q=E.back(P(s,1.9,.6));const cta=$('s9cta');const ck=P(s,3.25,.5);cta.style.opacity=cl(q);cta.style.transform=`scale(${q*(1-.06*Math.sin(Math.PI*cl(ck*2.5)))})`;
+  fx('s9b',P(s,2.3,.6),0);
+  const cp=E.io(P(s,2.35,.8));cursor('cur9','rip9',L(1500,1010,cp),L(1120,800,cp),ck,P(s,2.3,.2));
+  const sp=P(s,.5,1.5),x=L(300,1650,E.io(sp)),y=250-Math.sin(sp*Math.PI)*120;star('s9s','s9t',x,y,L(-25,25,sp),s*220,1+.25*Math.sin(s*9),sp>0&&sp<1?1:0)};
+
+window.render=function(t){
+  for(const [id,a,b] of SC){const el=$(id);if(t<a||t>=b){el.style.display='none';continue}
+    el.style.display='block';const s=t-a,inn=P(t,a,.28),out=(id=='s9'||id=='s2')?0:P(t,b-.22,.22);
+    el.style.opacity=(a==0?1:E.out(inn))*(1-out);el.style.zIndex=Math.round(a*10);
+    el.querySelectorAll('.blob').forEach((bl,i)=>{const [x,y,r,sp]=bl.dataset.b.split(',').map(Number);bl.style.transform=`translate(${x+Math.cos(t*sp+i*2)*r}px,${y+Math.sin(t*sp*1.3+i)*r}px)`});
+    el.querySelectorAll('.streak').forEach(st=>{const d=+st.dataset.s;st.style.marginLeft=(d*((t*140)%900-450))+'px';st.style.opacity=.3+.25*Math.sin(t*1.7)});
+    R[id](s)}
+  if(t>=DUR-.6){$('s9').style.opacity=1-P(t,DUR-.6,.6)}
+};
+</script></body></html>
