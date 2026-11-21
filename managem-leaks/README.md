@@ -1,6 +1,7 @@
 # ManaGEM — "LEAKS" advert (Pain Point #3)
 
-`ManaGEM-LEAKS-45s-9x16.mp4` is the 45-second vertical hero cut, built from the
+`ManaGEM-LEAKS-45s-16x9.mp4` is the 45-second desktop (1920×1080) hero cut and
+`ManaGEM-LEAKS-45s-9x16.mp4` is the vertical social version, both built from the
 "LEAKS" script and the avatar sheet (`WhatsApp Image 2026-11-20 at 14.14.25.jpeg`).
 
 ## What this cut is — and is not
@@ -28,14 +29,13 @@ This is a **v1 animated cut**, not yet the fully AI-animated film.
 | Script | This cut | Why |
 | --- | --- | --- |
 | Faceless male contractor | The roofer avatar, face visible | Brief asked for the uploaded avatars |
-| 16:9 master | 9:16 master | Reference reels are all vertical |
 | "Send Reminder" click | Row menu showing View Account / Log Interaction / Send Statement | That is what the prototype shows |
 | Product margin bars, 4% flagged red | Price and cost columns, MB-104 highlighted | No margin bars in the prototype |
 | End card URL | "Book a demo", no URL | URL still an open question in the script |
 
 ## Finishing it with real character animation
 
-Each still in `stills/` is a ready start frame for image-to-video. Suggested
+Each still in `stills/` (vertical) and `stills/16x9/` (desktop) is a ready start frame for image-to-video. Suggested
 motion prompts:
 
 1. `s01.png` — "Gloved hands push the roller forward along the crack, wet
@@ -59,6 +59,6 @@ holds the cut points; `CAPS` holds the subtitle timings).
 cd src
 ffmpeg -i voiceover.mp3 -ar 44100 -ac 1 vo.wav
 python3 audio.py                 # writes audio.wav (needs numpy, scipy)
-mkdir frames && node render.js frames   # needs playwright
+mkdir frames && node render169.js frames   # desktop; render.js for vertical (needs playwright)
 ffmpeg -framerate 30 -i frames/f%05d.jpg -i audio.wav -c:v libx264 -pix_fmt yuv420p -crf 17 -c:a aac -b:a 192k out.mp4
 ```
